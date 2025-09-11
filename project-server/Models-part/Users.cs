@@ -3,9 +3,9 @@
     public class Users
     {
         public int Id { get; set; }
-        public string email { get; set; }
-        public string hash_pass { get; set; }
-        public string username { get; set; }
-        public string salt { get; set; }
+        public string Email { get; set; }
+        public string Hash_pass { get; set; }
+        public string Username { get; set; }
+        public string Salt { get; set; }
     }
 }
