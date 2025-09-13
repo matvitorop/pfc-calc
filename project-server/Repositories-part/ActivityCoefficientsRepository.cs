@@ -1,36 +1,31 @@
-﻿using project_server.Models;
-using Dapper;
-using System.Data;
-using System.Data.SqlClient;
+﻿using Dapper;
 using Microsoft.Data.SqlClient;
-namespace project_server
+
+namespace project_server.Repositories
 {
-    public class DietsRepository
+    public class ActivityCoefficientsRepository
     {
         private readonly string _connectionString;
-        public DietsRepository(IConfiguration config)
+        public ActivityCoefficientsRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
 
 
-        public async Task<List<Diets>> GetItems()
+        public async Task<List<ActivityCoefficients>> GetItems()
         {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                string sql = @"SELECT * FROM Diets";
-                var result = await connection.QueryAsync<Diets>(sql);
+                string sql = @"SELECT * FROM ActivityCoefficients";
+                var result = await connection.QueryAsync<ActivityCoefficients>(sql);
                 return result.ToList();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new List<Diets>();
+                return new List<ActivityCoefficients>();
             }
         }
-
-
-
     }
 }

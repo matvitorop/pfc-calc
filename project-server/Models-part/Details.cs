@@ -3,7 +3,7 @@
     public class Details
     {
         public int id { get; set; }
-        public int user_id { get; set; }
+        public int? user_id { get; set; }
         public DateTime age { get; set; }
 
         public float weight { get; set; }

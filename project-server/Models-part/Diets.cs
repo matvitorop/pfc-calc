@@ -1,4 +1,4 @@
-﻿namespace project_server.Models
+﻿namespace project_server
 {
     public class Diets
     {
