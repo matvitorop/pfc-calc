@@ -15,23 +15,8 @@ namespace project_server.Repositories_part
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
-        private static string HashPassword(string password, string salt)
-        {
-            using var sha256 = SHA256.Create();
-            var combined = Encoding.UTF8.GetBytes(password + salt);
-            var hash = sha256.ComputeHash(combined);
-            return Convert.ToBase64String(hash);
-        }
 
-        private static string GenerateSalt()
-        {
-            var bytes = new byte[16];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(bytes);
-            return Convert.ToBase64String(bytes);
-        }
-
-        public async Task<Users?> CreateAsync(string email, string password, string username)
+        public async Task<Users?> CreateAsync(string email, string hashPassword, string username, string salt)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
@@ -41,9 +26,6 @@ namespace project_server.Repositories_part
 
             if (exist > 0) return null;
 
-            var salt = GenerateSalt();
-            var hashPass = HashPassword(password, salt);
-
             var sql = @"
             INSERT INTO Users(email, hash_pass, username, salt)
             OUTPUT INSERTED.*
@@ -52,7 +34,7 @@ namespace project_server.Repositories_part
             var user = await db.QuerySingleAsync<Users>(sql, new
             {
                 Email = email,
-                HashPass = hashPass,
+                HashPass = hashPassword,
                 Username = username,
                 Salt = salt
             });
@@ -60,20 +42,20 @@ namespace project_server.Repositories_part
             return user;
         }
         
-        public async Task<Users?> AuthenticaеteAsync(string email, string password)
-        {
-            using IDbConnection db = new SqlConnection(_connectionString);
-
-            var user = await db.QueryFirstOrDefaultAsync<Users>(
-                "SELECT * FROM Users WHERE email = @Email",
-                new { Email = email });
-
-            if (user == null) return null;
-
-            var passwordHash = HashPassword(password, user.Salt);
-
-            return passwordHash == user.Hash_pass ? user : null;
-        }
+        //public async Task<Users?> AuthenticaеteAsync(string email, string password)
+        //{
+        //    using IDbConnection db = new SqlConnection(_connectionString);
+        //
+        //    var user = await db.QueryFirstOrDefaultAsync<Users>(
+        //        "SELECT * FROM Users WHERE email = @Email",
+        //        new { Email = email });
+        //
+        //    if (user == null) return null;
+        //
+        //    var passwordHash = HashPassword(password, user.Salt);
+        //
+        //    return passwordHash == user.Hash_pass ? user : null;
+        //}
 
         public async Task<Users?> DeleteAsync(int id)
         {
@@ -85,6 +67,14 @@ namespace project_server.Repositories_part
             WHERE id = @Id";
 
             return await db.QueryFirstOrDefaultAsync<Users>(sql, new { Id = id });
+        }
+        public async Task<Users?> GetByEmailAsync(string email)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            return await db.QuerySingleOrDefaultAsync<Users>(
+                "SELECT * FROM Users WHERE email = @Email",
+                new { Email = email });
         }
 
         public async Task<Users?> UpdateEmailAsync(int id, string newEmail)
@@ -119,12 +109,9 @@ namespace project_server.Repositories_part
             return await db.QueryFirstOrDefaultAsync<Users>(sql, new { Username = newUsername, Id = id });
         }
 
-        public async Task<Users?> UpdatePasswordAsync(int id, string newPassword)
+        public async Task<Users?> UpdatePasswordAsync(int id, string newHash, string newSalt)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
-
-            var newSalt = GenerateSalt();
-            var newHash = HashPassword(newPassword, newSalt);
 
             var sql = @"
             UPDATE Users
