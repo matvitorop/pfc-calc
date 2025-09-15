@@ -15,27 +15,45 @@ namespace project_server.Repositories
         {
             _db = db;
         }
-        public async Task AddDay(DaysModel daysModel)
+        public async Task<DaysModel> AddDay(DaysModel daysModel)
         {
             var sql = @"INSERT INTO Days (user_id, day, meal_type_id, item_id, measurement)
+                        OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
                     VALUES (@UserId, @DayDate, @MealTypeId, @ItemId, @Measurement)";
-            await _db.ExecuteAsync(sql, daysModel);
+            var insertedDay = await _db.QuerySingleAsync<DaysModel>(sql, daysModel);
+            return insertedDay;
+
         }
         public async Task<DaysModel?> GetDay(int userId, DateTime day)
         {
             var sql = "SELECT * FROM Days WHERE user_id = @UserId AND day = @Day";
-            return await _db.QueryFirstOrDefaultAsync<DaysModel>(sql, new { UserId = userId, Day = day });
+            var gotDay = await _db.QueryFirstOrDefaultAsync<DaysModel>(sql, new { UserId = userId, Day = day });
+
+            return gotDay ?? new DaysModel
+            {
+                UserId = userId,
+                Day = day
+            };
         }
-        public async Task ChangeMeasurementDay(int id, double measurement)
+        public async Task<DaysModel> ChangeMeasurementDay(int id, double measurement)
         {
-            var sql = "UPDATE Days SET measurement = @Measurement WHERE id = @Id";
-            await _db.ExecuteAsync(sql, new { Id = id, Measurement = measurement });
+            var sql = @"UPDATE Days SET measurement = @Measurement
+                        OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
+                        WHERE id = @Id";
+
+            var updatedDay = await _db.QueryFirstOrDefaultAsync<DaysModel>(sql, new { Id = id, Measurement = measurement });
+            return updatedDay;
         }
 
-        public async Task DeleteDay(int id)
+        public async Task<DaysModel?> DeleteDay(int id)
         {
-            var sql = "DELETE FROM Days WHERE id = @Id";
-            await _db.ExecuteAsync(sql, new { Id = id });
+            var sql = @"DELETE FROM Days
+                        OUTPUT DELETED.id, DELETED.user_id, DELETED.day, DELETED.meal_type_id, DELETED.item_id, DELETED.measurement
+                        WHERE id = @Id";
+
+            var deletedDay = await _db.QueryFirstOrDefaultAsync<DaysModel>(sql, new { Id = id });
+            return deletedDay;
         }
+
     }
 }

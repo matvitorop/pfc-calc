@@ -12,16 +12,18 @@ namespace project_server.Repositories
         {
             _db = db;
         }
-        public async Task AddItem(ItemCaloriesModel calories)
+        public async Task<ItemCaloriesModel> AddItem(ItemCaloriesModel calories)
         {
-            var sql = "INSERT INTO ItemCalories (item_id, calories) VALUES (@ItemId, @Calories)";
-            await _db.ExecuteAsync(sql, calories);
+            var sql = "INSERT INTO ItemCalories (item_id, calories) OUTPUT INSERTED.id, INSERTED.item_id, INSERTED.calories VALUES (@ItemId, @Calories)";
+            var insertedItem = await _db.QuerySingleAsync<ItemCaloriesModel>(sql, calories);
+            return insertedItem;
         }
 
         public async Task<ItemCaloriesModel?> GetItem(int itemId)
         {
             var sql = "SELECT * FROM ItemCalories WHERE item_id = @ItemId";
-            return await _db.QueryFirstOrDefaultAsync<ItemCaloriesModel>(sql, new { ItemId = itemId });
+            var gotItem = await _db.QueryFirstOrDefaultAsync<ItemCaloriesModel>(sql, new { ItemId = itemId });
+            return gotItem;
         }
     }
 }
