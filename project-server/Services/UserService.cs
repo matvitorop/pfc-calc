@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using project_server.Models_part;
+﻿using project_server.Models_part;
 using project_server.Repositories_part;
 
 namespace project_server.Services_part
