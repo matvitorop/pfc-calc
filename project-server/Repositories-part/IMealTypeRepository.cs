@@ -4,7 +4,7 @@ namespace project_server.Repositories_part
 {
     public interface IMealTypeRepository
     {
-        Task<IEnumerable<Meal_Types>> GetById(int id);
-        Task<Meal_Types?> CreateAsync(int userId, string name);
+        Task<IEnumerable<MealTypes>> GetById(int id);
+        Task<MealTypes?> CreateAsync(int userId, string name);
     }
 }

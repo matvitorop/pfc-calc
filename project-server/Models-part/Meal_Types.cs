@@ -1,9 +1,9 @@
 ﻿namespace project_server.Models_part
 {
-    public class Meal_Types
+    public class MealTypes
     {
         public int Id { get; set; }
-        public int User_id { get; set; }
-        public string Name { get; set; }
+        public int UserId { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

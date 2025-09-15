@@ -41,21 +41,6 @@ namespace project_server.Repositories_part
 
             return user;
         }
-        
-        //public async Task<Users?> AuthenticaеteAsync(string email, string password)
-        //{
-        //    using IDbConnection db = new SqlConnection(_connectionString);
-        //
-        //    var user = await db.QueryFirstOrDefaultAsync<Users>(
-        //        "SELECT * FROM Users WHERE email = @Email",
-        //        new { Email = email });
-        //
-        //    if (user == null) return null;
-        //
-        //    var passwordHash = HashPassword(password, user.Salt);
-        //
-        //    return passwordHash == user.Hash_pass ? user : null;
-        //}
 
         public async Task<Users?> DeleteAsync(int id)
         {

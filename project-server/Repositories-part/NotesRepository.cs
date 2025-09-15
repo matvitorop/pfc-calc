@@ -45,7 +45,7 @@ namespace project_server.Repositories_part
 
         public async Task<Notes?> DeleteNoteAsync(int noteId)
         {
-            IDbConnection db = new SqlConnection(_coonnectionString);
+            using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"DELETE FROM Notes
                     OUTPUT DELETED.*
                     WHERE Id = @NoteId";
@@ -56,10 +56,10 @@ namespace project_server.Repositories_part
 
         public async Task<IEnumerable<Notes>> GetActiveNotesAsync(int userId)
         {
-            IDbConnection db = new SqlConnection(_coonnectionString);
+            using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"
                     SELECT * FROM NOTES
-                    WHERE user_id = @UserId AND is_completd = 0
+                    WHERE user_id = @UserId AND is_completed = 0
                     ORDER BY due_date ASC;";
 
             return await db.QueryAsync<Notes>(sql, new { UserId = userId });
@@ -67,18 +67,13 @@ namespace project_server.Repositories_part
 
         public async Task<IEnumerable<Notes>> GetCompletedNotesAsync(int userId)
         {
-            IDbConnection db = new SqlConnection(_coonnectionString);
+            using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"
                     SELECT * FROM NOTES
-                    WHERE user_id = @UserId AND is_completd = 1
+                    WHERE user_id = @UserId AND is_completed = 1
                     ORDER BY completed_date DESC;";
 
             return await db.QueryAsync<Notes>(sql, new { UserId = userId });
-        }
-
-        public Task<Notes?> UpdateNoteAsync(int noteId)
-        {
-            throw new NotImplementedException();
         }
     }
 }
