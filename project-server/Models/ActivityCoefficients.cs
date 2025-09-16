@@ -1,4 +1,4 @@
-﻿namespace project_server
+﻿namespace project_server.Models
 {
     public class ActivityCoefficients
     {

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using project_server.Models;
 
 namespace project_server.Repositories
 {
