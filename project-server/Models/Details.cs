@@ -2,19 +2,19 @@
 {
     public class Details
     {
-        public int id { get; set; }
-        public int? user_id { get; set; }
-        public DateTime age { get; set; }
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public DateTime Age { get; set; }
 
-        public float weight { get; set; }
+        public float Weight { get; set; }
 
-        public float height { get; set; }
+        public float Height { get; set; }
 
-        public int visits_streak { get; set; }
+        public int VisitsStreak { get; set; }
 
-        public int activity_coef_id { get; set; }
+        public int ActivityCoefId { get; set; }
 
-        public int  diet_id { get; set; }
+        public int  DietId { get; set; }
     }
 }
 /*

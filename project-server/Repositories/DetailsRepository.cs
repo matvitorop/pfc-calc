@@ -15,43 +15,40 @@ namespace project_server.Repositories
 
         public async Task<Details?> AddItems(Details details)
         {
-            if (details.user_id == null)
-                return null;
-
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                string sql = @"INSERT INTO Details (user_id, age, weight, height, visits_streak, activity_coef_id, diet_id)
-                    OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.age, INSERTED.weight, INSERTED.height,
-                    INSERTED.visits_streak, INSERTED.activity_coef_id, INSERTED.diet_id
-                    VALUES (@user_id, @age, @weight, @height, @visits_streak, @activity_coef_id, @diet_id);";
-                var newDetails  = await connection.QuerySingleOrDefaultAsync<Details>(sql, details);
-                return newDetails;
+            using var connection = new SqlConnection(_connectionString);
+            string sql = @"
+                INSERT INTO Details (user_id, age, weight, height, visits_streak, activity_coef_id, diet_id)
+                OUTPUT INSERTED.id AS Id, 
+                        INSERTED.user_id AS UserId, 
+                        INSERTED.age AS Age, 
+                        INSERTED.weight AS Weight, 
+                        INSERTED.height AS Height,
+                        INSERTED.visits_streak AS VisitsStreak, 
+                        INSERTED.activity_coef_id AS ActivityCoefId, 
+                        INSERTED.diet_id AS DietId
+            VALUES (@UserId, @Age, @Weight, @Height, @VisitsStreak, @ActivityCoefId, @DietId);";
+            var newDetails  = await connection.QuerySingleOrDefaultAsync<Details>(sql, details);
+            return newDetails;
                 
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                return null;
-            }
+            
         }
         public async Task<Details?> GetItems(int userId)
         {
-
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                string sql = @"SELECT id, user_id, age, weight, height, visits_streak, activity_coef_id, diet_id
-                       FROM Details
-                       WHERE user_id = @userId;";
-                var result = await connection.QuerySingleOrDefaultAsync<Details>(sql, new { userId });
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                return null;
-            }
+            using var connection = new SqlConnection(_connectionString);
+            string sql = @"
+                SELECT id              AS Id,
+                       user_id         AS UserId,
+                       age             AS Age,
+                       weight          AS Weight,
+                       height          AS Height,
+                       visits_streak   AS VisitsStreak,
+                       activity_coef_id AS ActivityCoefId,
+                       diet_id          AS DietId
+                FROM Details
+                WHERE user_id = @UserId;";
+            var result = await connection.QuerySingleOrDefaultAsync<Details>(sql, new { UserId = userId });
+            return result;
+           
         }
 
 
@@ -61,26 +58,33 @@ namespace project_server.Repositories
                 "age", "weight", "height", "visits_streak", "activity_coef_id", "diet_id"
             };
 
-            try
+            
+            if (!allowedFields.Contains(fieldName.ToLower()))
             {
-                if (!allowedFields.Contains(fieldName.ToLower()))
-                {
-                    Debug.WriteLine($" {fieldName} isn`t allowed to update");
-                    return null;
-                }
-
-                using var connection = new SqlConnection(_connectionString);
-                string sql = $"UPDATE Details SET {fieldName} = @value OUTPUT INSERTED.* WHERE user_id = @userId";
-                var updatedDetails = await connection.QuerySingleOrDefaultAsync<Details>(sql, new { value, userId });
-                return updatedDetails;
-            }
-            catch (Exception ex)
-            {
-
-                Debug.WriteLine(ex);
+                Debug.WriteLine($" {fieldName} isn`t allowed to update");
                 return null;
             }
+
+            using var connection = new SqlConnection(_connectionString);
+            string sql = $@"
+                UPDATE Details 
+                SET {fieldName} = @value 
+                OUTPUT 
+                    INSERTED.id               AS Id,
+                    INSERTED.user_id          AS UserId,
+                    INSERTED.age              AS Age,
+                    INSERTED.weight           AS Weight,
+                    INSERTED.height           AS Height,
+                    INSERTED.visits_streak    AS VisitsStreak,
+                    INSERTED.activity_coef_id AS ActivityCoefId,
+                    INSERTED.diet_id          AS DietId
+                WHERE user_id = @UserId";
+            var updatedDetails = await connection.QuerySingleOrDefaultAsync<Details>(sql, new { value, UserId = userId });
+            return updatedDetails;
+
         }
+       
+        
 
     }
 }
