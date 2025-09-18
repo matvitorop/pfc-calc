@@ -13,7 +13,7 @@ namespace project_server.Repositories
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<Details?> AddItems(Details details)
+        public async Task<Details?> AddItemsAsync(Details details)
         {
             using var connection = new SqlConnection(_connectionString);
             string sql = @"
@@ -32,7 +32,7 @@ namespace project_server.Repositories
                 
             
         }
-        public async Task<Details?> GetItems(int userId)
+        public async Task<Details?> GetItemsAsync(int userId)
         {
             using var connection = new SqlConnection(_connectionString);
             string sql = @"
@@ -52,7 +52,7 @@ namespace project_server.Repositories
         }
 
 
-        public async Task<Details?> UpdateDetails(int userId, string fieldName, object value)
+        public async Task<Details?> UpdateDetailsAsync(int userId, string fieldName, object value)
         {
             var allowedFields = new HashSet<string>{
                 "age", "weight", "height", "visits_streak", "activity_coef_id", "diet_id"

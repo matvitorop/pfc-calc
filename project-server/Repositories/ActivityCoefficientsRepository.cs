@@ -13,7 +13,7 @@ namespace project_server.Repositories
         }
 
 
-        public async Task<List<ActivityCoefficients>> GetItems()
+        public async Task<List<ActivityCoefficients>> GetItemsAsync()
         {
             try
             {

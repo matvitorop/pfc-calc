@@ -14,7 +14,7 @@ namespace project_server.Repositories
         }
 
 
-        public async Task<List<Diets>> GetItems()
+        public async Task<List<Diets>> GetItemsAsync()
         {
            
             using var connection = new SqlConnection(_connectionString);
