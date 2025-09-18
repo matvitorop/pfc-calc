@@ -6,5 +6,6 @@ namespace project_server.Repositories_part
     {
         Task<IEnumerable<MealTypes>> GetById(int id);
         Task<MealTypes?> CreateAsync(int userId, string name);
+        Task<MealTypes?> DeleteAsync(int userId, string name);
     }
 }

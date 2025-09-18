@@ -26,6 +26,17 @@ namespace project_server.Repositories_part
 
         }
 
+        public async Task<MealTypes?> DeleteAsync(int userId, string name)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = "DELETE FROM Meal_Types " +
+                "OUTPUT DELETED.*" +
+                "WHERE name = @Name AND user_id = @UserId";
+
+            return await db.QuerySingleOrDefaultAsync<MealTypes>(sql, new { Name = name, UserId = userId }); ;
+        }
+
         public async Task<IEnumerable<MealTypes>> GetById(int id)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
