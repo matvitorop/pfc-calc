@@ -7,11 +7,3 @@
         public float Value { get; set; }
     }
 }
-/*
- 
-    id INT IDENTITY PRIMARY KEY,
-    name NVARCHAR(100) NOT NULL,
-    value FLOAT NOT NULL
-
- 
- */

@@ -17,18 +17,3 @@
         public int  DietId { get; set; }
     }
 }
-/*
- 
- id INT IDENTITY PRIMARY KEY,
-    user_id INT UNIQUE NOT NULL,
-    age INT NOT NULL,
-    weight FLOAT NOT NULL,
-    height FLOAT NOT NULL,
-    days_of_activity INT DEFAULT 0,
-    last_activity_date DATE,
-    activity_coef_id INT,
-    diet_id INT,
-
- 
- 
- */

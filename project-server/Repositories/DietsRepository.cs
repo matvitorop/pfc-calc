@@ -20,12 +20,12 @@ namespace project_server.Repositories
             using var connection = new SqlConnection(_connectionString);
             string sql = @"
                 SELECT  
-                       id              AS Id,
-                       name            AS Name,
-                       description     AS Description,
-                       protein_perc    AS ProteinPerc,
-                       fats_perc       AS FatsPerc,
-                       carbs_perc       AS CarbsPerc,
+                       id              ,
+                       name            ,
+                       description     ,
+                       protein_perc    ,
+                       fats_perc       ,
+                       carbs_perc       ,
                 FROM Diets";
             var result = await connection.QueryAsync<Diets>(sql);
             return result.ToList();

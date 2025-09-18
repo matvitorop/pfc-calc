@@ -18,7 +18,7 @@ namespace project_server.Repositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                string sql = @"SELECT id as Id, name as Name, value as Value FROM ActivityCoefficients";
+                string sql = @"SELECT id, name, value FROM ActivityCoefficients";
                 var result = await connection.QueryAsync<ActivityCoefficients>(sql);
                 return result.ToList();
             }
