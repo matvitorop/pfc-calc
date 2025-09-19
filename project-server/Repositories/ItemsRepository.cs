@@ -16,7 +16,7 @@ namespace project_server.Repositories
             _db = db;
         }
 
-        public async Task<ItemsModel> AddItem(ItemsModel items)
+        public async Task<ItemsModel> AddItemAsync(ItemsModel items)
         {
             var sql = @"INSERT INTO Items (user_id, name, proteins, fats, carbs, description, is_api, api_id)
                         OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.name, INSERTED.proteins, INSERTED.fats, INSERTED.carbs, INSERTED.description, INSERTED.is_api, INSERTED.api_id
@@ -25,7 +25,7 @@ namespace project_server.Repositories
             return insertedItem;
         }
 
-        public async Task<ItemsModel?> GetItem(string name, int userId)
+        public async Task<ItemsModel?> GetItemAsync(string name, int userId)
         {
             var sql = "SELECT * FROM Items WHERE name = @Name AND user_id = @UserId";
             var gotItem = await _db.QueryFirstOrDefaultAsync<ItemsModel>(sql, new { Name = name, UserId = userId });
@@ -36,7 +36,7 @@ namespace project_server.Repositories
             };
         }
 
-        public async Task<ItemsModel> ChangeItem(int itemId, string? apiId, int userId, string name, double proteins, double fats, double carbs, string? description)
+        public async Task<ItemsModel> ChangeItemAsync(int itemId, string? apiId, int userId, string name, double proteins, double fats, double carbs, string? description)
         {
             var sql = @"UPDATE Items 
                     SET api_id = @ApiId, user_id = @UserId, name = @Name, proteins = @Proteins, fats = @Fats, carbs = @Carbs, description = @Description 

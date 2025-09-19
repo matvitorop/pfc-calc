@@ -15,7 +15,7 @@ namespace project_server.Repositories
         {
             _db = db;
         }
-        public async Task<DaysModel> AddDay(DaysModel daysModel)
+        public async Task<DaysModel> AddDayAsync(DaysModel daysModel)
         {
             var sql = @"INSERT INTO Days (user_id, day, meal_type_id, item_id, measurement)
                         OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
@@ -24,7 +24,7 @@ namespace project_server.Repositories
             return insertedDay;
 
         }
-        public async Task<DaysModel?> GetDay(int userId, DateTime day)
+        public async Task<DaysModel?> GetDayAsync(int userId, DateTime day)
         {
             var sql = "SELECT * FROM Days WHERE user_id = @UserId AND day = @Day";
             var gotDay = await _db.QueryFirstOrDefaultAsync<DaysModel>(sql, new { UserId = userId, Day = day });
@@ -35,7 +35,7 @@ namespace project_server.Repositories
                 Day = day
             };
         }
-        public async Task<DaysModel> ChangeMeasurementDay(int id, double measurement)
+        public async Task<DaysModel> ChangeMeasurementDayAsync(int id, double measurement)
         {
             var sql = @"UPDATE Days SET measurement = @Measurement
                         OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
@@ -45,7 +45,7 @@ namespace project_server.Repositories
             return updatedDay;
         }
 
-        public async Task<DaysModel?> DeleteDay(int id)
+        public async Task<DaysModel?> DeleteDayAsync(int id)
         {
             var sql = @"DELETE FROM Days
                         OUTPUT DELETED.id, DELETED.user_id, DELETED.day, DELETED.meal_type_id, DELETED.item_id, DELETED.measurement
