@@ -14,18 +14,18 @@ namespace project_server.Repositories
         }
 
 
-        public async Task<List<Diets>> GetItemsAsync()
+        public async Task<List<Diets>> GetDietsAsync()
         {
            
             using var connection = new SqlConnection(_connectionString);
             string sql = @"
                 SELECT  
-                       id              ,
-                       name            ,
-                       description     ,
-                       protein_perc    ,
-                       fats_perc       ,
-                       carbs_perc       ,
+                       id,
+                       name,
+                       description,
+                       protein_perc,
+                       fats_perc,
+                       carbs_perc,
                 FROM Diets";
             var result = await connection.QueryAsync<Diets>(sql);
             return result.ToList();

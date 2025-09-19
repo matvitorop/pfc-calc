@@ -13,20 +13,14 @@ namespace project_server.Repositories
         }
 
 
-        public async Task<List<ActivityCoefficients>> GetItemsAsync()
+        public async Task<List<ActivityCoefficients>> GetAcitivityCoefsAsync()
         {
-            try
-            {
-                using var connection = new SqlConnection(_connectionString);
-                string sql = @"SELECT id, name, value FROM ActivityCoefficients";
-                var result = await connection.QueryAsync<ActivityCoefficients>(sql);
-                return result.ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return new List<ActivityCoefficients>();
-            }
+            
+            using var connection = new SqlConnection(_connectionString);
+            string sql = @"SELECT id, name, value FROM ActivityCoefficients";
+            var result = await connection.QueryAsync<ActivityCoefficients>(sql);
+            return result.ToList();
+            
         }
     }
 }
