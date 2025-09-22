@@ -5,10 +5,10 @@ using project_server.Models;
 using project_server.Interfaces;
 namespace project_server.Services
 {
-    public class ItemService
+    public class ItemService: IItemService
     {
-        private readonly ItemCaloriesRepository _itemCaloriesRepository;
-        public ItemService(ItemCaloriesRepository itemCaloriesRepository)
+        private readonly IItemCaloriesRepository _itemCaloriesRepository;
+        public ItemService(IItemCaloriesRepository itemCaloriesRepository)
         {
             _itemCaloriesRepository=itemCaloriesRepository;
         }

@@ -18,9 +18,9 @@ namespace project_server.Repositories
 
         public async Task<ItemsModel> AddItemAsync(ItemsModel items)
         {
-            var sql = @"INSERT INTO Items (user_id, name, proteins, fats, carbs, description, is_api, api_id)
-                        OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.name, INSERTED.proteins, INSERTED.fats, INSERTED.carbs, INSERTED.description, INSERTED.is_api, INSERTED.api_id
-                    VALUES (@UserId, @Name, @Proteins, @Fats, @Carbs, @Description, @IsApi, @ApiId)";
+            var sql = @"INSERT INTO Items (user_id, name, proteins, fats, carbs, description, api_id)
+                        OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.name, INSERTED.proteins, INSERTED.fats, INSERTED.carbs, INSERTED.description, INSERTED.api_id
+                    VALUES (@UserId, @Name, @Proteins, @Fats, @Carbs, @Description, @ApiId)";
             var insertedItem = await _db.QuerySingleAsync<ItemsModel>(sql, items);
             return insertedItem;
         }

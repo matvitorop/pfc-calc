@@ -19,7 +19,7 @@ namespace project_server.Repositories
         {
             var sql = @"INSERT INTO Days (user_id, day, meal_type_id, item_id, measurement)
                         OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
-                    VALUES (@UserId, @DayDate, @MealTypeId, @ItemId, @Measurement)";
+                    VALUES (@UserId, @Day, @MealTypeId, @ItemId, @Measurement)";
             var insertedDay = await _db.QuerySingleAsync<DaysModel>(sql, daysModel);
             return insertedDay;
 

@@ -12,7 +12,7 @@
         public ItemCaloriesModel ItemCalories { get; set; }
         public string? Description { get; set; }
 
-        public bool IsApi { get; set; }
+//        public bool IsApi { get; set; }
         public string? ApiId { get; set; }
     }
 }
