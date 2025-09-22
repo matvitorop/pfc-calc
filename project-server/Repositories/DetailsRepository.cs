@@ -10,7 +10,7 @@ namespace project_server.Repositories
         private readonly string _connectionString;
         public DetailsRepository(IConfiguration config)
         {
-            _connectionString = config.GetConnectionString("DefaultConnection-Mycola");
+            _connectionString = config.GetConnectionString("DefaultConnection-Mycola") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
 
         public async Task<Details?> AddDetailsAsync(Details details)

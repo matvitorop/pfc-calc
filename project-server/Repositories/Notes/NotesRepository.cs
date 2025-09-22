@@ -11,7 +11,7 @@ namespace project_server.Repositories_part
 
         public NotesRepository(IConfiguration config)
         {
-            _coonnectionString = config.GetConnectionString("DefaultConnection");
+            _coonnectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
         public async Task<Notes> AddNoteAsync(int userId, string title, DateTime? dueDate)
         {
