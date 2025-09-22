@@ -2,7 +2,7 @@
 using Dapper;
 using project_server.Repositories;
 using project_server.Models;
-using project_server.Interfaces;
+using project_server.Repositories.ItemCalorie;
 namespace project_server.Services
 {
     public class ItemService: IItemService
@@ -18,7 +18,8 @@ namespace project_server.Services
             return result;
         }
 
-        public async Task <ItemCaloriesModel> AddItemAsync(ItemCaloriesModel item, ItemsModel items)
+        // додати обробник помилок
+        public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items)
         {
             item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
             return await _itemCaloriesRepository.AddItemAsync(item);

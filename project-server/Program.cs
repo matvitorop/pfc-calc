@@ -3,7 +3,6 @@ using project_server.Repositories_part;
 using project_server.Services_part;
 ﻿using project_server.Services;
 using project_server.Models;
-using project_server.Interfaces;
 using project_server.Repositories;
 
 using System.Data;
@@ -11,8 +10,8 @@ using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IDbConnection>(sp =>
-    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddScoped<IDbConnection>(sp =>
+//    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 

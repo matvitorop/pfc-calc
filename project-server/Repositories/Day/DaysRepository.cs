@@ -1,0 +1,59 @@
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
+using project_server.Models;
+using System.Data;
+
+namespace project_server.Repositories.Day
+{
+    public class DaysRepository : IDaysRepository
+    {
+        private readonly string _connectionString;
+
+        public DaysRepository(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        }
+        public async Task<Days> AddDayAsync(Days daysModel)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+            var sql = @"INSERT INTO Days (user_id, day, meal_type_id, item_id, measurement)
+                        OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
+                    VALUES (@UserId, @Day, @MealTypeId, @ItemId, @Measurement)";
+            
+            return await db.QuerySingleAsync<Days>(sql, daysModel);
+        }
+        public async Task<Days?> GetDayAsync(int userId, DateTime day)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = "SELECT * FROM Days WHERE user_id = @UserId AND day = @Day";
+            var gotDay = await db.QueryFirstOrDefaultAsync<Days>(sql, new { UserId = userId, Day = day });
+
+            return gotDay ?? new Days
+            {
+                UserId = userId,
+                Day = day
+            };
+        }
+        public async Task<Days?> ChangeMeasurementDayAsync(int id, double measurement)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+            var sql = @"UPDATE Days SET measurement = @Measurement
+                        OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.day, INSERTED.meal_type_id, INSERTED.item_id, INSERTED.measurement
+                        WHERE id = @Id";
+
+            return await db.QueryFirstOrDefaultAsync<Days>(sql, new { Id = id, Measurement = measurement });
+        }
+
+        public async Task<Days?> DeleteDayAsync(int id)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+            var sql = @"DELETE FROM Days
+                        OUTPUT DELETED.id, DELETED.user_id, DELETED.day, DELETED.meal_type_id, DELETED.item_id, DELETED.measurement
+                        WHERE id = @Id";
+
+            return await db.QueryFirstOrDefaultAsync<Days>(sql, new { Id = id });
+        }
+
+    }
+}

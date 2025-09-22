@@ -10,7 +10,7 @@ namespace project_server.Repositories
         private readonly string _connectionString;
         public ActivityCoefficientsRepository(IConfiguration config)
         {
-            _connectionString = config.GetConnectionString("DefaultConnection-Mycola") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
 
         public async Task<IEnumerable<ActivityCoefficients>> GetAcitivityCoefsAsync()
