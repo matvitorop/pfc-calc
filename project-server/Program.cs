@@ -14,6 +14,9 @@ builder.Services.AddScoped<INotesRepository, NotesRepository>();
 
 var app = builder.Build();
 
+
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+var app = builder.Build();
 app.MapGet("/", () => "Hello World");
 
 
