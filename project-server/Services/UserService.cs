@@ -21,19 +21,14 @@ namespace project_server.Services_part
                 var salt = _authService.GenerateSalt();
                 var hash = _authService.HashPassword(password, salt);
 
-                var user = await _userRepo.CreateAsync(email, hash, username, salt);
+                return await _userRepo.CreateAsync(email, hash, username, salt);
 
-                if (user == null)
-                {
-                    return null;
-                }
-
-                return user;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Unexpected error during RegisterAsync: {ex.Message}");
-                return null;
+                throw;
+                //throw new Exception("Error during user registration", ex);
             }
         }
 
@@ -49,7 +44,8 @@ namespace project_server.Services_part
             catch (Exception ex)
             {
                 Console.WriteLine($"Unexpected error during AuthenticateAsync: {ex.Message}");
-                return null;
+                throw;
+                //throw new Exception("Error during user authentication", ex);
             }
         }
 
@@ -65,7 +61,8 @@ namespace project_server.Services_part
             catch (Exception ex)
             {
                 Console.WriteLine($"Unexpected error during UpdatePasswordAsync: {ex.Message}");
-                return null;
+                throw;
+                //throw new Exception("Error during password update", ex);
             }
         }
     }
