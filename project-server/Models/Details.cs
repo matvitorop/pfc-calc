@@ -15,5 +15,7 @@
         public int ActivityCoefId { get; set; }
 
         public int  DietId { get; set; }
+
+        public int CaloriesStandard { get; set; }
     }
 }

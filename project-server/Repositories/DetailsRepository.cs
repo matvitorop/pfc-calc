@@ -10,54 +10,36 @@ namespace project_server.Repositories
         private readonly string _connectionString;
         public DetailsRepository(IConfiguration config)
         {
-            _connectionString = config.GetConnectionString("DefaultConnection");
+            _connectionString = config.GetConnectionString("DefaultConnection-Mycola");
         }
 
         public async Task<Details?> AddDetailsAsync(Details details)
         {
             using var connection = new SqlConnection(_connectionString);
             string sql = @"
-                INSERT INTO Details (user_id, age, weight, height, visits_streak, activity_coef_id, diet_id)
-                OUTPUT INSERTED.id , 
-                        INSERTED.user_id , 
-                        INSERTED.age , 
-                        INSERTED.weight , 
-                        INSERTED.height ,
-                        INSERTED.visits_streak , 
-                        INSERTED.activity_coef_id , 
-                        INSERTED.diet_id 
-            VALUES (@UserId, @Age, @Weight, @Height, @VisitsStreak, @ActivityCoefId, @DietId);";
-            var newDetails  = await connection.QuerySingleOrDefaultAsync<Details>(sql, details);
-            return newDetails;
-                
-            
+                INSERT INTO Details (user_id, age, weight, height, visits_streak, activity_coef_id, diet_id, calories_standard)
+                OUTPUT INSERTED.*, 
+            VALUES (@UserId, @Age, @Weight, @Height, @VisitsStreak, @ActivityCoefId, @DietId, @CaloriesStandard);";
+
+            return await connection.QuerySingleOrDefaultAsync<Details>(sql, details);           
         }
+
         public async Task<Details?> GetDetailsAsync(int userId)
         {
             using var connection = new SqlConnection(_connectionString);
             string sql = @"
-                SELECT id,
-                       user_id,
-                       age,
-                       weight,
-                       height,
-                       visits_streak,
-                       activity_coef_id,
-                       diet_id          
+                SELECT *
                 FROM Details
                 WHERE user_id = @UserId;";
-            var result = await connection.QuerySingleOrDefaultAsync<Details>(sql, new { UserId = userId });
-            return result;
-           
-        }
 
+            return await connection.QuerySingleOrDefaultAsync<Details>(sql, new { UserId = userId });
+        }
 
         public async Task<Details?> UpdateDetailsAsync(int userId, string fieldName, object value)
         {
             var allowedFields = new HashSet<string>{
                 "age", "weight", "height", "visits_streak", "activity_coef_id", "diet_id"
             };
-
             
             if (!allowedFields.Contains(fieldName.ToLower()))
             {
@@ -69,23 +51,11 @@ namespace project_server.Repositories
             string sql = $@"
                 UPDATE Details 
                 SET {fieldName} = @value 
-                OUTPUT 
-                    INSERTED.id,
-                    INSERTED.user_id,
-                    INSERTED.age,
-                    INSERTED.weight,
-                    INSERTED.height,
-                    INSERTED.visits_streak,
-                    INSERTED.activity_coef_id,
-                    INSERTED.diet_id          
+                OUTPUT INSERTED.* 
                 WHERE user_id = @UserId";
-            var updatedDetails = await connection.QuerySingleOrDefaultAsync<Details>(sql, new { value, UserId = userId });
-            return updatedDetails;
 
+            return await connection.QuerySingleOrDefaultAsync<Details>(sql, new { value, UserId = userId });
         }
-       
-        
-
     }
 }
 
