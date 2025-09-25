@@ -4,6 +4,8 @@ using System.Text;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using project_server.Models;
+using System.Diagnostics;
 
 namespace project_server.Repositories_part
 {
@@ -16,7 +18,7 @@ namespace project_server.Repositories_part
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
 
-        public async Task<Users?> CreateAsync(string email, string hashPassword, string username, string salt)
+        public async Task<Users?> CreateAsync(string email, string hashPassword, string username, string salt, DateTime age, float weight, float height,int visitsStreak, int activityCoefId,int dietId,int caloriesStandard)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
@@ -27,16 +29,23 @@ namespace project_server.Repositories_part
             if (exist > 0) return null;
 
             var sql = @"
-            INSERT INTO Users(email, hash_pass, username, salt)
+            INSERT INTO Users(email, hash_pass, username, salt, age, weight, height, visits_streak, activity_coef_id, diet_id, calories_standard)
             OUTPUT INSERTED.*
-            VALUES(@Email, @HashPass, @Username, @Salt)";
+            VALUES(@Email, @HashPass, @Username, @Salt, @Age, @Weight, @Height, @VisitsStreak, @ActivityCoefId, @DietId, @CaloriesStandard)";
 
             var user = await db.QuerySingleAsync<Users>(sql, new
             {
                 Email = email,
                 HashPass = hashPassword,
                 Username = username,
-                Salt = salt
+                Salt = salt,
+                Age = age,
+                Weight = weight,
+                Height = height,
+                VisitsStreak = visitsStreak,
+                ActivityCoefId = activityCoefId,
+                DietId = dietId,
+                CaloriesStandard = caloriesStandard
             });
 
             return user;
@@ -111,5 +120,28 @@ namespace project_server.Repositories_part
                 Id = id
             });
         }
+        public async Task<Users?> UpdateUserDetailsAsync(int id, string fieldName, object value)
+        {
+            var allowedFields = new HashSet<string>{
+                "age", "weight", "height", "visits_streak", "activity_coef_id", "diet_id" ,"calories_standard"
+            };
+
+            if (!allowedFields.Contains(fieldName.ToLower()))
+            {
+                Debug.WriteLine($" {fieldName} isn`t allowed to update");
+                return null;
+            }
+
+            using var connection = new SqlConnection(_connectionString);
+            string sql = $@"
+                UPDATE Users 
+                SET {fieldName} = @Value 
+                OUTPUT INSERTED.* 
+                WHERE id = @Id";
+
+            return await connection.QuerySingleOrDefaultAsync<Users>(sql, new {Value =  value, Id = id });
+        }
+
+
     }
 }

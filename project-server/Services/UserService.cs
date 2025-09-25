@@ -14,14 +14,14 @@ namespace project_server.Services_part
             _authService = authService;
         }
 
-        public async Task<Users?> RegisterAsync(string email, string password, string username)
+        public async Task<Users?> RegisterAsync(string email, string password, string username, DateTime age, float weight, float height, int visitsStreak, int activityCoefId, int dietId, int caloriesStandard)
         {
             try
             {
                 var salt = _authService.GenerateSalt();
                 var hash = _authService.HashPassword(password, salt);
 
-                return await _userRepo.CreateAsync(email, hash, username, salt);
+                return await _userRepo.CreateAsync(email, hash, username, salt,age,weight, height, visitsStreak, activityCoefId, dietId, caloriesStandard);
 
             }
             catch (Exception ex)
@@ -63,6 +63,19 @@ namespace project_server.Services_part
                 Console.WriteLine($"Unexpected error during UpdatePasswordAsync: {ex.Message}");
                 throw;
                 //throw new Exception("Error during password update", ex);
+            }
+        }
+
+        public async Task<Users?> UpdateUserDetailsAsync(int id, string fieldName, object value)
+        {
+            try
+            {
+                return await _userRepo.UpdateUserDetailsAsync(id, fieldName, value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error during UpdateUserDetailsAsync: {ex.Message}");
+                throw;
             }
         }
     }
