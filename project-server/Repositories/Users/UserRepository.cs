@@ -89,7 +89,6 @@ namespace project_server.Repositories_part
 
             return await db.QueryFirstOrDefaultAsync<Users>(sql, new { Email = newEmail, Id = id });
         }
-
         public async Task<Users?> UpdateUsernameAsync(int id, string newUsername)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
@@ -102,7 +101,6 @@ namespace project_server.Repositories_part
 
             return await db.QueryFirstOrDefaultAsync<Users>(sql, new { Username = newUsername, Id = id });
         }
-
         public async Task<Users?> UpdatePasswordAsync(int id, string newHash, string newSalt)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
@@ -141,7 +139,6 @@ namespace project_server.Repositories_part
 
             return await connection.QuerySingleOrDefaultAsync<Users>(sql, new {Value =  value, Id = id });
         }
-
 
     }
 }
