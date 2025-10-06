@@ -6,11 +6,18 @@ using System.Text;
 
 namespace project_server.Services
 {
-    public static class JwtHelper
+    public class JwtHelper
     {
-        private static readonly string key = "super_secret_key_change_me_1234567890";
+        private readonly IConfiguration _configuration;
+        private readonly string _key;
 
-        public static string GenerateToken(Users user)
+        public JwtHelper(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _key = _configuration.GetSection("JwtSettings")["Key"]!;
+        }
+
+        public string GenerateToken(Users user)
         {
             var claims = new[]
             {
@@ -20,7 +27,7 @@ namespace project_server.Services
             new Claim(ClaimTypes.Hash, user.HashPass),
         };
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var creds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -31,7 +38,7 @@ namespace project_server.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public static int? GetUserIdFromToken(ClaimsPrincipal user)
+        public int? GetUserIdFromToken(ClaimsPrincipal user)
         {
             var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
@@ -41,7 +48,7 @@ namespace project_server.Services
             return null;
         }
 
-        public static string GetUsernameFromToken(ClaimsPrincipal user)
+        public string GetUsernameFromToken(ClaimsPrincipal user)
         {
             return user.FindFirst(ClaimTypes.Name)?.Value;
         }

@@ -7,7 +7,7 @@ namespace project_server.Schemas
 {
     public class AppMutation : ObjectGraphType
     {
-        public AppMutation(IUserService userService)
+        public AppMutation(IUserService userService, JwtHelper _jwtHelper)
         {
             Field<LoginResponseType>("loginUser")
         .Arguments(new QueryArguments(
@@ -30,7 +30,7 @@ namespace project_server.Schemas
                 };
             }
 
-            var jwt = JwtHelper.GenerateToken(user);
+            var jwt = _jwtHelper.GenerateToken(user);
 
             if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
             {
