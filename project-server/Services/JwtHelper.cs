@@ -31,6 +31,7 @@ namespace project_server.Services
             var creds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
+                issuer: _configuration.GetSection("JwtSettings")["Issuer"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: creds);
@@ -48,7 +49,7 @@ namespace project_server.Services
             return null;
         }
 
-        public string GetUsernameFromToken(ClaimsPrincipal user)
+        public string? GetUsernameFromToken(ClaimsPrincipal user)
         {
             return user.FindFirst(ClaimTypes.Name)?.Value;
         }

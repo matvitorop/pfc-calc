@@ -10,6 +10,7 @@ using project_server.Services;
 using project_server.Services_part;
 using System.Text;
 
+// =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
@@ -41,7 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false /*пізніше змінити*/,
+            ValidateIssuer = true /*пізніше змінити*/,
             ValidateAudience = false /*пізніше змінити*/,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
@@ -60,15 +61,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
-});
-
+builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services
-    .AddSingleton<GraphQL.Authorization.IAuthorizationEvaluator, AuthorizationEvaluator>()
+    .AddSingleton<IAuthorizationEvaluator, AuthorizationEvaluator>()
     .AddSingleton(s =>
     {
         var authSettings = new AuthorizationSettings();
@@ -89,6 +86,7 @@ builder.Services.AddGraphQL(b => b
 
 builder.Services.AddScoped<ISchema, AppSchema>();
 
+// =========== BUILD ===========
 var app = builder.Build();
 
 app.UseAuthentication();
