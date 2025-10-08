@@ -87,11 +87,12 @@ namespace project_server.Schemas
 
                 var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User));
 
+                // Overthink result later
                 return new ResetResponse
                 {
                     Success = true,
                     Message = result == null
-                        ? $"Some problems {userId}"
+                        ? $"Nothing to change {userId}"
                         : "Streak chnanged"
                 };
             });

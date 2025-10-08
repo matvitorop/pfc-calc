@@ -74,7 +74,15 @@ namespace project_server.Services
                 }
 
                 if (recentDays == null || !recentDays.Any())
-                    return null;
+                {
+                    if (user.VisitsStreak != 0)
+                    {
+                        var resetUser = await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", 0);
+                        Debug.WriteLine($"[CounterChangerService] No days found, streak reset for {email}");
+                        return resetUser.VisitsStreak;
+                    }
+                    return user.VisitsStreak;
+                }
 
                 var orderedDays = recentDays.OrderByDescending(d => d.Day).ToList();
                 var lastDay = orderedDays.First().Day.Date;
@@ -88,7 +96,7 @@ namespace project_server.Services
                     return resultUser.VisitsStreak;
                 }
 
-                return null;
+                return user.VisitsStreak;
             }
             catch (Exception ex)
             {
