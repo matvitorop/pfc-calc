@@ -102,7 +102,7 @@ namespace project_server.Schemas
                 };
             });
         
-            Field<MealTypesType>("AddMealType")
+            Field<MealTypesType>("addMealType")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
@@ -120,7 +120,7 @@ namespace project_server.Schemas
                 }
                 );
 
-            Field<MealTypesType>("DeleteMealType")
+            Field<MealTypesType>("deleteMealType")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }

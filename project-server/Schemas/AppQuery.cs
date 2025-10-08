@@ -17,7 +17,7 @@ namespace project_server.Schemas
                 .Resolve(context => "Hello world (private)")
                 .Authorize();
 
-            Field<ListGraphType<MealTypesType>>("GetUserMealTypes")
+            Field<ListGraphType<MealTypesType>>("getUserMealTypes")
                 .Authorize()
                 .ResolveAsync(async context =>
                 {
