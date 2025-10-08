@@ -1,5 +1,6 @@
 ﻿using GraphQL;
 using GraphQL.Types;
+using project_server.Repositories.Day;
 using project_server.Services;
 using project_server.Services_part;
 
@@ -7,7 +8,7 @@ namespace project_server.Schemas
 {
     public class AppMutation : ObjectGraphType
     {
-        public AppMutation(IUserService userService, JwtHelper _jwtHelper)
+        public AppMutation(IUserService userService, JwtHelper _jwtHelper, ICounterChangerService _counterChangerService, IDaysRepository _daysRepository)
         {
             Field<LoginResponseType>("loginUser")
         .Arguments(new QueryArguments(
@@ -72,6 +73,26 @@ namespace project_server.Schemas
                 {
                     Success = false,
                     Message = "Logout failed - no HTTP context"
+                };
+            });
+
+            Field<ResetResponseType>("checkForStreakReset")
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+                var userContext = context.UserContext as GraphQLUserContext;
+                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
+
+                var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User));
+
+                return new ResetResponse
+                {
+                    Success = true,
+                    Message = result == null
+                        ? $"Some problems {userId}"
+                        : "Streak chnanged"
                 };
             });
         }

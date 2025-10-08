@@ -35,6 +35,35 @@ namespace project_server.Repositories.Day
                 Day = day
             };
         }
+        public async Task<IEnumerable<Days?>> GetDaysAsync(int userId, DateTime? day = null, int? limit = null)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            string sql;
+            object parameters;
+
+            if (day.HasValue)
+            {
+                sql = "SELECT * FROM Days WHERE user_id = @UserId AND CAST(day AS DATE) = CAST(@Day AS DATE)";
+                parameters = new { UserId = userId, Day = day.Value.Date };
+            }
+            else
+            {
+                if (limit.HasValue && limit.Value > 0)
+                {
+                    sql = "SELECT TOP (@Limit) * FROM Days WHERE user_id = @UserId";
+                    parameters = new { UserId = userId, Limit = limit.Value };
+                }
+                else
+                {
+                    sql = "SELECT * FROM Days WHERE user_id = @UserId";
+                    parameters = new { UserId = userId };
+                }
+            }
+
+            return await db.QueryAsync<Days>(sql, parameters);
+        }
+
         public async Task<Days?> ChangeMeasurementDayAsync(int id, double measurement)
         {
             using IDbConnection db = new SqlConnection(_connectionString);

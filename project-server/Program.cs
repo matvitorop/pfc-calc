@@ -4,10 +4,12 @@ using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using project_server.Repositories.Day;
 using project_server.Repositories_part;
 using project_server.Schemas;
 using project_server.Services;
 using project_server.Services_part;
+using System.Diagnostics.Metrics;
 using System.Text;
 
 // =========== BUILDER ===========
@@ -31,7 +33,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();
 builder.Services.AddScoped<JwtHelper>();
+builder.Services.AddTransient<ICounterChangerService, CounterChangerService>();
 
 builder.Services.AddHttpContextAccessor();
 

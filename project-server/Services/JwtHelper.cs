@@ -49,9 +49,9 @@ namespace project_server.Services
             return null;
         }
 
-        public string? GetUsernameFromToken(ClaimsPrincipal user)
+        public string? GetEmailFromToken(ClaimsPrincipal user)
         {
-            return user.FindFirst(ClaimTypes.Name)?.Value;
+            return user.FindFirst(ClaimTypes.Email)?.Value;
         }
     }
 }

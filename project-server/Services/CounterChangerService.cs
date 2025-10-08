@@ -62,7 +62,7 @@ namespace project_server.Services
             }
         }
 
-        public async Task<bool> CheckForStreakResetAsync(string email, IEnumerable<Days>? recentDays = null)
+        public async Task<int?> CheckForStreakResetAsync(string email, IEnumerable<Days>? recentDays = null)
         {
             try
             {
@@ -70,11 +70,11 @@ namespace project_server.Services
                 if (user == null)
                 {
                     Debug.WriteLine($"User not found when checking streak reset.");
-                    return false;
+                    return null;
                 }
 
                 if (recentDays == null || !recentDays.Any())
-                    return false;
+                    return null;
 
                 var orderedDays = recentDays.OrderByDescending(d => d.Day).ToList();
                 var lastDay = orderedDays.First().Day.Date;
@@ -83,17 +83,17 @@ namespace project_server.Services
 
                 if (diff > 1)
                 {
-                    await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", 0);
+                    var resultUser = await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", 0);
                     Debug.WriteLine($"[CounterChangerService] Streak reset for user {email}. Diff: {diff} days");
-                    return true;
+                    return resultUser.VisitsStreak;
                 }
 
-                return false;
+                return null;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[CounterChangerService] Error in CheckForStreakResetAsync: {ex.Message}");
-                return false;
+                return null;
             }
         }
     }
