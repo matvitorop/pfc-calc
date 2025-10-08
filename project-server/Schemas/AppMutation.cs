@@ -113,23 +113,26 @@ namespace project_server.Schemas
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                    return await _mealTypeRepository.CreateAsync(userId.Value, name);
+                    if(name != "General")
+                       return await _mealTypeRepository.CreateAsync(userId.Value, name);
+
+                    return null;
                 }
                 );
 
             Field<MealTypesType>("DeleteMealType")
                 .Authorize()
                 .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
                 ))
                 .ResolveAsync(async context =>
                 {
-                    var id = context.GetArgument<int>("id");
+                    var name = context.GetArgument<string>("name");
                     
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                    return await _mealTypeRepository.DeleteByIdAsync(userId.Value, id);
+                    return await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
                 }
                 );
         }
