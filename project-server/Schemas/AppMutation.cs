@@ -1,5 +1,7 @@
 ﻿using GraphQL;
 using GraphQL.Types;
+using Microsoft.AspNetCore.Http;
+using project_server.Models_part;
 using project_server.Services;
 using project_server.Services_part;
 
@@ -74,6 +76,64 @@ namespace project_server.Schemas
                     Message = "Logout failed - no HTTP context"
                 };
             });
+
+
+            Field<DetailsResponseType>("changeDetails")
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<DetailsInputType>> { Name = "details" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                try
+                {
+                    var input = context.GetArgument<DetailsInput>("details");
+
+                    var userId = JwtHelper.GetUserIdFromToken(context.As<GraphQLUserContext>().User);
+
+                    if (!userId.HasValue)
+                    {
+                        return new DetailsResponse
+                        {
+                            Success = false,
+                            Message = "User not authenticated or token invalid",
+                            Data = null
+                        };
+                    }
+
+                    var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
+
+                    if (user == null)
+                        return new DetailsResponse { Success = false, Message = "User not found", Data = null };
+
+                    var property = typeof(Users).GetProperty(input.FieldName);
+                    if (property == null)
+                        return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
+
+                    var dataUser = new Users { Id = user.Id };
+                    property.SetValue(dataUser, property.GetValue(user));
+
+                    return new DetailsResponse
+                    {
+                        Success = true,
+                        Message = $"{input.FieldName} changed successfully",
+                        Data = dataUser
+                    };
+                }
+                catch (Exception ex)
+                {
+                    throw new GraphQL.ExecutionError($"Error in changeDetails: {ex.Message}", ex);
+                }
+            })
+           .Authorize();
+
+
+
         }
+
+
+
+        
     }
+
 }
+
