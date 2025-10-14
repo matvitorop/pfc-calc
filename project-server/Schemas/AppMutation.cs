@@ -10,8 +10,8 @@ namespace project_server.Schemas
     public class AppMutation : ObjectGraphType
     {
         public AppMutation(IUserService userService, 
-            JwtHelper _jwtHelper, 
-            ICounterChangerService _counterChangerService, 
+            JwtHelper _jwtHelper,
+            IStreakService _counterChangerService, 
             IDaysRepository _daysRepository, 
             IMealTypeRepository _mealTypeRepository)
         {
@@ -90,7 +90,7 @@ namespace project_server.Schemas
 
                 var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
 
-                var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User));
+                var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User), recentDays);
 
                 // Overthink result later
                 return new ResetResponse
@@ -98,7 +98,7 @@ namespace project_server.Schemas
                     Success = true,
                     Message = result == null
                         ? $"Nothing to change {userId}"
-                        : "Streak chnanged"
+                        : "Streak changed"
                 };
             });
         
@@ -113,10 +113,7 @@ namespace project_server.Schemas
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                    if(name != "General")
-                       return await _mealTypeRepository.CreateAsync(userId.Value, name);
-
-                    return null;
+                    return await _mealTypeRepository.CreateAsync(userId.Value, name);
                 }
                 );
 

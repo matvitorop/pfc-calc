@@ -24,9 +24,8 @@ namespace project_server.Schemas
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
            
-                    return await _mealTypeRepository.GetByIdAsync(userId.Value);
-                }
-                );
+                    return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
+                });
         }
     }
 }

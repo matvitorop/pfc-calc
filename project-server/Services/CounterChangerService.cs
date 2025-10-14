@@ -4,45 +4,48 @@ using System.Diagnostics;
 
 namespace project_server.Services
 {
-    public class CounterChangerService : ICounterChangerService
+    public class StreakService : IStreakService
     {
         private readonly IUserRepository _userRepository;
 
-        public CounterChangerService(IUserRepository userRepository)
+        public StreakService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
 
-        public async Task<bool> ChangeCounterAsync(string email, IEnumerable<Days>? recentDays = null)
+        public async Task<int?> ChangeCounterAsync(string email, IEnumerable<Days>? recentDays = null)
         {
             try
             {
                 var user = await _userRepository.GetByEmailAsync(email);
-                
-                if (user == null)
-                {
-                    Debug.WriteLine($"User not found when changing counter.");
-                    return false;
-                }
 
-                int currentStreak = user.VisitsStreak ?? 0;
-                DateTime today = DateTime.UtcNow.Date;
+                if (user == null)
+                    return null;
 
                 if (recentDays == null || !recentDays.Any())
+                    return null;
+
+                var orderedDays = recentDays
+                    .OrderByDescending(d => d.Day)
+                    .Select(d => d.Day.Date)
+                    .ToList();
+
+                int currentStreak = user.VisitsStreak ?? 0;
+
+                if (orderedDays.Count == 1)
                 {
-                    return false;
+                    currentStreak = 1;
                 }
-
-                var orderedDays = recentDays.OrderByDescending(d => d.Day).ToList();
-                var lastDay = orderedDays.First().Day.Date;
-                var diff = (today - lastDay).Days;
-
-                if (orderedDays.Count >= 2)
+                else
                 {
-                    var secondDay = orderedDays[1].Day.Date;
-                    var diff2 = (lastDay - secondDay).Days;
+                    var lastDay = orderedDays[0];
+                    var prevDay = orderedDays[1];
+                    var diff = (lastDay - prevDay).Days;
 
-                    if (diff == 1 && diff2 == 1)
+                    if (diff == 0)
+                    {
+                    }
+                    else if (diff == 1)
                     {
                         currentStreak += 1;
                     }
@@ -52,15 +55,16 @@ namespace project_server.Services
                     }
                 }
 
-                await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", currentStreak);
-                return true;
+                var result = await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", currentStreak);
+                return result.VisitsStreak;
+
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[CounterChangerService] Error: {ex.Message}", ex);
-                return false;
+                return null;
             }
         }
+
 
         public async Task<int?> CheckForStreakResetAsync(string email, IEnumerable<Days>? recentDays = null)
         {
@@ -78,7 +82,7 @@ namespace project_server.Services
                     if (user.VisitsStreak != 0)
                     {
                         var resetUser = await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", 0);
-                        Debug.WriteLine($"[CounterChangerService] No days found, streak reset for {email}");
+                        //Debug.WriteLine($"[CounterChangerService] No days found, streak reset for {email}");
                         return resetUser.VisitsStreak;
                     }
                     return user.VisitsStreak;
@@ -92,7 +96,7 @@ namespace project_server.Services
                 if (diff > 1)
                 {
                     var resultUser = await _userRepository.UpdateUserDetailsAsync(user.Id, "visits_streak", 0);
-                    Debug.WriteLine($"[CounterChangerService] Streak reset for user {email}. Diff: {diff} days");
+                    //Debug.WriteLine($"[CounterChangerService] Streak reset for user {email}. Diff: {diff} days");
                     return resultUser.VisitsStreak;
                 }
 

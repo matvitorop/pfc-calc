@@ -2,9 +2,9 @@
 
 namespace project_server.Services
 {
-    public interface ICounterChangerService
+    public interface IStreakService
     {
-        Task<bool> ChangeCounterAsync(string email, IEnumerable<Days>? recentDays = null);
+        Task<int?> ChangeCounterAsync(string email, IEnumerable<Days>? recentDays = null);
         Task<int?> CheckForStreakResetAsync(string email, IEnumerable<Days>? recentDays = null);
     }
 }

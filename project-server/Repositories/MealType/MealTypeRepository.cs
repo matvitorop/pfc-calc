@@ -50,7 +50,7 @@ namespace project_server.Repositories_part
             return await db.QuerySingleOrDefaultAsync<MealTypes>(sql, new { Name = name, UserId = userId }); ;
         }
 
-        public async Task<IEnumerable<MealTypes?>> GetByIdAsync(int id)
+        public async Task<IEnumerable<MealTypes?>> GetByUserIdAsync(int id)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
