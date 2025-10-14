@@ -38,7 +38,7 @@ namespace project_server.Services
             return (int)(bmr * coefValue * dietAdjustment);
         }
 
-        public async Task<Users> RecalculateCaloriesStandard(Users user) {
+        public async Task<Users?> RecalculateCaloriesStandard(Users user) {
 
             var newCalories = await CalculateCalorieStandard(
                         user.Age,

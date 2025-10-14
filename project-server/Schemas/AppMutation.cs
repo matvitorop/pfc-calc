@@ -84,45 +84,41 @@ namespace project_server.Schemas
             ))
             .ResolveAsync(async context =>
             {
-                try
+                
+                var input = context.GetArgument<DetailsInput>("details");
+
+                var userId = JwtHelper.GetUserIdFromToken(context.As<GraphQLUserContext>().User);
+
+                if (!userId.HasValue)
                 {
-                    var input = context.GetArgument<DetailsInput>("details");
-
-                    var userId = JwtHelper.GetUserIdFromToken(context.As<GraphQLUserContext>().User);
-
-                    if (!userId.HasValue)
-                    {
-                        return new DetailsResponse
-                        {
-                            Success = false,
-                            Message = "User not authenticated or token invalid",
-                            Data = null
-                        };
-                    }
-
-                    var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
-
-                    if (user == null)
-                        return new DetailsResponse { Success = false, Message = "User not found", Data = null };
-
-                    var property = typeof(Users).GetProperty(input.FieldName);
-                    if (property == null)
-                        return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
-
-                    var dataUser = new Users { Id = user.Id };
-                    property.SetValue(dataUser, property.GetValue(user));
-
                     return new DetailsResponse
                     {
-                        Success = true,
-                        Message = $"{input.FieldName} changed successfully",
-                        Data = dataUser
+                        Success = false,
+                        Message = "User not authenticated or token invalid",
+                        Data = null
                     };
                 }
-                catch (Exception ex)
+
+                var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
+
+                if (user == null)
+                    return new DetailsResponse { Success = false, Message = "User not found", Data = null };
+
+                var property = typeof(Users).GetProperty(input.FieldName);
+                if (property == null)
+                    return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
+
+                var dataUser = new Users { Id = user.Id };
+                property.SetValue(dataUser, property.GetValue(user));
+
+                return new DetailsResponse
                 {
-                    throw new GraphQL.ExecutionError($"Error in changeDetails: {ex.Message}", ex);
-                }
+                    Success = true,
+                    Message = $"{input.FieldName} changed successfully",
+                    Data = dataUser
+                };
+                
+                
             })
            .Authorize();
 
