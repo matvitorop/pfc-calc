@@ -35,7 +35,7 @@ builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
 builder.Services.AddScoped<IDaysRepository, DaysRepository>();
 builder.Services.AddScoped<JwtHelper>();
-builder.Services.AddTransient<ICounterChangerService, CounterChangerService>();
+builder.Services.AddTransient<IStreakService, StreakService>();
 
 builder.Services.AddHttpContextAccessor();
 
