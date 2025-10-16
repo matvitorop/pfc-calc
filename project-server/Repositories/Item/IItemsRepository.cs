@@ -6,6 +6,7 @@ namespace project_server.Repositories.Item
     {
         Task<Items> AddItemAsync(Items item);
         Task<Items?> GetItemAsync(string name, int userId);
+        Task<Items?> GetItemByApiIdAsync(string apiId);
         Task<Items> ChangeItemAsync(int itemId, string? apiId, int userId, string name, double proteins, double fats, double carbs, string? description);
 
     }

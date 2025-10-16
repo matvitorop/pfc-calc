@@ -15,7 +15,7 @@ namespace project_server.Schemas
             JwtHelper _jwtHelper,
             IStreakService _counterChangerService, 
             IDaysRepository _daysRepository, 
-            IMealTypeRepository _mealTypeRepository)
+            IMealTypeRepository _mealTypeRepository, IDaysServise _daysServise)
         {
             Field<LoginResponseType>("loginUser")
             .Arguments(new QueryArguments(
@@ -128,6 +128,8 @@ namespace project_server.Schemas
                 
             });
 
+
+
             Field<ResetResponseType>("checkForStreakReset")
             .Authorize()
             .ResolveAsync(async context =>
@@ -179,6 +181,51 @@ namespace project_server.Schemas
                     return await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
                 }
                 );
+
+            Field<ItemsResponseType>("addItemForDay")
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "item" }
+            ))
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+
+                var input = context.GetArgument<ItemsInput>("item");
+
+                var userContext = context.UserContext as GraphQLUserContext;
+                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                var userEmail = _jwtHelper.GetEmailFromToken(userContext.User);
+
+                if (!userId.HasValue)
+                {
+                    return new ItemsResponse
+                    {
+                        Success = false,
+                        Message = "User not authenticated or token invalid",
+                        Data = null
+                    };
+                }
+
+
+                var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
+
+                var StreakResetresult = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User), recentDays);
+
+
+                var result = await _daysServise.AddItemForDayAsync(userId.Value,input.Day,input.MealTypeId,input.Item,input.Measurement);
+
+                if (result == null)
+                    return new ItemsResponse { Success = false, Message = "User not found", Data = null };
+
+
+                return new ItemsResponse
+                    {
+                        Success = true,
+                        Message = "Item added to day successfully",
+                        Data = result
+                    };
+
+            });
         }
     }
 
