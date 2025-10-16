@@ -1,9 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using project_server.Models;
-namespace project_server.Repositories
+namespace project_server.Repositories.Diet
 {
-    public class DietsRepository
+    public class DietsRepository : IDietsRepository
     {
         private readonly string _connectionString;
         public DietsRepository(IConfiguration config)
@@ -20,5 +20,8 @@ namespace project_server.Repositories
 
             return await connection.QueryAsync<Diets>(sql);
         }
+
     }
 }
+
+
