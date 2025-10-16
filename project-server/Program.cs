@@ -56,6 +56,10 @@ builder.Services.AddScoped<IDaysRepository, DaysRepository>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
 
+builder.Services.AddHttpClient<FatSecretService>();
+builder.Services.AddScoped<FatSecretService>();
+
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -139,7 +143,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-app.MapGet("/", () => "GraphQL Server is running!");
+app.MapGet("/", async (FatSecretService fatSecret) =>
+{
+    int foodId = 33691;
+    var json = await fatSecret.GetFoodByIdAsync(foodId);
+    return Results.Content(json, "application/json");
+});
 
 // GraphQL endpoint
 app.UseGraphQL<ISchema>("/graphql");
