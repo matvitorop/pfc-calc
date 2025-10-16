@@ -91,9 +91,10 @@ namespace project_server.Schemas
             {
                 
                 var input = context.GetArgument<DetailsInput>("details");
-
-                var userId = JwtHelper.GetUserIdFromToken(context.As<GraphQLUserContext>().User);
-
+                
+                var userContext = context.UserContext as GraphQLUserContext;
+                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                
                 if (!userId.HasValue)
                 {
                     return new DetailsResponse

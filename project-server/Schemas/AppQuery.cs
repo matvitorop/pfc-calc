@@ -33,7 +33,7 @@ namespace project_server.Schemas
             .ResolveAsync(async context =>
             {
                 var userContext = context.UserContext as GraphQLUserContext;
-                var userEmail = JwtHelper.GetEmailFromToken(userContext?.User);
+                var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
 
                 if (userEmail == null)
                 {

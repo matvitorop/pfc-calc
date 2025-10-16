@@ -115,7 +115,7 @@ builder.Services.AddScoped<DietsResponseType>();
 
 
 
-// Register GraphQL Schema (Ð²Ð¸Ð±ÐµÑÑÑÑ Ð¾Ð´Ð½Ñ ÑÑÐµÐ¼Ñ: ProjectSchema Ð°Ð±Ð¾ AppSchema)
+// Register GraphQL Schema (Ð²Ð¸Ð±ÐµÑÑÑÑ Ð¾Ð´Ð½Ñ ÑÑ
 builder.Services.AddScoped<ISchema, AppSchema>(); 
 
 // Configure GraphQL
