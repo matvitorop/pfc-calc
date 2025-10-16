@@ -87,6 +87,7 @@ namespace project_server.Schemas
             .Arguments(new QueryArguments(
                 new QueryArgument<NonNullGraphType<DetailsInputType>> { Name = "details" }
             ))
+            .Authorize()
             .ResolveAsync(async context =>
             {
                 
@@ -125,8 +126,7 @@ namespace project_server.Schemas
                 };
                 
                 
-            })
-           .Authorize();
+            });
 
             Field<ResetResponseType>("checkForStreakReset")
             .Authorize()
@@ -180,11 +180,6 @@ namespace project_server.Schemas
                 }
                 );
         }
-
-
-
-        
     }
 
 }
-

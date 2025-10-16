@@ -30,6 +30,7 @@ namespace project_server.Schemas
                 .ResolveAsync(async context => await dietsRepository.GetDietsAsync());
 
             Field<DetailsResponseType>("getDetails")
+            .Authorize()
             .ResolveAsync(async context =>
             {
                 var userContext = context.UserContext as GraphQLUserContext;
@@ -63,8 +64,7 @@ namespace project_server.Schemas
                     Message = "User details retrieved successfully",
                     Data = user
                 };
-            })
-            .Authorize();
+            });
 
             Field<StringGraphType>("privateHello")
                 .Resolve(context => "Hello world (private)")

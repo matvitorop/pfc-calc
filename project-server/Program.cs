@@ -1,14 +1,9 @@
 using GraphQL;
 using GraphQL.Authorization;
-
-using GraphQL.Server;
-using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Data.SqlClient;
-
 using Microsoft.IdentityModel.Tokens;
 using project_server.Repositories.Day;
 using project_server.Repositories_part;
@@ -17,9 +12,7 @@ using project_server.Repositories.ActivityCoef;
 using project_server.Schemas;
 using project_server.Services;
 using project_server.Services_part;
-using System.Diagnostics.Metrics;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
@@ -63,8 +56,6 @@ builder.Services.AddScoped<IDaysRepository, DaysRepository>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
 
-builder.Services.AddHttpContextAccessor();
-
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -72,8 +63,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true /*ï³çí³øå çì³íèòè*/,
-            ValidateAudience = false /*ï³çí³øå çì³íèòè*/,
+            ValidateIssuer = true /*change later*/,
+            ValidateAudience = false /*change later*/,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
             ValidateLifetime = true,
@@ -92,7 +83,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 
 builder.Services.AddAuthorization();
-builder.Services.AddHttpContextAccessor();
 
 builder.Services
     .AddSingleton<IAuthorizationEvaluator, AuthorizationEvaluator>()
@@ -112,10 +102,7 @@ builder.Services.AddScoped<UserPublicType>();
 builder.Services.AddScoped<DetailsInputType>();
 builder.Services.AddScoped<DietsResponseType>();
 
-
-
-
-// Register GraphQL Schema (Ð²Ð¸Ð±ÐµÑÑÑÑ Ð¾Ð´Ð½Ñ ÑÑ
+// Register GraphQL Schema 
 builder.Services.AddScoped<ISchema, AppSchema>(); 
 
 // Configure GraphQL
@@ -157,7 +144,8 @@ app.MapGet("/", () => "GraphQL Server is running!");
 // GraphQL endpoint
 app.UseGraphQL<ISchema>("/graphql");
 app.UseGraphQLGraphiQL("/ui/graphiql");
-// GraphQL UI (Ð²Ð¸Ð±ÐµÑÑÑÑ Ð¾Ð´Ð¸Ð½ Ð°Ð±Ð¾ Ð¾Ð±Ð¸Ð´Ð²Ð°)
+
+// GraphQL UI
 //app.UseGraphQLGraphiQL("/ui/graphiql", new GraphiQLOptions());
 app.UseGraphQLPlayground("/graphql/playground", new PlaygroundOptions
 {
