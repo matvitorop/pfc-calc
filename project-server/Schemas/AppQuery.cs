@@ -2,16 +2,19 @@
 using GraphQL.Types;
 using project_server.Services;
 using GraphQL.Authorization;
+
 using project_server.Repositories;
 using project_server.Repositories.ActivityCoef;
 using project_server.Repositories.Diet;
 using project_server.Repositories_part;
+
 namespace project_server.Schemas
 {
     public class AppQuery : ObjectGraphType
     {
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
-            IDietsRepository dietsRepository, IUserRepository userRepository)
+            IDietsRepository dietsRepository, IUserRepository userRepository,
+            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository)
         {
             //Field<StringGraphType>("publicHello")
             //    .Resolve(context => "Hello world (public)");
@@ -62,6 +65,20 @@ namespace project_server.Schemas
                 };
             })
             .Authorize();
-            }
+
+            Field<StringGraphType>("privateHello")
+                .Resolve(context => "Hello world (private)")
+                .Authorize();
+
+            Field<ListGraphType<MealTypesType>>("getUserMealTypes")
+                .Authorize()
+                .ResolveAsync(async context =>
+                {
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+           
+                    return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
+                });
+              }
         }
 }

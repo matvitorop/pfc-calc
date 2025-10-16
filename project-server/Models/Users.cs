@@ -13,7 +13,7 @@
 
         public float Height { get; set; }
 
-        public int VisitsStreak { get; set; }
+        public int? VisitsStreak { get; set; }
 
         public int ActivityCoefId { get; set; }
 

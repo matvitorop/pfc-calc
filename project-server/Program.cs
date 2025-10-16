@@ -1,5 +1,6 @@
 using GraphQL;
 using GraphQL.Authorization;
+
 using GraphQL.Server;
 using GraphQL.Server.Ui.GraphiQL;
 using GraphQL.Server.Ui.Playground;
@@ -7,20 +8,20 @@ using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
+
 using Microsoft.IdentityModel.Tokens;
-using project_server.Models;
-using project_server.Models_part;
-using project_server.Repositories;
+using project_server.Repositories.Day;
 using project_server.Repositories_part;
 using project_server.Repositories.Diet;
 using project_server.Repositories.ActivityCoef;
 using project_server.Schemas;
 using project_server.Services;
 using project_server.Services_part;
-using System.Data;
+using System.Diagnostics.Metrics;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
+// =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure CORS
@@ -36,6 +37,7 @@ builder.Services.AddCors(options =>
 });
 
 // Configure Dapper
+
 Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 // Configure logging
@@ -48,6 +50,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
+
 builder.Services.AddScoped<IDietsRepository, project_server.Repositories.Diet.DietsRepository>();
 builder.Services.AddScoped<IActivityCoefficientsRepository, project_server.Repositories.ActivityCoef.ActivityCoefficientsRepository>();
 
@@ -56,18 +59,25 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
 
-// Configure JWT Authentication
-var key = "super_secret_key_change_me_1234567890";
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();
+builder.Services.AddScoped<JwtHelper>();
+builder.Services.AddTransient<IStreakService, StreakService>();
+
+builder.Services.AddHttpContextAccessor();
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true /*ï³çí³øå çì³íèòè*/,
+            ValidateAudience = false /*ï³çí³øå çì³íèòè*/,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-            ValidateLifetime = true
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
+            ValidateLifetime = true,
+            ValidIssuer = jwtSettings["Issuer"]
         };
         options.Events = new JwtBearerEvents
         {
@@ -80,21 +90,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Configure Authorization
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
-});
 
-// Configure GraphQL Authorization
-// Configure GraphQL Authorization
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services
-    .AddSingleton<GraphQL.Authorization.IAuthorizationEvaluator, AuthorizationEvaluator>()
+    .AddSingleton<IAuthorizationEvaluator, AuthorizationEvaluator>()
     .AddSingleton(s =>
     {
         var authSettings = new AuthorizationSettings();
-        authSettings.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
-        // authSettings.DefaultPolicyName = "Authenticated"; // розкоментуйте за потреби
+        authSettings.AddPolicy("Authenticated", _ => _.RequireAuthenticatedUser());
+
         return authSettings;
     })
     .AddTransient<IValidationRule, AuthorizationValidationRule>();
@@ -109,7 +115,7 @@ builder.Services.AddScoped<DietsResponseType>();
 
 
 
-// Register GraphQL Schema (виберіть одну схему: ProjectSchema або AppSchema)
+// Register GraphQL Schema (Ð²Ð¸Ð±ÐµÑÑÑÑ Ð¾Ð´Ð½Ñ ÑÑÐµÐ¼Ñ: ProjectSchema Ð°Ð±Ð¾ AppSchema)
 builder.Services.AddScoped<ISchema, AppSchema>(); 
 
 // Configure GraphQL
@@ -132,6 +138,7 @@ builder.Services.AddGraphQL(b => b
 // Add Controllers
 builder.Services.AddControllers();
 
+// =========== BUILD ===========
 var app = builder.Build();
 
 // Configure middleware
@@ -144,13 +151,13 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure endpoints
+
 app.MapGet("/", () => "GraphQL Server is running!");
 
 // GraphQL endpoint
 app.UseGraphQL<ISchema>("/graphql");
-
-// GraphQL UI (виберіть один або обидва)
+app.UseGraphQLGraphiQL("/ui/graphiql");
+// GraphQL UI (Ð²Ð¸Ð±ÐµÑÑÑÑ Ð¾Ð´Ð¸Ð½ Ð°Ð±Ð¾ Ð¾Ð±Ð¸Ð´Ð²Ð°)
 //app.UseGraphQLGraphiQL("/ui/graphiql", new GraphiQLOptions());
 app.UseGraphQLPlayground("/graphql/playground", new PlaygroundOptions
 {
