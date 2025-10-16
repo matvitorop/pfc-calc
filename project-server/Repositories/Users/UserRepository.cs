@@ -50,7 +50,6 @@ namespace project_server.Repositories_part
 
             return user;
         }
-
         public async Task<Users?> DeleteAsync(int id)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
@@ -70,7 +69,6 @@ namespace project_server.Repositories_part
                 "SELECT * FROM Users WHERE email = @Email",
                 new { Email = email });
         }
-
         public async Task<Users?> UpdateEmailAsync(int id, string newEmail)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
