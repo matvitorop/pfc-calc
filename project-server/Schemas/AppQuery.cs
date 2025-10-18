@@ -14,7 +14,7 @@ namespace project_server.Schemas
     {
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
-            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository)
+            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository, INotesRepository _notesRepository)
         {
             //Field<StringGraphType>("publicHello")
             //    .Resolve(context => "Hello world (public)");
@@ -79,6 +79,26 @@ namespace project_server.Schemas
            
                     return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
                 });
-              }
+            Field<ListGraphType<NotesType>>("getActiveNotes")
+                .Authorize()
+                .ResolveAsync(async context =>
+                    {
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                        return await _notesRepository.GetActiveNotesAsync(userId.Value);
+                    }
+                );
+            Field<ListGraphType<NotesType>>("getCompletedNotes")
+                .Authorize()
+                .ResolveAsync(async context =>
+                    {
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                        return await _notesRepository.GetCompletedNotesAsync(userId.Value);
+                    }
+                );
         }
+    }
 }

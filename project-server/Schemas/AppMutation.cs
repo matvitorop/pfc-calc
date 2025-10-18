@@ -198,7 +198,20 @@ namespace project_server.Schemas
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
                     return await _notesRepository.AddNoteAsync(userId.Value, title, dueDate);
                 });
-          
+            Field<NotesType>("deleteNote")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
+                )
+                .ResolveAsync(async context =>
+                    {
+                        var id = context.GetArgument<int>("id");
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        return await _notesRepository.DeleteNoteAsync(id, userId.Value);
+                    }
+                );
+            //complete, restore left
         }
     }
 }

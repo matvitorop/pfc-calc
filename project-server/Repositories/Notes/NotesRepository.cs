@@ -43,14 +43,14 @@ namespace project_server.Repositories_part
                 new { Id = noteId });
         }
 
-        public async Task<Notes?> DeleteNoteAsync(int noteId)
+        public async Task<Notes?> DeleteNoteAsync(int noteId, int userId)
         {
             using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"DELETE FROM Notes
                     OUTPUT DELETED.*
-                    WHERE Id = @NoteId";
+                    WHERE Id = @NoteId AND user_id = @UserId";
 
-            return await db.QueryFirstOrDefaultAsync<Notes>(sql, new { NoteId = noteId });
+            return await db.QueryFirstOrDefaultAsync<Notes>(sql, new { NoteId = noteId, UserId = userId });
 
         }
 
