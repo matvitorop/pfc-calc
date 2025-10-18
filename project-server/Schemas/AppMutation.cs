@@ -15,7 +15,8 @@ namespace project_server.Schemas
             JwtHelper _jwtHelper,
             IStreakService _counterChangerService, 
             IDaysRepository _daysRepository, 
-            IMealTypeRepository _mealTypeRepository)
+            IMealTypeRepository _mealTypeRepository,
+            INotesRepository _notesRepository)
         {
             Field<LoginResponseType>("loginUser")
             .Arguments(new QueryArguments(
@@ -179,7 +180,25 @@ namespace project_server.Schemas
                     return await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
                 }
                 );
+            
+            //NOTES 
+            Field<NotesType>("addNote")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "Title" },
+                        new QueryArgument<DateTimeGraphType> { Name = "dueDate" },
+                        new QueryArgument<BooleanGraphType> { Name = "isCompleted" }
+                    )
+                )
+                .ResolveAsync(async context =>
+                {
+                    var title = context.GetArgument<string>("title");
+                    var dueDate = context.GetArgument<DateTime?>("dueDate");
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    return await _notesRepository.AddNoteAsync(userId.Value, title, dueDate);
+                });
+          
         }
     }
-
 }
