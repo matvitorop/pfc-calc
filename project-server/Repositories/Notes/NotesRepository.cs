@@ -30,17 +30,18 @@ namespace project_server.Repositories_part
                 });
         }
 
-        public async Task<Notes?> CompleteNoteAsync(int noteId)
+        public async Task<Notes?> CompleteNoteAsync(int noteId, int userId)
         {
             using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"UPDATE Notes
                     SET is_completed = 1,
                     completed_date = GETDATE()
                     OUTPUT INSERTED.*
-                    WHERE id = @Id and is_completed = 0;";
+                    WHERE id = @Id AND user_id = @UserId
+                        AND is_completed = 0;";
 
             return await db.QueryFirstOrDefaultAsync<Notes>(sql,
-                new { Id = noteId });
+                new { Id = noteId, UserId = userId });
         }
 
         public async Task<Notes?> DeleteNoteAsync(int noteId, int userId)

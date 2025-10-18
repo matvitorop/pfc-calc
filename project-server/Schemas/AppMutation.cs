@@ -211,7 +211,21 @@ namespace project_server.Schemas
                         return await _notesRepository.DeleteNoteAsync(id, userId.Value);
                     }
                 );
-            //complete, restore left
+            Field<NotesType>("completeNote")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
+                )
+                .ResolveAsync(async context =>
+                    {
+                        var id = context.GetArgument<int>("id");
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        return await _notesRepository.CompleteNoteAsync(id, userId.Value);
+                    }
+                );
+            
+            //restore left
         }
     }
 }
