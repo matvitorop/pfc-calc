@@ -7,6 +7,7 @@ using project_server.Repositories;
 using project_server.Repositories.ActivityCoef;
 using project_server.Repositories.Diet;
 using project_server.Repositories_part;
+using project_server.Repositories.Day;
 
 namespace project_server.Schemas
 {
@@ -14,7 +15,7 @@ namespace project_server.Schemas
     {
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
-            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository, INotesRepository _notesRepository)
+            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository, INotesRepository _notesRepository, IDaysRepository _daysRepository)
         {
             //Field<StringGraphType>("publicHello")
             //    .Resolve(context => "Hello world (public)");
@@ -79,6 +80,7 @@ namespace project_server.Schemas
            
                     return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
                 });
+            //NOTES
             Field<ListGraphType<NotesType>>("getActiveNotes")
                 .Authorize()
                 .ResolveAsync(async context =>
@@ -99,6 +101,23 @@ namespace project_server.Schemas
                         return await _notesRepository.GetCompletedNotesAsync(userId.Value);
                     }
                 );
+            //DAYS
+            Field<ListGraphType<DaysType>>("getDays")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<DateTimeGraphType> { Name = "day" },
+                    new QueryArgument<IntGraphType> { Name = "limit" }
+                ))
+                .ResolveAsync(async context =>
+                {
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                    var day = context.GetArgument<DateTime?>("day");
+                    var limit = context.GetArgument<int?>("limit");
+
+                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit);
+                });
         }
     }
 }
