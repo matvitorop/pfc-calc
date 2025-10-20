@@ -293,6 +293,72 @@ namespace project_server.Schemas
 
                     return createdItem;
                 });       //restore left
+            
+          Field<ItemsInputType>("changeCustomItem")
+    .Authorize()
+    .Arguments(new QueryArguments(
+        new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
+        new QueryArgument<FloatGraphType> { Name = "calories" }
+    ))
+    .ResolveAsync(async context =>
+    {
+        var input = context.GetArgument<ItemsInput>("customItem");
+        var calories = context.GetArgument<double?>("calories");
+
+        var userContext = context.UserContext as GraphQLUserContext;
+        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+        double finalCalories;
+
+        if (!calories.HasValue)
+        {
+            if (input.Proteins.HasValue && input.Fats.HasValue && input.Carbs.HasValue)
+            {
+                finalCalories = _itemService.CalculateCalories(
+                    input.Carbs.Value, 
+                    input.Proteins.Value, 
+                    input.Fats.Value
+                );
+            }
+            else
+            {
+                throw new ExecutionError("To calculate calories, you need to enter proteins, fats and carbohydrates, or calories directly.");
+            }
+        }
+        else
+        {
+            finalCalories = calories.Value;
+        }
+        
+        var updatedItem = await _itemsRepository.ChangeItemAsync(
+            input.Id,
+            null,
+            userId.Value,
+            input.Name,
+            input.Proteins.Value,
+            input.Fats.Value,
+            input.Carbs.Value,
+            input.Description
+        );
+
+        var existingCalories = await _caloriesRepository.GetItemAsync(input.Id);
+        if (existingCalories != null)
+        {
+            existingCalories.Calories = (float)finalCalories;
+            await _caloriesRepository.UpdateItemCaloriesAsync(existingCalories);
+        }
+        else
+        {
+            var itemCalories = new ItemCalories
+            {
+                ItemId = updatedItem.Id,
+                Calories = (float)finalCalories
+            };
+            await _itemService.AddItemAsync(itemCalories, updatedItem);
+        }
+
+        return updatedItem;
+    });
         }
     }
 }
