@@ -59,6 +59,20 @@ namespace project_server.Repositories.Item
                 ApiId = apiId
             };
         }
+
+        public async Task<IEnumerable<ItemShortDTO>> SearchItemsByNameAsync(string partialName, int userId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = @"
+                SELECT id, name
+                FROM Items
+                WHERE name LIKE '%' + @PartialName + '%'
+                ";
+            var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName });
+            return items;
+        }
+
     }
 
 }

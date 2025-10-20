@@ -13,6 +13,7 @@ using project_server.Schemas;
 using project_server.Services;
 using project_server.Services_part;
 using System.Text;
+using project_server.Repositories.Item;
 
 // =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +59,8 @@ builder.Services.AddTransient<IStreakService, StreakService>();
 
 builder.Services.AddHttpClient<FatSecretService>();
 builder.Services.AddScoped<FatSecretService>();
+
+builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
 
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -106,6 +109,7 @@ builder.Services.AddScoped<UserPublicType>();
 builder.Services.AddScoped<DetailsInputType>();
 builder.Services.AddScoped<DietsResponseType>();
 builder.Services.AddScoped<RegisterInputType>();
+builder.Services.AddScoped<ItemShortType>();
 
 
 // Register GraphQL Schema 

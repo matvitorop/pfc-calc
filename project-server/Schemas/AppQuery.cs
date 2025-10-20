@@ -7,6 +7,7 @@ using project_server.Repositories;
 using project_server.Repositories.ActivityCoef;
 using project_server.Repositories.Diet;
 using project_server.Repositories_part;
+using project_server.Repositories.Item;
 
 namespace project_server.Schemas
 {
@@ -14,7 +15,8 @@ namespace project_server.Schemas
     {
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
-            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository)
+            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository,
+            IItemsRepository _itemsRepository)
         {
             //Field<StringGraphType>("publicHello")
             //    .Resolve(context => "Hello world (public)");
@@ -76,9 +78,24 @@ namespace project_server.Schemas
                 {
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-           
+
                     return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
                 });
-              }
+
+            Field<ListGraphType<ItemShortType>>("searchItems")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "query" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var query = context.GetArgument<string>("query");
+                var userContext = context.UserContext as GraphQLUserContext;
+                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                return await _itemsRepository.SearchItemsByNameAsync(query, userId.Value);
+            });
         }
+
+    }    
 }
