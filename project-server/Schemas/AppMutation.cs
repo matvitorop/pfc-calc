@@ -60,6 +60,65 @@ namespace project_server.Schemas
                 }
             );
 
+            Field<LoginResponseType>("registerUser")
+            .Argument<RegisterInputType>("user", "registering user data")
+            .ResolveAsync(async context =>
+            {
+
+                try
+                {
+                    var user = context.GetArgument<Users>("user");
+                    var registeredUser = await userService.RegisterAsync(
+                        user.Email, user.HashPass, user.Username,
+                        user.Age, user.Weight, user.Height,
+                        0, user.ActivityCoefId, user.DietId, user.CaloriesStandard
+                    );
+
+                    if (registeredUser != null)
+                    {
+                        var jwt = _jwtHelper.GenerateToken(user);
+
+
+                        if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
+                        {
+                            userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
+                            {
+                                HttpOnly = true,
+                                Secure = false,
+                                SameSite = SameSiteMode.Strict,
+                                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                            });
+                        }
+
+                        
+                        return new LoginResponse
+                        {
+                            Success = true,
+                            Token = jwt,
+                            Message = "Registration successful"
+                        };
+                    }
+                    else
+                    {
+                        return new LoginResponse
+                        {
+                            Success = false,
+                            Token = null,
+                            Message = "Registration failed: user not created"
+                        };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new LoginResponse
+                    {
+                        Success = false,
+                        Token = null,
+                        Message = $"Registration failed: {ex.Message}"
+                    };
+                }
+            });
+
             Field<LogoutResponseType>("logout")
             .Authorize()
             .ResolveAsync(async context =>

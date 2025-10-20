@@ -27,7 +27,7 @@ namespace project_server.Services
 
             var values = new Dictionary<string, string>
             {
-                { "scope", "basic" },
+                { "scope", "basic premier" },
                 { "grant_type", "client_credentials" }
             };
             request.Content = new FormUrlEncodedContent(values);
@@ -67,5 +67,22 @@ namespace project_server.Services
             return content;
         }
 
+        public async Task<string> GetFoodByNameAsync(string query, int maxResult = 10, CancellationToken cancellationToken = default)
+        {
+            var (token, _) = await RequestNewAccessTokenAsync(cancellationToken);
+            var url = $"https://platform.fatsecret.com/rest/foods/search/v4" +
+                $"?search_expression={Uri.EscapeDataString(query)}" +
+                $"&max_results={maxResult}" +
+                $"&format=json";
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            return content;
+        }
     }
 }

@@ -105,6 +105,8 @@ builder.Services.AddScoped<DetailsResponseType>();
 builder.Services.AddScoped<UserPublicType>();
 builder.Services.AddScoped<DetailsInputType>();
 builder.Services.AddScoped<DietsResponseType>();
+builder.Services.AddScoped<RegisterInputType>();
+
 
 // Register GraphQL Schema 
 builder.Services.AddScoped<ISchema, AppSchema>(); 
@@ -145,8 +147,8 @@ app.UseAuthorization();
 
 app.MapGet("/", async (FatSecretService fatSecret) =>
 {
-    int foodId = 33691;
-    var json = await fatSecret.GetFoodByIdAsync(foodId);
+    //int foodId = 33691;
+    var json = await fatSecret.GetFoodByNameAsync("appl", 3);
     return Results.Content(json, "application/json");
 });
 
