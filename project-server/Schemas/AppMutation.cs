@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Http;
 using project_server.Models_part;
 using project_server.Repositories.Day;
 using project_server.Repositories_part;
+using project_server.Repositories.Item;
+using project_server.Repositories.ItemCalorie;
 using project_server.Services;
+using project_server.Models;
 using project_server.Services_part;
 
 namespace project_server.Schemas
@@ -16,7 +19,10 @@ namespace project_server.Schemas
             IStreakService _counterChangerService, 
             IDaysRepository _daysRepository, 
             IMealTypeRepository _mealTypeRepository,
-            INotesRepository _notesRepository)
+            INotesRepository _notesRepository,
+            IItemCaloriesRepository _caloriesRepository, //заюзаний в сервісі
+            IItemService _itemService,
+            IItemsRepository _itemsRepository) //хммм
         {
             Field<LoginResponseType>("loginUser")
             .Arguments(new QueryArguments(
@@ -185,7 +191,7 @@ namespace project_server.Schemas
             Field<NotesType>("addNote")
                 .Authorize()
                 .Arguments(new QueryArguments(
-                        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "Title" },
+                        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "title" },
                         new QueryArgument<DateTimeGraphType> { Name = "dueDate" },
                         new QueryArgument<BooleanGraphType> { Name = "isCompleted" }
                     )
@@ -224,8 +230,86 @@ namespace project_server.Schemas
                         return await _notesRepository.CompleteNoteAsync(id, userId.Value);
                     }
                 );
-            
-            //restore left
+            Field<ItemsType>("addCustomItem")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" },
+                    new QueryArgument<FloatGraphType> { Name = "proteins" },
+                    new QueryArgument<FloatGraphType> { Name = "fats" },
+                    new QueryArgument<FloatGraphType> { Name = "carbs" },
+                    new QueryArgument<StringGraphType> { Name = "description" },
+                    new QueryArgument<FloatGraphType> { Name = "calories" }
+                    ) //description, fat etc. не обовязкові аргументи
+                )
+                .ResolveAsync(async context =>
+                {
+                    var name = context.GetArgument<string>("name");
+                    var proteins = context.GetArgument<float?>("proteins");
+                    var fats = context.GetArgument<float?>("fats");
+                    var carbs = context.GetArgument<float?>("carbs");
+                    var description = context.GetArgument<string>("description");
+                    var calories = context.GetArgument<float?>("calories");//h,mm
+
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    double finalCalories;
+
+                    if (!calories.HasValue)
+                    {
+                        // Якщо калорії не передані — рахуємо їх через сервіс
+                        if (proteins.HasValue && fats.HasValue && carbs.HasValue)
+                        {
+                            double finalProteins = (double)proteins.Value;
+                            double finalFats = (double)fats.Value;
+                            double finalCarbs = (double)carbs.Value;
+
+                            finalCalories = _itemService.CalculateCalories( //fixed by adding to interf meth
+                               finalCarbs, finalProteins, finalFats);
+                        }
+                        else
+                        {
+                            throw new ExecutionError("Для розрахунку калорій потрібно вказати білки, жири та вуглеводи, або калорії безпосередньо.");
+                        }
+                    }
+                    else
+                    {
+                        // Якщо калорії передані — використовуємо їх напряму
+                        finalCalories = (double)calories.Value;
+                    }
+                    // Створюємо об'єкт Items
+                    var item = new Items
+                    {
+                        UserId = userId.Value,
+                        Name = name,
+                        Description = description,
+                        Proteins = proteins,
+                        Fats = fats,
+                        Carbs = carbs,
+                        ApiId = null // кастомний продукт
+                    };
+                    // Зберігаємо продукт у ItemsRepository
+                    var createdItem = await _itemsRepository.AddItemAsync(item);
+
+                    // Додаємо калорії у ItemCaloriesRepository через сервіс, якщо вони розраховані
+                    if (!calories.HasValue)
+                    {
+                        var itemCalories = new ItemCalories
+                        {
+                            ItemId = createdItem.Id,
+                            Calories = (float)finalCalories
+                        };
+                        await _itemService.AddItemAsync(itemCalories, createdItem);
+                    }
+
+                    return createdItem;
+                });/*
+                                return await _itemsRepository.AddCustomItemAsync(
+                                    userId.Value, name, description, proteins, fats, carbs, finalCalories);
+                                // TODO: тут можна буде викликати твій сервіс, який рахує калорії,
+                                // якщо calories == null, але є білки/жири/вуглеводи
+                                // і далі — _itemsRepository.AddCustomItemAsync(...)
+                                return await 0;
+                            });     */       //restore left
         }
     }
 }
