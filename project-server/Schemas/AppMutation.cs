@@ -230,25 +230,18 @@ namespace project_server.Schemas
                         return await _notesRepository.CompleteNoteAsync(id, userId.Value);
                     }
                 );
-            Field<ItemsType>("addCustomItem")
+            Field<ItemsInputType>("addCustomItem")
                 .Authorize()
                 .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" },
-                    new QueryArgument<FloatGraphType> { Name = "proteins" },
-                    new QueryArgument<FloatGraphType> { Name = "fats" },
-                    new QueryArgument<FloatGraphType> { Name = "carbs" },
-                    new QueryArgument<StringGraphType> { Name = "description" },
+                    new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
                     new QueryArgument<FloatGraphType> { Name = "calories" }
-                    ) //description, fat etc. не обовязкові аргументи
+                    )
                 )
                 .ResolveAsync(async context =>
                 {
-                    var name = context.GetArgument<string>("name");
-                    var proteins = context.GetArgument<float?>("proteins");
-                    var fats = context.GetArgument<float?>("fats");
-                    var carbs = context.GetArgument<float?>("carbs");
-                    var description = context.GetArgument<string>("description");
-                    var calories = context.GetArgument<float?>("calories");//h,mm
+                    var input = context.GetArgument<ItemsInput>("customItem");
+                    
+                    var calories = context.GetArgument<double?>("calories");
 
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
@@ -257,40 +250,37 @@ namespace project_server.Schemas
                     if (!calories.HasValue)
                     {
                         // Якщо калорії не передані — рахуємо їх через сервіс
-                        if (proteins.HasValue && fats.HasValue && carbs.HasValue)
-                        {
-                            double finalProteins = (double)proteins.Value;
-                            double finalFats = (double)fats.Value;
-                            double finalCarbs = (double)carbs.Value;
+                        if (input.Proteins.HasValue && input.Fats.HasValue && input.Carbs.HasValue)
 
-                            finalCalories = _itemService.CalculateCalories( //fixed by adding to interf meth
-                               finalCarbs, finalProteins, finalFats);
+                        {
+                            finalCalories = _itemService.CalculateCalories(
+                                input.Carbs.Value, 
+                                input.Proteins.Value, 
+                                input.Fats.Value
+                            );
                         }
                         else
                         {
-                            throw new ExecutionError("Для розрахунку калорій потрібно вказати білки, жири та вуглеводи, або калорії безпосередньо.");
+                            throw new ExecutionError("To calculate calories, you need to enter proteins, fats and carbohydrates, or calories directly.");
                         }
                     }
                     else
                     {
                         // Якщо калорії передані — використовуємо їх напряму
-                        finalCalories = (double)calories.Value;
+                        finalCalories = calories.Value;
                     }
-                    // Створюємо об'єкт Items
                     var item = new Items
                     {
                         UserId = userId.Value,
-                        Name = name,
-                        Description = description,
-                        Proteins = proteins,
-                        Fats = fats,
-                        Carbs = carbs,
+                        Name = input.Name,
+                        Description = input.Description,
+                        Proteins = input.Proteins.Value,
+                        Fats = input.Fats.Value,
+                        Carbs = input.Carbs.Value,
                         ApiId = null // кастомний продукт
                     };
-                    // Зберігаємо продукт у ItemsRepository
                     var createdItem = await _itemsRepository.AddItemAsync(item);
-
-                    // Додаємо калорії у ItemCaloriesRepository через сервіс, якщо вони розраховані
+                    
                     if (!calories.HasValue)
                     {
                         var itemCalories = new ItemCalories
@@ -302,14 +292,7 @@ namespace project_server.Schemas
                     }
 
                     return createdItem;
-                });/*
-                                return await _itemsRepository.AddCustomItemAsync(
-                                    userId.Value, name, description, proteins, fats, carbs, finalCalories);
-                                // TODO: тут можна буде викликати твій сервіс, який рахує калорії,
-                                // якщо calories == null, але є білки/жири/вуглеводи
-                                // і далі — _itemsRepository.AddCustomItemAsync(...)
-                                return await 0;
-                            });     */       //restore left
+                });       //restore left
         }
     }
 }
