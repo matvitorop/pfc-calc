@@ -30,12 +30,8 @@ namespace project_server.Repositories.Item
             using IDbConnection db = new SqlConnection(_connectionString);
             var sql = "SELECT * FROM Items WHERE name = @Name AND user_id = @UserId";
             var gotItem = await db.QueryFirstOrDefaultAsync<Items>(sql, new { Name = name, UserId = userId });
-            
-            return gotItem ?? new Items
-            {
-                Name = name,
-                UserId = userId
-            };
+
+            return gotItem ?? null;
         }
 
         public async Task<Items> ChangeItemAsync(int itemId, string? apiId, int userId, string name, double proteins, double fats, double carbs, string? description)

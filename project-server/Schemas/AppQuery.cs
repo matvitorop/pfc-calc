@@ -95,6 +95,20 @@ namespace project_server.Schemas
 
                 return await _itemsRepository.SearchItemsByNameAsync(query, userId.Value);
             });
+
+            Field<ItemsResponseType>("getSearchedItem")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "query" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var query = context.GetArgument<string>("query");
+                var userContext = context.UserContext as GraphQLUserContext;
+                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                return await _itemsRepository.GetItemAsync(query, userId.Value);
+            });
         }
 
     }    
