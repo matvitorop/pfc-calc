@@ -69,6 +69,14 @@ namespace project_server.Repositories.Item
             return items;
         }
 
+        public Task<Items> GetItemsByIdsAsync(IEnumerable<int> itemId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = "SELECT * FROM Items WHERE id IN @ItemId";
+
+            return db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
+        }
     }
 
 }
