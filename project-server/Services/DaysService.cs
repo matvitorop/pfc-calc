@@ -20,6 +20,32 @@ namespace project_server.Services
         public async Task<IEnumerable<UserDayItemDTO>> GetUserSummaryAsync(int userId, DateTime day)
         {
             var days = await _daysRepository.GetDaysAsync(userId, day);
+            var userDayItems = new List<UserDayItemDTO>();
+
+            foreach (var d in days)
+            {
+                var item = await _itemsRepository.GetItemByIdAsync(d!.ItemId);
+                var calories = await _itemCaloriesRepository.GetItemAsync(d.ItemId);
+
+                userDayItems.Add(new UserDayItemDTO
+                {
+                    Id = d.Id,
+                    UserId = d.UserId,
+                    Day = d.Day,
+                    MealTypeId = d.MealTypeId,
+                    ItemId = d.ItemId,
+                    Measurement = d.Measurement,
+                    Name = item?.Name,
+                    Proteins = item?.Proteins,
+                    Fats = item?.Fats,
+                    Carbs = item?.Carbs,
+                    Description = item?.Description,
+                    ApiId = item?.ApiId,
+                    Calories = calories?.Calories
+                });
+            }
+
+            return userDayItems;
         }
     }
 }

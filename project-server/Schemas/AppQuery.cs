@@ -16,7 +16,7 @@ namespace project_server.Schemas
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
             JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository,
-            IItemsRepository _itemsRepository)
+            IItemsRepository _itemsRepository, IDaysService _daysService)
         {
             //Field<StringGraphType>("publicHello")
             //    .Resolve(context => "Hello world (public)");
@@ -109,6 +109,20 @@ namespace project_server.Schemas
 
                 return await _itemsRepository.GetItemAsync(query, userId.Value);
             });
+
+            Field<ListGraphType<UserDayItemType>>("getSummary")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<NonNullGraphType<DateTimeGraphType>> { Name = "day" }
+                ))
+                .ResolveAsync(async context =>
+                {
+                    var day = context.GetArgument<DateTime>("day");
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                    return await _daysService.GetUserSummaryAsync(userId.Value, day);
+                });
         }
 
     }    

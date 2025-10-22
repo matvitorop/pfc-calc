@@ -69,7 +69,7 @@ namespace project_server.Repositories.Item
             return items;
         }
 
-        public Task<Items> GetItemsByIdsAsync(IEnumerable<int> itemId)
+        public Task<Items?> GetItemByIdAsync(int itemId)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 

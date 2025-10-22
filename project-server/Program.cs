@@ -14,6 +14,7 @@ using project_server.Services;
 using project_server.Services_part;
 using System.Text;
 using project_server.Repositories.Item;
+using project_server.Repositories.ItemCalorie;
 
 // =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
 
 builder.Services.AddScoped<IDaysRepository, DaysRepository>();
+builder.Services.AddScoped<IDaysService, DaysService>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
 
@@ -61,7 +63,7 @@ builder.Services.AddHttpClient<FatSecretService>();
 builder.Services.AddScoped<FatSecretService>();
 
 builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
-
+builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
