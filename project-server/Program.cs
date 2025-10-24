@@ -13,6 +13,8 @@ using project_server.Schemas;
 using project_server.Services;
 using project_server.Services_part;
 using System.Text;
+using project_server.Repositories.Item;
+using project_server.Repositories.ItemCalorie;
 
 // =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +45,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
+builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
+builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();
+
+
 
 builder.Services.AddScoped<IDietsRepository, project_server.Repositories.Diet.DietsRepository>();
 builder.Services.AddScoped<IActivityCoefficientsRepository, project_server.Repositories.ActivityCoef.ActivityCoefficientsRepository>();
@@ -52,9 +59,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
 builder.Services.AddScoped<IDaysServise, DaysServise>();
+builder.Services.AddScoped<IItemService, ItemService>();
 
 
-builder.Services.AddScoped<IDaysRepository, DaysRepository>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
 
@@ -99,10 +106,16 @@ builder.Services
 
 // Register GraphQL Types
 builder.Services.AddScoped<ActivityCoefficientsResponseType>();
+
 builder.Services.AddScoped<DetailsResponseType>();
 builder.Services.AddScoped<UserPublicType>();
-builder.Services.AddScoped<DetailsInputType>();
+builder.Services.AddScoped<ItemsResponseType>();
 builder.Services.AddScoped<DietsResponseType>();
+builder.Services.AddScoped<DaysResponseType>();
+
+builder.Services.AddScoped<DaysInputType>();
+builder.Services.AddScoped<DetailsInputType>();
+
 
 // Register GraphQL Schema 
 builder.Services.AddScoped<ISchema, AppSchema>(); 

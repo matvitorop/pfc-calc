@@ -90,41 +90,50 @@ namespace project_server.Schemas
             .Authorize()
             .ResolveAsync(async context =>
             {
-                
-                var input = context.GetArgument<DetailsInput>("details");
-                
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                
-                if (!userId.HasValue)
+                try
+                {
+                    var input = context.GetArgument<DetailsInput>("details");
+
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                    if (!userId.HasValue)
+                    {
+                        return new DetailsResponse
+                        {
+                            Success = false,
+                            Message = "User not authenticated or token invalid",
+                            Data = null
+                        };
+                    }
+
+                    var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
+
+                    if (user == null)
+                        return new DetailsResponse { Success = false, Message = "User not found", Data = null };
+
+                    var property = typeof(Users).GetProperty(input.FieldName);
+                    if (property == null)
+                        return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
+
+                    var dataUser = new Users { Id = user.Id };
+                    property.SetValue(dataUser, property.GetValue(user));
+
+                    return new DetailsResponse
+                    {
+                        Success = true,
+                        Message = $"{input.FieldName} changed successfully",
+                        Data = dataUser
+                    };
+                }catch(Exception ex)
                 {
                     return new DetailsResponse
                     {
                         Success = false,
-                        Message = "User not authenticated or token invalid",
-                        Data = null
+                        Message = $"User`s details changing failed:  {ex.Message}",
+                        Data = null,
                     };
                 }
-
-                var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
-
-                if (user == null)
-                    return new DetailsResponse { Success = false, Message = "User not found", Data = null };
-
-                var property = typeof(Users).GetProperty(input.FieldName);
-                if (property == null)
-                    return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
-
-                var dataUser = new Users { Id = user.Id };
-                property.SetValue(dataUser, property.GetValue(user));
-
-                return new DetailsResponse
-                {
-                    Success = true,
-                    Message = $"{input.FieldName} changed successfully",
-                    Data = dataUser
-                };
-                
                 
             });
 
@@ -182,49 +191,141 @@ namespace project_server.Schemas
                 }
                 );
 
-            Field<ItemsResponseType>("addItemForDay")
+            Field<DaysResponseType>("addItemForDay")
             .Arguments(new QueryArguments(
-                new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "item" }
+                new QueryArgument<NonNullGraphType<DaysInputType>> { Name = "item" }
             ))
             .Authorize()
             .ResolveAsync(async context =>
             {
-
-                var input = context.GetArgument<ItemsInput>("item");
-
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                var userEmail = _jwtHelper.GetEmailFromToken(userContext.User);
-
-                if (!userId.HasValue)
+                try
                 {
-                    return new ItemsResponse
+
+                    var input = context.GetArgument<DaysInput>("item");
+
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    var userEmail = _jwtHelper.GetEmailFromToken(userContext.User);
+
+                    if (!userId.HasValue)
                     {
-                        Success = false,
-                        Message = "User not authenticated or token invalid",
-                        Data = null
-                    };
-                }
+                        return new DaysResponse
+                        {
+                            Success = false,
+                            Message = "User not authenticated or token invalid",
+                            Data = null
+                        };
+                    }
 
 
-                var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
+                    var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
 
-                var StreakResetresult = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User), recentDays);
-
-
-                var result = await _daysServise.AddItemForDayAsync(userId.Value,input.Day,input.MealTypeId,input.Item,input.Measurement);
-
-                if (result == null)
-                    return new ItemsResponse { Success = false, Message = "User not found", Data = null };
+                    var StreakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
 
 
-                return new ItemsResponse
+                    var result = await _daysServise.AddItemForDayAsync(userId.Value, input.Day, input.MealTypeId, input.Item, input.Measurement);
+
+                    if (result == null)
+                        return new DaysResponse { Success = false, Message = "User not found", Data = null };
+
+
+                    return new DaysResponse
                     {
                         Success = true,
                         Message = "Item added to day successfully",
                         Data = result
                     };
+                }catch(Exception ex)
+                {
+                    return new DaysResponse
+                    {
+                        Success = false,
+                        Message = $"Adding item to day failed: {ex.Message}",
+                        Data = null
+                    };
+                    }
 
+            });
+
+            Field<DaysResponseType>("changeMeasurement")
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" },
+                new QueryArgument<NonNullGraphType<FloatGraphType>> { Name = "measurement" }
+            ))
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+                try
+                {
+                    int dayId = context.GetArgument<int>("id");
+                    double measurement = context.GetArgument<double>("measurement");
+
+                    var result = await _daysServise.ChangeMesurementAsync(dayId, measurement);
+                    if (result == null)
+                    {
+                        return new DaysResponse
+                        {
+                            Success = false,
+                            Message = "Unable to change measurement — specified day not exist",
+                            Data = result,
+                        };
+                    }
+                    return new DaysResponse
+                    {
+                        Success = true,
+                        Message = "Changed measurement of item in Day successfully",
+                        Data = result,
+                    };
+                }
+                catch (Exception ex) {
+                    return new DaysResponse {
+                        Success = false,
+                        Message = $"Changing measurement failed: {ex.Message}",
+                        Data = null,
+                    };
+                }
+
+
+            });
+
+            Field<DaysResponseType>("deleteItemFromDay")
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }
+            ))
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+                try
+                {
+                    int dayId = context.GetArgument<int>("id");
+                    var result = await _daysServise.DeleteItemFromDayAsync(dayId);
+                    if (result == null)
+                    {
+
+                        return new DaysResponse
+                        {
+                            Success = false,
+                            Message = "Unable to delete day`s record, specified day  not exist",
+                            Data = result,
+                        };
+                    }
+                    return new DaysResponse
+                    {
+                        Success = true,
+                        Message = "Day`s record was deleted successfully",
+                        Data = result,
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return new DaysResponse
+                    {
+                        Success = false,
+                        Message = $"Day`s record deleting failed: {ex.Message}",
+                        Data = null,
+                    };
+
+                }
             });
         }
     }

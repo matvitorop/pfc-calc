@@ -16,12 +16,7 @@ namespace project_server.Schemas
             IDietsRepository dietsRepository, IUserRepository userRepository,
             JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository)
         {
-            //Field<StringGraphType>("publicHello")
-            //    .Resolve(context => "Hello world (public)");
-
-            //Field<StringGraphType>("privateHello")
-            //    .Resolve(context => "Hello world (private)")
-            //    .Authorize();
+            
 
             Field<ListGraphType<ActivityCoefficientsResponseType>>("getCoef")
                .ResolveAsync(async context => await activityCoefRepository.GetAcitivityCoefsAsync());
