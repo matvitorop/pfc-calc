@@ -58,7 +58,6 @@ namespace project_server.Schemas
             .Argument<RegisterInputType>("user", "registering user data")
             .ResolveAsync(async context =>
             {
-            
                 try
                 {
                     var user = context.GetArgument<Users>("user");
@@ -124,12 +123,9 @@ namespace project_server.Schemas
             .Authorize()
             .ResolveAsync(async context =>
             {
-                
                 var input = context.GetArgument<DetailsInput>("details");
-                
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                
+                var userId = context.GetUserId(_jwtHelper);
+
                 if (!userId.HasValue)
                 {
                     return ApiResponse<DetailsResponse>.Fail("User not authenticated or token invalid");
@@ -157,23 +153,22 @@ namespace project_server.Schemas
             });
 
             Field<ApiResponseGraphType<ResetResponseType, ResetResponse>>("checkForStreakReset")
-                .Authorize()
-                .ResolveAsync(async context =>
-                {
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+                var userId = context.GetUserId(_jwtHelper);
 
                 var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
 
-                var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User), recentDays);
+                var result = await _counterChangerService.CheckForStreakResetAsync(context.GetUserEmail(_jwtHelper), recentDays);
 
                 return ApiResponse<ResetResponse>.Ok(
                     new ResetResponse
                     {
                         CurrentStreak = result
                     }, "Streak changed successfully");
-                
-                });
+            
+            });
         
             Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("addMealType")
                 .Authorize()
@@ -183,10 +178,14 @@ namespace project_server.Schemas
                 .ResolveAsync(async context =>
                 {
                     var name = context.GetArgument<string>("name");
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    var userId = context.GetUserId(_jwtHelper);
 
                     var mealTypes = await _mealTypeRepository.CreateAsync(userId.Value, name);
+
+                    if (mealTypes == null)
+                    {
+                        return ApiResponse<MealTypesResponse>.Fail("Failed to add meal type");
+                    }
 
                     return ApiResponse<MealTypesResponse>.Ok(new MealTypesResponse
                     {
@@ -202,14 +201,19 @@ namespace project_server.Schemas
                 .ResolveAsync(async context =>
                 {
                     var name = context.GetArgument<string>("name");
-                    
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    var userId = context.GetUserId(_jwtHelper);
+
+                    var deletedMealType = await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
+
+                    if (deletedMealType == null)
+                    {
+                        return ApiResponse<MealTypesResponse>.Fail("Failed to delete meal type");
+                    }
                     
                     return ApiResponse<MealTypesResponse>.Ok(new MealTypesResponse
                     {
                         Items = new List<MealTypes> { await _mealTypeRepository.DeleteByNameAsync(userId.Value, name) }
-                    }, "Meal type added successfully");
+                    }, "Meal type deleted successfully");
 
                 });
         }

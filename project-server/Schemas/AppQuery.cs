@@ -63,8 +63,7 @@ namespace project_server.Schemas
                 .Authorize()
                 .ResolveAsync(async context =>
                 {
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    var userId = context.GetUserId(_jwtHelper);
 
                     return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
                 });
@@ -77,8 +76,7 @@ namespace project_server.Schemas
             .ResolveAsync(async context =>
             {
                 var query = context.GetArgument<string>("query");
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                var userId = context.GetUserId(_jwtHelper);
 
                 return await _itemsRepository.SearchItemsByNameAsync(query, userId.Value);
             });
@@ -91,8 +89,7 @@ namespace project_server.Schemas
             .ResolveAsync(async context =>
             {
                 var query = context.GetArgument<string>("query");
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                var userId = context.GetUserId(_jwtHelper);
 
                 return await _itemsRepository.GetItemAsync(query, userId.Value);
             });
