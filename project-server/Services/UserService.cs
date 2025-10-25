@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using project_server.Models_part;
 using project_server.Repositories_part;
 using project_server.Schemas;
@@ -15,10 +16,9 @@ namespace project_server.Services_part
         private static string SnakeToPascalCase(string str)
         {
             if (string.IsNullOrEmpty(str)) return str;
-
             return string.Join("", str
                 .Split('_', StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+                .Select(s => s.Length == 0 ? "" : char.ToUpperInvariant(s[0]) + s.Substring(1)));
         }
 
         public UserService(IUserRepository userRepo, IAuthService authService, ICalorieStandardService calorieStandart)
@@ -123,7 +123,7 @@ namespace project_server.Services_part
                 bool isCustomDiet =      
                     string.Equals(fieldName, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
                     convertedValue is int dietId &&
-                    dietId == (int)DietСonstants.CustomCalorieDietId;
+                    dietId == (int)DietConstants.CustomCalorieDietId;
 
                 if (isCustomDiet)
                     return updatedUser;
@@ -142,35 +142,10 @@ namespace project_server.Services_part
                 throw;
             }
         }
-
-        
-
-
-        public async Task<DetailsResponse> GetUserDetailsAsync(string userEmail)
-        {
-            var user = await _userRepo.GetByEmailAsync(userEmail);
-
-            if (user == null)
-            {
-                return new DetailsResponse
-                {
-                    Success = false,
-                    Message = "User not found",
-                    Data = null
-                };
-            }
-
-            return new DetailsResponse
-            {
-                Success = true,
-                Message = "User details retrieved successfully",
-                Data = user  
-            };
-        }
     }
 }
 
-public enum DietСonstants
+public enum DietConstants
 {
     CustomCalorieDietId = 4
 }

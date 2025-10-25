@@ -28,37 +28,48 @@ namespace project_server.Schemas
             .Authorize()
             .ResolveAsync(async context =>
             {
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
-
-                if (userEmail == null)
+                try
                 {
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
+
+                    if (userEmail == null)
+                    {
+                        return new DetailsResponse
+                        {
+                            Success = false,
+                            Message = "User not authenticated",
+                            Data = null
+                        };
+                    }
+
+                    var user = await userRepository.GetByEmailAsync(userEmail);
+
+                    if (user == null)
+                    {
+                        return new DetailsResponse
+                        {
+                            Success = false,
+                            Message = "User not found",
+                            Data = null
+                        };
+                    }
+
+                    return new DetailsResponse
+                    {
+                        Success = true,
+                        Message = "User details retrieved successfully",
+                        Data = user
+                    };
+                }
+                catch (Exception ex) {
                     return new DetailsResponse
                     {
                         Success = false,
-                        Message = "User not authenticated",
-                        Data = null
+                        Message = $"Getting users details failed: {ex.Message}",
+                        Data = null,
                     };
                 }
-
-                var user = await userRepository.GetByEmailAsync(userEmail);
-
-                if (user == null)
-                {
-                    return new DetailsResponse
-                    {
-                        Success = false,
-                        Message = "User not found",
-                        Data = null
-                    };
-                }
-
-                return new DetailsResponse
-                {
-                    Success = true,
-                    Message = "User details retrieved successfully",
-                    Data = user
-                };
             });
 
             Field<StringGraphType>("privateHello")
