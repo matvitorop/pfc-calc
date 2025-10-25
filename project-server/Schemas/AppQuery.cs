@@ -18,12 +18,6 @@ namespace project_server.Schemas
             JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository,
             IItemsRepository _itemsRepository, IDaysService _daysService)
         {
-            //Field<StringGraphType>("publicHello")
-            //    .Resolve(context => "Hello world (public)");
-
-            //Field<StringGraphType>("privateHello")
-            //    .Resolve(context => "Hello world (private)")
-            //    .Authorize();
 
             Field<ListGraphType<ActivityCoefficientsResponseType>>("getCoef")
                .ResolveAsync(async context => await activityCoefRepository.GetAcitivityCoefsAsync());
@@ -31,42 +25,42 @@ namespace project_server.Schemas
             Field<ListGraphType<DietsResponseType>>("getDiets")
                 .ResolveAsync(async context => await dietsRepository.GetDietsAsync());
 
-            Field<DetailsResponseType>("getDetails")
-            .Authorize()
-            .ResolveAsync(async context =>
-            {
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
-
-                if (userEmail == null)
-                {
-                    return new DetailsResponse
-                    {
-                        Success = false,
-                        Message = "User not authenticated",
-                        Data = null
-                    };
-                }
-
-                var user = await userRepository.GetByEmailAsync(userEmail);
-
-                if (user == null)
-                {
-                    return new DetailsResponse
-                    {
-                        Success = false,
-                        Message = "User not found",
-                        Data = null
-                    };
-                }
-
-                return new DetailsResponse
-                {
-                    Success = true,
-                    Message = "User details retrieved successfully",
-                    Data = user
-                };
-            });
+            //Field<DetailsResponseType>("getDetails")
+            //.Authorize()
+            //.ResolveAsync(async context =>
+            //{
+            //    var userContext = context.UserContext as GraphQLUserContext;
+            //    var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
+            //
+            //    if (userEmail == null)
+            //    {
+            //        return new DetailsResponse
+            //        {
+            //            Success = false,
+            //            Message = "User not authenticated",
+            //            Data = null
+            //        };
+            //    }
+            //
+            //    var user = await userRepository.GetByEmailAsync(userEmail);
+            //
+            //    if (user == null)
+            //    {
+            //        return new DetailsResponse
+            //        {
+            //            Success = false,
+            //            Message = "User not found",
+            //            Data = null
+            //        };
+            //    }
+            //
+            //    return new DetailsResponse
+            //    {
+            //        Success = true,
+            //        Message = "User details retrieved successfully",
+            //        Data = user
+            //    };
+            //});
 
             Field<StringGraphType>("privateHello")
                 .Resolve(context => "Hello world (private)")
