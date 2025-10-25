@@ -52,8 +52,7 @@ namespace project_server.Schemas
                     {
                         Token = jwt
                     }, "Login successful");
-                }
-            );
+                });
 
             Field<ApiResponseGraphType<AuthResponseType, AuthResponse>>("registerUser")
             .Argument<RegisterInputType>("user", "registering user data")
@@ -157,7 +156,7 @@ namespace project_server.Schemas
                 );
             });
 
-            Field<ResetResponseType>("checkForStreakReset")
+            Field<ApiResponseGraphType<ResetResponseType, ResetResponse>>("checkForStreakReset")
                 .Authorize()
                 .ResolveAsync(async context =>
                 {
@@ -168,17 +167,15 @@ namespace project_server.Schemas
 
                 var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User), recentDays);
 
-                // Overthink result later
-                return new ResetResponse
-                {
-                    Success = true,
-                    Message = result == null
-                        ? $"Nothing to change {userId}"
-                        : "Streak changed"
-                };
+                return ApiResponse<ResetResponse>.Ok(
+                    new ResetResponse
+                    {
+                        CurrentStreak = result
+                    }, "Streak changed successfully");
+                
                 });
         
-            Field<MealTypesType>("addMealType")
+            Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("addMealType")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
@@ -189,10 +186,15 @@ namespace project_server.Schemas
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                    return await _mealTypeRepository.CreateAsync(userId.Value, name);
+                    var mealTypes = await _mealTypeRepository.CreateAsync(userId.Value, name);
+
+                    return ApiResponse<MealTypesResponse>.Ok(new MealTypesResponse
+                    {
+                        Items = new List<MealTypes> { mealTypes }
+                    }, "Meal type added successfully");
                 });
 
-            Field<MealTypesType>("deleteMealType")
+            Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("deleteMealType")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
@@ -203,8 +205,12 @@ namespace project_server.Schemas
                     
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    
+                    return ApiResponse<MealTypesResponse>.Ok(new MealTypesResponse
+                    {
+                        Items = new List<MealTypes> { await _mealTypeRepository.DeleteByNameAsync(userId.Value, name) }
+                    }, "Meal type added successfully");
 
-                    return await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
                 });
         }
     }
