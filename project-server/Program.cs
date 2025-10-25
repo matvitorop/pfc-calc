@@ -58,8 +58,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
 
-builder.Services.AddScoped<IDaysRepository, DaysRepository>();//hmm??
-builder.Services.AddScoped<IItemService, ItemService>();//change
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();//hmm??(dublicate)
+builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
 
