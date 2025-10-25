@@ -73,7 +73,7 @@ namespace project_server.Repositories.Item
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
-            var sql = "SELECT * FROM Items WHERE id IN @ItemId";
+            var sql = "SELECT * FROM Items WHERE id = @ItemId";
 
             return db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
         }

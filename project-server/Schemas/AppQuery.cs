@@ -60,13 +60,13 @@ namespace project_server.Schemas
                 .Authorize();
 
             Field<ListGraphType<MealTypesType>>("getUserMealTypes")
-                .Authorize()
-                .ResolveAsync(async context =>
-                {
-                    var userId = context.GetUserId(_jwtHelper);
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+                var userId = context.GetUserId(_jwtHelper);
 
-                    return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
-                });
+                return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
+            });
 
             Field<ListGraphType<ItemShortType>>("searchItems")
             .Authorize()
@@ -95,18 +95,18 @@ namespace project_server.Schemas
             });
 
             Field<ListGraphType<UserDayItemType>>("getSummary")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<DateTimeGraphType>> { Name = "day" }
-                ))
-                .ResolveAsync(async context =>
-                {
-                    var day = context.GetArgument<DateTime>("day");
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<DateTimeGraphType>> { Name = "day" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var day = context.GetArgument<DateTime>("day");
+                var userContext = context.UserContext as GraphQLUserContext;
+                var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                    return await _daysService.GetUserSummaryAsync(userId.Value, day);
-                });
+                return await _daysService.GetUserSummaryAsync(userId.Value, day);
+            });
         }
 
     }    
