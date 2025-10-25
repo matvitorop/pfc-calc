@@ -8,7 +8,7 @@ using project_server.Repositories.ActivityCoef;
 using project_server.Repositories.Diet;
 using project_server.Repositories_part;
 using project_server.Repositories.Item;
-
+// ПОДУМАТИ НАД ОБГОРТКОЮ КЛАСУ
 namespace project_server.Schemas
 {
     public class AppQuery : ObjectGraphType
@@ -25,42 +25,35 @@ namespace project_server.Schemas
             Field<ListGraphType<DietsResponseType>>("getDiets")
                 .ResolveAsync(async context => await dietsRepository.GetDietsAsync());
 
-            //Field<DetailsResponseType>("getDetails")
-            //.Authorize()
-            //.ResolveAsync(async context =>
-            //{
-            //    var userContext = context.UserContext as GraphQLUserContext;
-            //    var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
-            //
-            //    if (userEmail == null)
-            //    {
-            //        return new DetailsResponse
-            //        {
-            //            Success = false,
-            //            Message = "User not authenticated",
-            //            Data = null
-            //        };
-            //    }
-            //
-            //    var user = await userRepository.GetByEmailAsync(userEmail);
-            //
-            //    if (user == null)
-            //    {
-            //        return new DetailsResponse
-            //        {
-            //            Success = false,
-            //            Message = "User not found",
-            //            Data = null
-            //        };
-            //    }
-            //
-            //    return new DetailsResponse
-            //    {
-            //        Success = true,
-            //        Message = "User details retrieved successfully",
-            //        Data = user
-            //    };
-            //});
+            Field<DetailsResponseType>("getDetails")
+            .Authorize()
+            .ResolveAsync(async context =>
+            {
+                var userEmail = context.GetUserEmail(_jwtHelper);
+
+                if (userEmail == null)
+                {
+                    return new DetailsResponse
+                    {
+                        UserDatails = null
+                    };
+                }
+            
+                var user = await userRepository.GetByEmailAsync(userEmail);
+            
+                if (user == null)
+                {
+                    return new DetailsResponse
+                    {
+                        UserDatails = null
+                    };
+                }
+            
+                return new DetailsResponse
+                {
+                    UserDatails = user
+                };
+            });
 
             Field<StringGraphType>("privateHello")
                 .Resolve(context => "Hello world (private)")

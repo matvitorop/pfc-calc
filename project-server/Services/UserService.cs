@@ -119,7 +119,9 @@ namespace project_server.Services_part
                     nameof(Users.Weight),
                     nameof(Users.Height),
                     nameof(Users.ActivityCoefId),
-                    nameof(Users.DietId)                };
+                    nameof(Users.DietId)                
+                };
+
                 bool isCustomDiet =      
                     string.Equals(fieldName, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
                     convertedValue is int dietId &&
