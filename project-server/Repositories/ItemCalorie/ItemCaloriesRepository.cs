@@ -36,7 +36,8 @@ namespace project_server.Repositories.ItemCalorie
             var sql = @"UPDATE ItemCalories 
                 SET calories = @Calories 
                 WHERE item_id = @ItemId";
-            return await db.QuerySingleAsync<ItemCalories>(sql, itemCalories);//hmm
+            var result = await db.QuerySingleOrDefaultAsync<ItemCalories>(sql, itemCalories);
+            return result ?? itemCalories;
         }
     }
 }
