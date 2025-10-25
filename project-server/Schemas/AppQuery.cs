@@ -82,28 +82,31 @@ namespace project_server.Schemas
                 });
             //NOTES
             Field<ListGraphType<NotesType>>("getActiveNotes")
-                .Authorize()
+//                .Authorize()
                 .ResolveAsync(async context =>
                     {
                         var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        var userId = 1; // тимчасово, якщо .Authorize вимкнено
+//                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                        return await _notesRepository.GetActiveNotesAsync(userId.Value);
+                        return await _notesRepository.GetActiveNotesAsync(userId/*.Value*/);
                     }
                 );
             Field<ListGraphType<NotesType>>("getCompletedNotes")
-                .Authorize()
+                //.Authorize()
                 .ResolveAsync(async context =>
                     {
                         var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        var userId = 1; // тимчасово, якщо .Authorize вимкнено
+                        
+                      //  var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                        return await _notesRepository.GetCompletedNotesAsync(userId.Value);
+                        return await _notesRepository.GetCompletedNotesAsync(userId/*.Value*/);
                     }
                 );
             //DAYS
             Field<ListGraphType<DaysType>>("getDays")
-                .Authorize()
+                //.Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<DateTimeGraphType> { Name = "day" },
                     new QueryArgument<IntGraphType> { Name = "limit" }
@@ -111,12 +114,12 @@ namespace project_server.Schemas
                 .ResolveAsync(async context =>
                 {
                     var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-
+                    //var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    var userId = 1; // тимчасово, якщо .Authorize вимкнено
                     var day = context.GetArgument<DateTime?>("day");
                     var limit = context.GetArgument<int?>("limit");
 
-                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit);
+                    return await _daysRepository.GetDaysAsync(userId/*.Value*/, day, limit);
                 });
         }
     }

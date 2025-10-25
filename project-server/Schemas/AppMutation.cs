@@ -189,23 +189,31 @@ namespace project_server.Schemas
             
             //NOTES 
             Field<NotesType>("addNote")
-                .Authorize()
-                .Arguments(new QueryArguments(
+                .Arguments(new QueryArguments(                 //.Authorize()
                         new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "title" },
                         new QueryArgument<DateTimeGraphType> { Name = "dueDate" },
-                        new QueryArgument<BooleanGraphType> { Name = "isCompleted" }
+                        new QueryArgument<BooleanGraphType> { Name = "isCompleted" } //can remove?
                     )
                 )
                 .ResolveAsync(async context =>
                 {
+                    try
+                    {
                     var title = context.GetArgument<string>("title");
                     var dueDate = context.GetArgument<DateTime?>("dueDate");
                     var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    return await _notesRepository.AddNoteAsync(userId.Value, title, dueDate);
+                    var userId = 1; // тимчасово, якщо .Authorize вимкнено
+//                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    return await _notesRepository.AddNoteAsync(userId/*.Value*/, title, dueDate);
+                }
+                catch (Exception ex)
+            {
+                Console.WriteLine($" GraphQL addNote error: {ex.Message}");
+                throw; // щоб GraphQL все одно показав помилку
+            }
                 });
             Field<NotesType>("deleteNote")
-                .Authorize()
+                //.Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
                 )
@@ -213,12 +221,13 @@ namespace project_server.Schemas
                     {
                         var id = context.GetArgument<int>("id");
                         var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                        return await _notesRepository.DeleteNoteAsync(id, userId.Value);
+                        //var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        var userId = 1; // тимчасово, якщо .Authorize вимкнено
+                        return await _notesRepository.DeleteNoteAsync(id, userId/*.Value*/);
                     }
                 );
             Field<NotesType>("completeNote")
-                .Authorize()
+                //.Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
                 )
@@ -226,12 +235,13 @@ namespace project_server.Schemas
                     {
                         var id = context.GetArgument<int>("id");
                         var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                        return await _notesRepository.CompleteNoteAsync(id, userId.Value);
+                        var userId = 1; // тимчасово, якщо .Authorize вимкнено
+                        //var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        return await _notesRepository.CompleteNoteAsync(id, userId/*.Value*/);
                     }
                 );
-            Field<ItemsInputType>("addCustomItem")
-                .Authorize()
+            Field<ItemsResponseType>("addCustomItem") //changed input on response
+               // .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
                     new QueryArgument<FloatGraphType> { Name = "calories" }
@@ -244,120 +254,128 @@ namespace project_server.Schemas
                     var calories = context.GetArgument<double?>("calories");
 
                     var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    double finalCalories;
+                  //  var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                  var userId = 1; // тимчасово, якщо .Authorize вимкнено  
+                  double finalCalories;
 
                     if (!calories.HasValue)
                     {
                         // Якщо калорії не передані — рахуємо їх через сервіс
-                        if (input.Proteins.HasValue && input.Fats.HasValue && input.Carbs.HasValue)
 
-                        {
                             finalCalories = _itemService.CalculateCalories(
                                 input.Carbs.Value, 
                                 input.Proteins.Value, 
                                 input.Fats.Value
                             );
-                        }
-                        else
-                        {
-                            throw new ExecutionError("To calculate calories, you need to enter proteins, fats and carbohydrates, or calories directly.");
-                        }
                     }
                     else
                     {
                         // Якщо калорії передані — використовуємо їх напряму
                         finalCalories = calories.Value;
                     }
+                    double proteins = input.Proteins ?? 0;
+                    double fats = input.Fats ?? 0;
+                    double carbs = input.Carbs ?? 0;
+
                     var item = new Items
                     {
-                        UserId = userId.Value,
+                        UserId = userId,
                         Name = input.Name,
                         Description = input.Description,
-                        Proteins = input.Proteins.Value,
-                        Fats = input.Fats.Value,
-                        Carbs = input.Carbs.Value,
-                        ApiId = null // кастомний продукт
+                        Proteins = proteins,
+                        Fats = fats,
+                        Carbs = carbs,
+                        ApiId = null
                     };
                     var createdItem = await _itemsRepository.AddItemAsync(item);
-                    
-                    if (!calories.HasValue)
-                    {
-                        var itemCalories = new ItemCalories
-                        {
-                            ItemId = createdItem.Id,
-                            Calories = (float)finalCalories
-                        };
-                        await _itemService.AddItemAsync(itemCalories, createdItem);
-                    }
 
+                    var itemCalories = new ItemCalories
+                    {
+                        ItemId = createdItem.Id,
+                        Calories = (float)finalCalories
+                    };
+                    await _itemService.AddItemAsync(itemCalories, createdItem);//hmm
                     return createdItem;
                 });       //restore left
             
-          Field<ItemsInputType>("changeCustomItem")
-    .Authorize()
-    .Arguments(new QueryArguments(
-        new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
+          Field<ItemsResponseType>("changeCustomItem") //changed input on response
+      //.Authorize()
+        .Arguments(new QueryArguments(
+        new QueryArgument<NonNullGraphType<ItemsUpdateInputType>> { Name = "updateCustomItem" },
         new QueryArgument<FloatGraphType> { Name = "calories" }
     ))
-    .ResolveAsync(async context =>
+        .ResolveAsync(async context =>
     {
-        var input = context.GetArgument<ItemsInput>("customItem");
-        var calories = context.GetArgument<double?>("calories");
-
-        var userContext = context.UserContext as GraphQLUserContext;
-        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-
-        double finalCalories;
-
-        if (!calories.HasValue)
+        try
         {
-            if (input.Proteins.HasValue && input.Fats.HasValue && input.Carbs.HasValue)
+            var input = context.GetArgument<ItemsUpdateInput>("updateCustomItem");
+            var calories = context.GetArgument<double?>("calories");
+
+            var userContext = context.UserContext as GraphQLUserContext;
+            //  var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+            var userId = 1; // тимчасово, якщо .Authorize вимкнено  
+            
+            
+            // безпечне отримання нутрієнтів
+            double proteins = input.Proteins ?? 0;
+            double fats     = input.Fats ?? 0;
+            double carbs    = input.Carbs ?? 0;
+          //  double finalCalories;
+            // розрахунок калорій
+            double finalCalories = calories ?? _itemService.CalculateCalories(proteins, fats, carbs);
+           /* if (!calories.HasValue)
             {
                 finalCalories = _itemService.CalculateCalories(
-                    input.Carbs.Value, 
-                    input.Proteins.Value, 
+                    input.Carbs.Value,
+                    input.Proteins.Value,
                     input.Fats.Value
                 );
             }
             else
             {
-                throw new ExecutionError("To calculate calories, you need to enter proteins, fats and carbohydrates, or calories directly.");
-            }
-        }
-        else
-        {
-            finalCalories = calories.Value;
-        }
-        
-        var updatedItem = await _itemsRepository.ChangeItemAsync(
-            input.Id,
-            null,
-            userId.Value,
-            input.Name,
-            input.Proteins.Value,
-            input.Fats.Value,
-            input.Carbs.Value,
-            input.Description
-        );
+                finalCalories = calories.Value;
+            }*/
 
-        var existingCalories = await _caloriesRepository.GetItemAsync(input.Id);
-        if (existingCalories != null)
-        {
-            existingCalories.Calories = (float)finalCalories;
-            await _caloriesRepository.UpdateItemCaloriesAsync(existingCalories);
-        }
-        else
-        {
-            var itemCalories = new ItemCalories
+            var updatedItem = await _itemsRepository.ChangeItemAsync(
+                input.Id,
+                null,
+                userId /*.Value*/,
+                input.Name,
+                proteins,
+                fats,
+                carbs,
+/*                input.Proteins.Value,
+                input.Fats.Value,
+                input.Carbs.Value,*/
+                input.Description
+            );
+
+            var existingCalories = await _caloriesRepository.GetItemAsync(input.Id);
+            if (existingCalories != null)
             {
-                ItemId = updatedItem.Id,
-                Calories = (float)finalCalories
-            };
-            await _itemService.AddItemAsync(itemCalories, updatedItem);
-        }
+                existingCalories.Calories = /*(float)*/finalCalories;
+               var updatedCalories = await _caloriesRepository.UpdateItemCaloriesAsync(existingCalories);
+            }
+            else
+            {
+                var itemCalories = new ItemCalories
+                {
+                    ItemId = updatedItem.Id,
+                    Calories = /*(float)*/finalCalories
+                };
+                await _itemService.AddItemAsync(itemCalories, updatedItem);
+            }
 
-        return updatedItem;
+            return updatedItem;
+        }
+        catch (Exception ex)
+        {
+            // якщо GraphQL, то обгортаємо виняток
+            if (context.UserContext is GraphQLUserContext)
+                 throw new ExecutionError(ex.Message);
+            // якщо сервісний шар, кидаємо звичайний виняток
+            throw;
+        }
     });
         }
     }

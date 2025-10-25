@@ -12,16 +12,26 @@ namespace project_server.Services
         {
             _itemCaloriesRepository=itemCaloriesRepository;
         }
+
         public double CalculateCalories(double carbs, double proteins, double fats)
         {
-            var result = (proteins * 4) + (fats * 9) + (carbs * 4);
-            return result;
+            if (proteins != 0 && fats != 0 && carbs != 0)
+            {
+                var result = (proteins * 4) + (fats * 9) + (carbs * 4);
+                return result;
+
+            }
+            else
+            {
+                throw new ArgumentException("To calculate calories, you need to enter proteins, fats and carbohydrates, or calories directly.");
+            }
+
         }
 
         // додати обробник помилок
-        public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items)
+        public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items) //items можна видалити
         {
-            item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
+//            item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
             return await _itemCaloriesRepository.AddItemAsync(item);
         }
     }

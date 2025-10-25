@@ -15,7 +15,9 @@ namespace project_server.Repositories_part
         }
         public async Task<Notes> AddNoteAsync(int userId, string title, DateTime? dueDate)
         {
-            using IDbConnection db = new SqlConnection(_coonnectionString);
+            using var db = new SqlConnection(_coonnectionString);
+            await db.OpenAsync();
+            Console.WriteLine("Connected to DB successfully!");
 
             var sql = @"INSERT INTO Notes (user_id, title, due_date, is_completed, completed_date)
                     OUTPUT INSERTED.*
