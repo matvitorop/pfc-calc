@@ -171,11 +171,11 @@ namespace project_server.Schemas
             });
         
             Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("addMealType")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
-                ))
-                .ResolveAsync(async context =>
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
+            ))
+            .ResolveAsync(async context =>
                 {
                     var name = context.GetArgument<string>("name");
                     var userId = context.GetUserId(_jwtHelper);
@@ -194,11 +194,11 @@ namespace project_server.Schemas
                 });
 
             Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("deleteMealType")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
-                ))
-                .ResolveAsync(async context =>
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
+            ))
+            .ResolveAsync(async context =>
                 {
                     var name = context.GetArgument<string>("name");
                     var userId = context.GetUserId(_jwtHelper);
