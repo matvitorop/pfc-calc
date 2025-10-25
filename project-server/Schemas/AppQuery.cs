@@ -2,7 +2,6 @@
 using GraphQL.Types;
 using project_server.Services;
 using GraphQL.Authorization;
-
 using project_server.Repositories;
 using project_server.Repositories.ActivityCoef;
 using project_server.Repositories.Diet;
@@ -15,7 +14,8 @@ namespace project_server.Schemas
     {
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
-            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository, INotesRepository _notesRepository, IDaysRepository _daysRepository)
+            JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository, INotesRepository _notesRepository,
+            IDaysRepository _daysRepository)
         {
             //Field<StringGraphType>("publicHello")
             //    .Resolve(context => "Hello world (public)");
@@ -25,47 +25,47 @@ namespace project_server.Schemas
             //    .Authorize();
 
             Field<ListGraphType<ActivityCoefficientsResponseType>>("getCoef")
-               .ResolveAsync(async context => await activityCoefRepository.GetAcitivityCoefsAsync());
+                .ResolveAsync(async context => await activityCoefRepository.GetAcitivityCoefsAsync());
 
             Field<ListGraphType<DietsResponseType>>("getDiets")
                 .ResolveAsync(async context => await dietsRepository.GetDietsAsync());
 
             Field<DetailsResponseType>("getDetails")
-            .Authorize()
-            .ResolveAsync(async context =>
-            {
-                var userContext = context.UserContext as GraphQLUserContext;
-                var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
-
-                if (userEmail == null)
+                .Authorize()
+                .ResolveAsync(async context =>
                 {
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
+
+                    if (userEmail == null)
+                    {
+                        return new DetailsResponse
+                        {
+                            Success = false,
+                            Message = "User not authenticated",
+                            Data = null
+                        };
+                    }
+
+                    var user = await userRepository.GetByEmailAsync(userEmail);
+
+                    if (user == null)
+                    {
+                        return new DetailsResponse
+                        {
+                            Success = false,
+                            Message = "User not found",
+                            Data = null
+                        };
+                    }
+
                     return new DetailsResponse
                     {
-                        Success = false,
-                        Message = "User not authenticated",
-                        Data = null
+                        Success = true,
+                        Message = "User details retrieved successfully",
+                        Data = user
                     };
-                }
-
-                var user = await userRepository.GetByEmailAsync(userEmail);
-
-                if (user == null)
-                {
-                    return new DetailsResponse
-                    {
-                        Success = false,
-                        Message = "User not found",
-                        Data = null
-                    };
-                }
-
-                return new DetailsResponse
-                {
-                    Success = true,
-                    Message = "User details retrieved successfully",
-                    Data = user
-                };
-            });
+                });
 
             Field<StringGraphType>("privateHello")
                 .Resolve(context => "Hello world (private)")
@@ -77,36 +77,33 @@ namespace project_server.Schemas
                 {
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-           
+
                     return await _mealTypeRepository.GetByUserIdAsync(userId.Value);
                 });
             //NOTES
             Field<ListGraphType<NotesType>>("getActiveNotes")
-//                .Authorize()
+                .Authorize()
                 .ResolveAsync(async context =>
                     {
                         var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = 1; // тимчасово, якщо .Authorize вимкнено
-//                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                        return await _notesRepository.GetActiveNotesAsync(userId/*.Value*/);
+                        return await _notesRepository.GetActiveNotesAsync(userId.Value);
                     }
                 );
             Field<ListGraphType<NotesType>>("getCompletedNotes")
-                //.Authorize()
+                .Authorize()
                 .ResolveAsync(async context =>
                     {
                         var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = 1; // тимчасово, якщо .Authorize вимкнено
-                        
-                      //  var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                        return await _notesRepository.GetCompletedNotesAsync(userId/*.Value*/);
+                        return await _notesRepository.GetCompletedNotesAsync(userId.Value);
                     }
                 );
             //DAYS
             Field<ListGraphType<DaysType>>("getDays")
-                //.Authorize()
+                .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<DateTimeGraphType> { Name = "day" },
                     new QueryArgument<IntGraphType> { Name = "limit" }
@@ -114,12 +111,11 @@ namespace project_server.Schemas
                 .ResolveAsync(async context =>
                 {
                     var userContext = context.UserContext as GraphQLUserContext;
-                    //var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    var userId = 1; // тимчасово, якщо .Authorize вимкнено
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
                     var day = context.GetArgument<DateTime?>("day");
                     var limit = context.GetArgument<int?>("limit");
 
-                    return await _daysRepository.GetDaysAsync(userId/*.Value*/, day, limit);
+                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit);
                 });
         }
     }

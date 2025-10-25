@@ -28,8 +28,8 @@ namespace project_server.Services
 
         }
 
-        // додати обробник помилок
-        public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items) //items можна видалити
+        //add error handler
+        public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items) //items сould delete
         {
 //            item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
             return await _itemCaloriesRepository.AddItemAsync(item);
