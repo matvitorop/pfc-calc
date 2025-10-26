@@ -15,7 +15,7 @@ namespace project_server.Schemas
             JwtHelper _jwtHelper,
             IStreakService _counterChangerService, 
             IDaysRepository _daysRepository, 
-            IMealTypeRepository _mealTypeRepository, IDaysServise _daysServise)
+            IMealTypeRepository _mealTypeRepository, IDaysService _daysServiсe)
         {
             Field<LoginResponseType>("loginUser")
             .Arguments(new QueryArguments(
@@ -93,20 +93,8 @@ namespace project_server.Schemas
                 try
                 {
                     var input = context.GetArgument<DetailsInput>("details");
-
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-
-                    if (!userId.HasValue)
-                    {
-                        return new DetailsResponse
-                        {
-                            Success = false,
-                            Message = "User not authenticated or token invalid",
-                            Data = null
-                        };
-                    }
-
                     var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
 
                     if (user == null)
@@ -207,24 +195,12 @@ namespace project_server.Schemas
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
                     var userEmail = _jwtHelper.GetEmailFromToken(userContext.User);
 
-                    if (!userId.HasValue)
-                    {
-                        return new DaysResponse
-                        {
-                            Success = false,
-                            Message = "User not authenticated or token invalid",
-                            Data = null
-                        };
-                    }
-
-
                     var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
+                    var streakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
+                    if (streakChangeresult == null)
+                        return new DaysResponse { Success = false, Message = "Changing counter failed", Data = null };
 
-                    var StreakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
-
-
-                    var result = await _daysServise.AddItemForDayAsync(userId.Value, input.Day, input.MealTypeId, input.Item, input.Measurement);
-
+                    var result = await _daysServiсe.AddItemForDayAsync(userId.Value, input.Day, input.MealTypeId, input.Item, input.Measurement);
                     if (result == null)
                         return new DaysResponse { Success = false, Message = "User not found", Data = null };
 
@@ -243,7 +219,7 @@ namespace project_server.Schemas
                         Message = $"Adding item to day failed: {ex.Message}",
                         Data = null
                     };
-                    }
+                }
 
             });
 
@@ -260,7 +236,7 @@ namespace project_server.Schemas
                     int dayId = context.GetArgument<int>("id");
                     double measurement = context.GetArgument<double>("measurement");
 
-                    var result = await _daysServise.ChangeMesurementAsync(dayId, measurement);
+                    var result = await _daysServiсe.ChangeMeasurementAsync(dayId, measurement);
                     if (result == null)
                     {
                         return new DaysResponse
@@ -298,7 +274,7 @@ namespace project_server.Schemas
                 try
                 {
                     int dayId = context.GetArgument<int>("id");
-                    var result = await _daysServise.DeleteItemFromDayAsync(dayId);
+                    var result = await _daysServiсe.DeleteItemFromDayAsync(dayId);
                     if (result == null)
                     {
 

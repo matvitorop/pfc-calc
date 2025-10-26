@@ -32,28 +32,7 @@ namespace project_server.Schemas
                 {
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
-
-                    if (userEmail == null)
-                    {
-                        return new DetailsResponse
-                        {
-                            Success = false,
-                            Message = "User not authenticated",
-                            Data = null
-                        };
-                    }
-
                     var user = await userRepository.GetByEmailAsync(userEmail);
-
-                    if (user == null)
-                    {
-                        return new DetailsResponse
-                        {
-                            Success = false,
-                            Message = "User not found",
-                            Data = null
-                        };
-                    }
 
                     return new DetailsResponse
                     {

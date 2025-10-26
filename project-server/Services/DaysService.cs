@@ -7,14 +7,14 @@ using project_server.Schemas;
 
 namespace project_server.Services
 {
-    public class DaysServise : IDaysServise
+    public class DaysService : IDaysService
     {
         private readonly IUserRepository _userRepo;
         private readonly IItemsRepository _itemRepo;
         private readonly IDaysRepository _daysRepo;
         private readonly IItemService _itemService;
 
-        public DaysServise(IUserRepository userRepository, IItemsRepository itemRepository, IDaysRepository daysRepository, IItemService itemService)
+        public DaysService(IUserRepository userRepository, IItemsRepository itemRepository, IDaysRepository daysRepository, IItemService itemService)
         {
             _userRepo = userRepository;
             _itemRepo = itemRepository;
@@ -34,50 +34,41 @@ namespace project_server.Services
                 if (!string.IsNullOrEmpty(item.ApiId))
                 {
                     var isItemInDB = await _itemRepo.GetItemByApiIdAsync(item.ApiId);
-                    if (isItemInDB != null)
+                    if (isItemInDB == null)
                     {
                          await _itemRepo.AddItemAsync(item);
                          await _itemService.AddItemAsync(item);
                     }
                 }
-
-                if (item.Id > 0)
+                var daysModel = new Days
                 {
-                    var daysModel = new Days
-                    {
-                        UserId = userId,
-                        Day = day.Date,
-                        MealTypeId = mealTypeId,
-                        ItemId = item.Id,
-                        Measurement = measuremant
-                    };
-                    var addedItemForDays = await _daysRepo.AddDayAsync(daysModel);
-                    return addedItemForDays;
-                }
-                return null;
-                
+                    UserId = userId,
+                    Day = day.Date,
+                    MealTypeId = mealTypeId,
+                    ItemId = item.Id,
+                    Measurement = measuremant
+                };
+                var addedItemForDays = await _daysRepo.AddDayAsync(daysModel);
+                return addedItemForDays;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
                 throw;
             }
         }
 
-        public async Task<Days?> ChangeMesurementAsync(int id, double measurement)
+        public async Task<Days?> ChangeMeasurementAsync(int id, double measurement)
         {
             try
             {
-                if (id < 1 && measurement < 1)
+                if (measurement < 1)
                 {
                     return null;
                 }
-
                 return await _daysRepo.ChangeMeasurementDayAsync(id, measurement);
             }
             catch (Exception ex)
-            {
-                Console.WriteLine(ex);
+            { 
                 throw;
             }
         }
@@ -86,16 +77,10 @@ namespace project_server.Services
         {
             try
             {
-                if (id < 1)
-                {
-                    return null;
-                }
-
                 return await _daysRepo.DeleteDayAsync(id);
             }
             catch (Exception ex)
-            {
-                Console.WriteLine(ex);
+            {   
                 throw;
             }
         }

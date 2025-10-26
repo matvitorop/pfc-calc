@@ -91,27 +91,26 @@ namespace project_server.Services_part
             try
             {
                 string fieldNamePascalCase = SnakeToPascalCase(fieldName);
-
                 var property = typeof(Users).GetProperty(fieldNamePascalCase);
                 if (property == null)
                     throw new ArgumentException($"Field '{fieldNamePascalCase}' not found in Users model");
 
                 var targetType = property.PropertyType;
-
                 object? convertedValue;
                 try
-                { 
+                {
                     var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
                     convertedValue = Convert.ChangeType(value, underlyingType);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine($"Type conversion failed for field '{fieldName}': {ex.Message}");
                     return null;
                 }
 
                 var updatedUser = await _userRepo.UpdateUserDetailsAsync(id, fieldName, convertedValue);
-                if (updatedUser == null) return null;
-
+                if (updatedUser == null)
+                    return null;
 
                 var fieldsThatAffectCalories = new HashSet<string>
                 {
@@ -119,18 +118,19 @@ namespace project_server.Services_part
                     nameof(Users.Weight),
                     nameof(Users.Height),
                     nameof(Users.ActivityCoefId),
-                    nameof(Users.DietId)                };
-                bool isCustomDiet =      
-                    string.Equals(fieldName, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
+                    nameof(Users.DietId)
+                };
+
+                bool isCustomDiet =
+                    string.Equals(fieldNamePascalCase, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
                     convertedValue is int dietId &&
                     dietId == (int)DietConstants.CustomCalorieDietId;
 
                 if (isCustomDiet)
                     return updatedUser;
 
-                if (fieldsThatAffectCalories.Contains(fieldName))
+                if (fieldsThatAffectCalories.Contains(fieldNamePascalCase))
                 {
-
                     updatedUser = await _caloriesStandartService.RecalculateCaloriesStandard(updatedUser);
                 }
 

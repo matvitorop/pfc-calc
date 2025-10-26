@@ -58,7 +58,7 @@ builder.Services.AddScoped<IActivityCoefficientsRepository, project_server.Repos
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
-builder.Services.AddScoped<IDaysServise, DaysServise>();
+builder.Services.AddScoped<IDaysService, DaysService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 
 
