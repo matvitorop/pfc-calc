@@ -26,7 +26,7 @@ namespace project_server.Services
         {
             try
             {
-                if (day.Date != DateTime.UtcNow.Date)
+                if (day.Date != DateTime.UtcNow.Date  || measuremant < 1)
                 {
                     return null;
                 }
