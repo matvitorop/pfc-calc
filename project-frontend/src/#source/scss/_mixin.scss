@@ -1,0 +1,100 @@
+$fontFamily: "Manrope";
+$fontSize: 1.125rem;
+
+$mainColor: #6a6e77;
+$darkColor: #1c1f25;
+
+$minWidth: 320;
+$maxWidth: 1400;
+$maxHeigth: 1080;
+$containerPadding: 480;
+
+$maxWidthContainer: 0;
+
+$containerWidth: $maxWidthContainer + $containerPadding;
+
+$pc: em($containerWidth);
+
+$resposiveType: 1;
+
+//$f: math.div(230,3);
+//@debug $f;
+@mixin math($math, $startvalue, $secondvalue) {
+    #{$math}: ($startvalue / $secondvalue) + "px";
+}
+
+@mixin adaptive-value($property, $minSize, $maxSize) {
+    $min-screen: $minWidth;
+    $max-screen: $maxWidth;
+    $addsize: $maxSize - $minSize;
+    $screen-width: $max-screen - $min-screen;
+    $screen-range: calc(
+        100vw - (#{$min-screen + "px"})
+    ); //* it works only when i`ve added calc fuction to $screen-range
+    $valueSize: calc(
+        #{$minSize + px} + #{$addsize} * #{$screen-range} / #{$screen-width}
+    ); //* complete todo you need to complete problem with this mixin to no have problems in the future
+    #{$property}: $valueSize;
+}
+@mixin show {
+    opacity: 1;
+    visibility: visible;
+}
+@mixin hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+@mixin visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    border: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    clip-path: inset(100%) !important;
+    clip: rect(0 0 0 0) !important;
+    overflow: hidden !important;
+}
+
+@mixin visually-visible {
+    width: 100% !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border: initial;
+    padding: initial;
+    white-space: normal;
+    clip-path: none;
+    clip: auto;
+    overflow: visible;
+}
+
+@mixin hover($hasActiveEffectOnMobile: true) {
+    @media (any-hover: hover) {
+        &:hover {
+            @content;
+        }
+    }
+    @if ($hasActiveEffectOnMobile) {
+        @media (any-hover: none) {
+            &:active {
+                @content;
+            }
+        }
+    }
+}
+
+@mixin adaptive-value-width($property, $minSize, $maxSize, $min-Width, $max-Width) {
+    $min-screen: $min-Width;
+    $max-screen: $max-Width;
+    $addsize: $maxSize - $minSize;
+    $screen-width: $max-screen - $min-screen;
+    $screen-range: calc(
+        100vw - (#{$min-screen + "px"})
+    ); //* it works only when i`ve added calc fuction to $screen-range
+    $valueSize: calc(
+        #{$minSize + px} + #{$addsize} * #{$screen-range} / #{$screen-width}
+    ); //* complete todo you need to complete problem with this mixin to no have problems in the future
+    #{$property}: $valueSize;
+}

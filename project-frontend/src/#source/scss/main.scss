@@ -1,0 +1,46 @@
+@import "_nullstyle";
+@import "_mixin";
+//@import "_fonts";
+//under development
+
+body {
+    font-family: $fontFamily, sans-serif;
+    font-size: $fontSize;
+    color: #000;
+    background-color: #6363613e;
+    //background: #353535e0;
+    //background: rgb(79, 79, 79);
+    //background: #295562; // maybe sa variant of background color #295562
+}
+
+.wrapper {
+    display: flex;
+    background: #0000005c;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    @include adaptive-value(padding-left, 15, 40);
+    @include adaptive-value(padding-right, 15, 40);
+}
+
+/*[class*="__container"] {
+    @include adaptive-value(padding-left, 15, 40, $minWidth, $maxWidth);
+    @include adaptive-value(padding-right, 15, 40, $minWidth, $maxWidth);
+}*/
+/* .main__container {
+    // padding: 30px;
+    min-height: 100%;
+    width: 100%;
+    display: flex;
+    font-size: 16px;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 25px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 25px;
+    margin-top: 45px;
+} */
