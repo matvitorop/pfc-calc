@@ -18,16 +18,16 @@ const dietSlice = createSlice({
     name: 'diets',
     initialState,
     reducers: {
-        fetchStart(state) {
+        fetchStart: (state) => {
             state.loading = true;
             state.error = null;
         },
-        fetchSuccess(state, action: PayloadAction<Diet[]>) {
+        fetchSuccess: (state, action: PayloadAction<Diet[]>) => {
             state.data = action.payload;
             state.loading = false;
             state.error = null;
         },
-        fetchFailure(state, action: PayloadAction<string>) {
+        fetchFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
