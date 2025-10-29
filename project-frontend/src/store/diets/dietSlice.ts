@@ -1,29 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ActivityCoefficient } from "./coefAPI";
+import type { Diet } from "./dietAPI";
 
-
-interface CoefState {
-    data: ActivityCoefficient[];
+interface dietState {
+    data: Diet[];
     loading: boolean;
     error: string | null;
 }
 
-const initialState: CoefState = {
+const initialState: dietState = {
     data: [],
     loading: false,
     error: null
 }
 
-const todoSlice = createSlice({
-    name: 'coef',
+const dietSlice = createSlice({
+    name: 'diets',
     initialState,
     reducers: {
         fetchStart(state) {
             state.loading = true;
             state.error = null;
         },
-        fetchSuccess(state, action: PayloadAction<ActivityCoefficient[]>) {
+        fetchSuccess(state, action: PayloadAction<Diet[]>) {
             state.data = action.payload;
             state.loading = false;
             state.error = null;
@@ -35,6 +34,5 @@ const todoSlice = createSlice({
     },
 })
 
-export const { fetchStart, fetchSuccess, fetchFailure } = todoSlice.actions;
-
-export default todoSlice.reducer;
+export const { fetchStart, fetchSuccess, fetchFailure } = dietSlice.actions;
+export default dietSlice.reducer;
