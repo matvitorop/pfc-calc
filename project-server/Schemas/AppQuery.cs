@@ -56,8 +56,8 @@ namespace project_server.Schemas
             });
 
             Field<StringGraphType>("privateHello")
-                .Resolve(context => "Hello world (private)")
-                .Authorize();
+            .Resolve(context => "Hello world (private)")
+            .Authorize();
 
             Field<ListGraphType<MealTypesType>>("getUserMealTypes")
             .Authorize()
