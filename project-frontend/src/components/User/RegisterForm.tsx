@@ -89,13 +89,19 @@ const RegisterForm: React.FC = () => {
                     <div className="card shadow-lg border-0 p-4">
                         <h3 className="text-center mb-4">User Registration</h3>
 
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form onSubmit={handleSubmit(onSubmit)} noValidate>
                             <div className="mb-3">
                                 <label className="form-label">Email</label>
                                 <input
                                     type="email"
-                                    className="form-control"
-                                    {...register("email", { required: "Email is required" })}
+                                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                    {...register("email", {
+                                        required: "Email is required",
+                                        pattern: {
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: "Invalid email format",
+                                        },
+                                    })}
                                 />
                                 {errors.email && (
                                     <div className="invalid-feedback d-block">{errors.email.message}</div>
@@ -106,8 +112,10 @@ const RegisterForm: React.FC = () => {
                                 <label className="form-label">Username</label>
                                 <input
                                     type="text"
-                                    className="form-control"
-                                    {...register("username", { required: "Username is required" })}
+                                    className={`form-control ${errors.username ? "is-invalid" : ""}`}
+                                    {...register("username", {
+                                        required: "Username is required",
+                                    })}
                                 />
                                 {errors.username && (
                                     <div className="invalid-feedback d-block">{errors.username.message}</div>
@@ -121,7 +129,10 @@ const RegisterForm: React.FC = () => {
                                     className={`form-control ${errors.password ? "is-invalid" : ""}`}
                                     {...register("password", {
                                         required: "Password is required",
-                                        minLength: { value: 6, message: "At least 6 characters" },
+                                        minLength: {
+                                            value: 6,
+                                            message: "Password must be at least 6 characters",
+                                        },
                                     })}
                                 />
                                 {errors.password && (
@@ -146,25 +157,39 @@ const RegisterForm: React.FC = () => {
                                 <input
                                     type="number"
                                     step="0.1"
-                                    className="form-control"
-                                    {...register("weight", { required: "Weight is required" })}
+                                    className={`form-control ${errors.weight ? "is-invalid" : ""}`}
+                                    {...register("weight", {
+                                        required: "Weight is required",
+                                        min: { value: 1, message: "Weight must be positive" },
+                                    })}
                                 />
+                                {errors.weight && (
+                                    <div className="invalid-feedback d-block">{errors.weight.message}</div>
+                                )}
                             </div>
                             <div className="mb-3">
                                 <label className="form-label">Height (cm)</label>
                                 <input
                                     type="number"
                                     step="0.1"
-                                    className="form-control"
-                                    {...register("height", { required: "Height is required" })}
+                                    className={`form-control ${errors.height ? "is-invalid" : ""}`}
+                                    {...register("height", {
+                                        required: "Height is required",
+                                        min: { value: 1, message: "Height must be positive" },
+                                    })}
                                 />
+                                {errors.height && (
+                                    <div className="invalid-feedback d-block">{errors.height.message}</div>
+                                )}
                             </div>
 
                             <div className="mb-3">
                                 <label className="form-label">Activity Coefficient</label>
                                 <select
                                     className="form-select"
-                                    {...register("activityCoefId", { required: "Please select activity" })}
+                                    {...register("activityCoefId", {
+                                        required: "Please select activity",
+                                    })}
                                 >
                                     <option value="">Select...</option>
                                     {coefs.map((c) => (
@@ -173,6 +198,11 @@ const RegisterForm: React.FC = () => {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.activityCoefId && (
+                                    <div className="invalid-feedback d-block">
+                                        {errors.activityCoefId.message}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mb-3">
@@ -188,6 +218,9 @@ const RegisterForm: React.FC = () => {
                                         </option>
                                     ))}
                                 </select>
+                                {errors.dietId && (
+                                    <div className="invalid-feedback d-block">{errors.dietId.message}</div>
+                                )}
                             </div>
 
                             <button type="submit" className="btn btn-primary w-100 mt-3">

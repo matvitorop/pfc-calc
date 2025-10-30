@@ -79,7 +79,13 @@ const LoginForm: React.FC = () => {
                                 <input
                                     type="password"
                                     className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                                    {...register("password", { required: "Password is required" })}
+                                    {...register("password", {
+                                        required: "Password is required",
+                                        minLength: {
+                                            value: 6,
+                                            message: "Password must be at least 6 characters",
+                                        }
+                                    })}
                                 />
                                 {errors.password && (
                                     <div className="invalid-feedback d-block">{errors.password.message}</div>
