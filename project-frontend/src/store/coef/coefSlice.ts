@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { ActivityCoefficient } from "./coefAPI";
 
-
 interface CoefState {
     data: ActivityCoefficient[];
     loading: boolean;
@@ -19,16 +18,16 @@ const todoSlice = createSlice({
     name: 'coef',
     initialState,
     reducers: {
-        fetchStart(state) {
+        fetchStart: (state) => {
             state.loading = true;
             state.error = null;
         },
-        fetchSuccess(state, action: PayloadAction<ActivityCoefficient[]>) {
+        fetchSuccess: (state, action: PayloadAction<ActivityCoefficient[]>) => {
             state.data = action.payload;
             state.loading = false;
             state.error = null;
         },
-        fetchFailure(state, action: PayloadAction<string>) {
+        fetchFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
@@ -36,5 +35,4 @@ const todoSlice = createSlice({
 })
 
 export const { fetchStart, fetchSuccess, fetchFailure } = todoSlice.actions;
-
 export default todoSlice.reducer;

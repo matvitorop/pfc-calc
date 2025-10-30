@@ -7,7 +7,7 @@ export interface Diet {
     fatPerc: number;
 }
 
-const GRAPHQL_API_URL = '/graphql';
+const GRAPHQL_API_URL = 'https://localhost:7049/graphql';
 
 export async function fetchDiets(): Promise<Diet[]> {
     const query = `
@@ -17,8 +17,8 @@ export async function fetchDiets(): Promise<Diet[]> {
                 name
                 description
                 proteinPerc
-                carbPerc
-                fatPerc
+                carbsPerc
+                fatsPerc
             }
         }`;
 

@@ -4,7 +4,7 @@ export interface ActivityCoefficient {
     value: number;
 }
 
-const GRAPHQL_API_URL = '/graphql';
+const GRAPHQL_API_URL = 'https://localhost:7049/graphql';
 
 export async function fetchActivityCoefficients(): Promise<ActivityCoefficient[]> {
     const query = `
