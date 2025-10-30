@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { graphqlFetch } from "../../GraphQL/fecthRequest";
 
 interface LoginFormData {
     email: string;
@@ -10,7 +11,7 @@ const LoginForm: React.FC = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<LoginFormData>();
 
     const onSubmit = async (data: LoginFormData) => {
@@ -18,48 +19,32 @@ const LoginForm: React.FC = () => {
       mutation Login($email: String!, $password: String!) {
         loginUser(email: $email, password: $password) {
           success
-          data {
-            token
-          }
+          data { token }
           message
         }
       }
     `;
 
         try {
-            const res = await fetch("https://localhost:7049/graphql", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    query: loginMutation,
-                    variables: {
-                        email: data.email,
-                        password: data.password,
-                    },
-                }),
-            });
+            const res = await graphqlFetch<{
+                loginUser: { success: boolean; data?: { token: string }; message?: string };
+            }>(
+                loginMutation,
+                { email: data.email, password: data.password },
+                true
+            );
 
-            if (!res.ok) {
-                const text = await res.text();
-                console.error("Server error:", res.status, text);
-                alert("Server error");
+            if (res.errors) {
+                console.error("GraphQL errors:", res.errors);
+                alert(res.errors[0].message || "Login failed");
                 return;
             }
 
-            const json = await res.json();
-
-            if (json.errors) {
-                console.error("GraphQL errors:", json.errors);
-                alert(json.errors[0].message || "Login failed");
-                return;
-            }
-
-            const result = json.data?.loginUser;
+            const result = res.data?.loginUser;
 
             if (result?.success) {
                 console.log("Login successful!");
-                console.log("Token:", result.data.token);
-                // тут можна зберегти токен у cookie або redux
+                console.log("Token:", result.data?.token);
                 alert("Logged in successfully!");
             } else {
                 alert(result?.message || "Invalid credentials");
@@ -82,28 +67,30 @@ const LoginForm: React.FC = () => {
                                 <label className="form-label">Email</label>
                                 <input
                                     type="email"
-                                    className="form-control"
+                                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
                                     {...register("email", { required: "Email is required" })}
                                 />
                                 {errors.email && (
                                     <div className="invalid-feedback d-block">{errors.email.message}</div>
                                 )}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label">Password</label>
                                 <input
                                     type="password"
-                                    className="form-control"
+                                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
                                     {...register("password", { required: "Password is required" })}
                                 />
                                 {errors.password && (
                                     <div className="invalid-feedback d-block">{errors.password.message}</div>
                                 )}
                             </div>
-
-                            <button type="submit" className="btn btn-primary w-100 mt-3">
-                                Login
+                            <button
+                                type="submit"
+                                className="btn btn-primary w-100 mt-3"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? "Logging in..." : "Login"}
                             </button>
                         </form>
                     </div>

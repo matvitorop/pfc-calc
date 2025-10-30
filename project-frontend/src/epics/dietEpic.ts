@@ -21,7 +21,7 @@ export const fetchDietsEpic = (action$: any) =>
     action$.pipe(
         ofType(fetchStart.type),
         mergeMap(() =>
-            from(graphqlFetch<{ getCoef: Diet[] }>(getDiets)).pipe(
+            from(graphqlFetch<{ getDiets: Diet[] }>(getDiets)).pipe(
                 map((res) => fetchSuccess(res.data?.getDiets ?? [])),
                 catchError((err) => of(fetchFailure(err.message)))
             )

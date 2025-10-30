@@ -3,7 +3,8 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import { fetchStart as fetchCoefStart} from "../../store/coef/coefSlice";
-import { fetchStart as fetchDietsStart} from "../../store/diets/dietSlice";
+import { fetchStart as fetchDietsStart } from "../../store/diets/dietSlice";
+import { graphqlFetch } from "../../GraphQL/fecthRequest";
 
 interface RegisterFormData {
     email: string;
@@ -28,11 +29,8 @@ const RegisterForm: React.FC = () => {
     } = useForm<RegisterFormData>();
 
     useEffect(() => {
-        const loadData = async () => {
-            dispatch(fetchCoefStart());
-            dispatch(fetchDietsStart());
-        };
-        loadData();
+        dispatch(fetchCoefStart());
+        dispatch(fetchDietsStart());
     }, [dispatch]);
 
     const onSubmit = async (data: RegisterFormData) => {
@@ -53,35 +51,27 @@ const RegisterForm: React.FC = () => {
             hashPass: data.password,
             username: data.username,
             age: new Date(data.age).toISOString(),
-            weight: parseFloat(data.weight.toString()),
-            height: parseFloat(data.height.toString()),
-            activityCoefId: parseInt(data.activityCoefId.toString(), 10),
-            dietId: parseInt(data.dietId.toString(), 10),
+            weight: +data.weight,
+            height: +data.height,
+            activityCoefId: +data.activityCoefId,
+            dietId: +data.dietId,
         };
 
         try {
-            const res = await fetch("https://localhost:7049/graphql", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    query: registerMutation,
-                    variables: { user: userPayload },
-                }),
-            });
+            const res = await graphqlFetch<{
+                registerUser: { success: boolean; data?: { token: string }; message?: string };
+            }>(registerMutation, { user: userPayload }, true);
 
-            const json = await res.json();
+            const result = res.data?.registerUser;
 
-            if (json.errors) {
-                console.error("GraphQL errors:", json.errors);
-                alert(json.errors[0].message || "Registration failed");
+            if (res.errors) {
+                console.error("GraphQL errors:", res.errors);
+                alert(res.errors[0].message || "Registration failed");
                 return;
             }
 
-            const result = json.data?.registerUser;
-
             if (result?.success) {
                 console.log("Registration successful!");
-                console.log("Token:", result.data.token);
                 alert("Registered successfully!");
             } else {
                 alert(result?.message || "Registration failed");
