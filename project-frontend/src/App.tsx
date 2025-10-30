@@ -4,8 +4,10 @@ import LoginForm from './components/User/LoginForm'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  return (
-    <RegisterForm />  
+    return (
+        <>
+            <RegisterForm />  
+        </>
   )
 }
 

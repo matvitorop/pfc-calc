@@ -1,7 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Diet } from "./dietAPI";
 
+export interface Diet {
+    id: number;
+    name: string;
+    description: string;
+    proteinPerc: number;
+    carbPerc: number;
+    fatPerc: number;
+}
 interface dietState {
     data: Diet[];
     loading: boolean;

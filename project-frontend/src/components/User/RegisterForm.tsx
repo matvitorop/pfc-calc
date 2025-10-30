@@ -2,20 +2,8 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
-import {
-    fetchStart as fetchCoefStart,
-    fetchSuccess as fetchCoefSuccess,
-    fetchFailure as fetchCoefError,
-} from "../../store/coef/coefSlice";
-
-//import { fetchActivityCoefficients } from "../../store/coef/coefAPI";
-
-import {
-    fetchStart as fetchDietsStart,
-    fetchSuccess as fetchDietsSuccess,
-    fetchFailure as fetchDietsError,
-} from "../../store/diets/dietSlice";
-import { fetchDiets } from "../../store/diets/dietAPI";
+import { fetchStart as fetchCoefStart} from "../../store/coef/coefSlice";
+import { fetchStart as fetchDietsStart} from "../../store/diets/dietSlice";
 
 interface RegisterFormData {
     email: string;
@@ -42,14 +30,7 @@ const RegisterForm: React.FC = () => {
     useEffect(() => {
         const loadData = async () => {
             dispatch(fetchCoefStart());
-
             dispatch(fetchDietsStart());
-            try {
-                const result = await fetchDiets();
-                dispatch(fetchDietsSuccess(result));
-            } catch (err: any) {
-                dispatch(fetchDietsError(err.message));
-            }
         };
         loadData();
     }, [dispatch]);

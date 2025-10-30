@@ -1,7 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { ActivityCoefficient } from "./coefAPI";
-
+export interface ActivityCoefficient {
+    id: number;
+    name: string;
+    value: number;
+}
 interface CoefState {
     data: ActivityCoefficient[];
     loading: boolean;
