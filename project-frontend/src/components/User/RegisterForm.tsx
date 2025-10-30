@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../store";
+import type { RootState, AppDispatch } from "../../store/store";
 import {
     fetchStart as fetchCoefStart,
     fetchSuccess as fetchCoefSuccess,
     fetchFailure as fetchCoefError,
 } from "../../store/coef/coefSlice";
-import { fetchActivityCoefficients } from "../../store/coef/coefAPI";
+
+//import { fetchActivityCoefficients } from "../../store/coef/coefAPI";
 
 import {
     fetchStart as fetchDietsStart,
@@ -41,12 +42,6 @@ const RegisterForm: React.FC = () => {
     useEffect(() => {
         const loadData = async () => {
             dispatch(fetchCoefStart());
-            try {
-                const result = await fetchActivityCoefficients();
-                dispatch(fetchCoefSuccess(result));
-            } catch (err: any) {
-                dispatch(fetchCoefError(err.message));
-            }
 
             dispatch(fetchDietsStart());
             try {
