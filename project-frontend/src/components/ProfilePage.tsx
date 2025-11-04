@@ -1,7 +1,6 @@
 import React, { type FC } from 'react';
 import type { IUser } from '../models/IUser';
 import { useState } from 'react';
-import backIcon from '../assets/back.svg';
 import lightThemeIcon from '../assets/lightThemeIcon.svg';
 import darkThemeIcon from '../assets/DarkThemeIcon.svg';
 import { ChevronLeft, LogOut } from 'lucide-react';
