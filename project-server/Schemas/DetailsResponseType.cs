@@ -16,6 +16,8 @@ namespace project_server.Schemas
         {
             Name = "UserPublic";
             Field(x => x.Id).Description("User's id");
+            Field(x => x.Username).Description("User's name");
+            Field(x => x.Email).Description("User's email");
             Field(x => x.Age).Description("User's age");
             Field(x => x.Weight).Description("User's weight");
             Field(x => x.Height).Description("User's height");

@@ -154,7 +154,29 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-app.MapGet("/", () => "GraphQL Server is running!");
+//app.MapGet("/", () => "GraphQL Server is running!");
+
+app.MapGet("/", async (
+    [FromServices] IUserService userService 
+) =>
+{
+    var user = await userService.RegisterAsync(
+        email: "test@example.com",
+        password: "123456",
+        username: "Mycola",
+        age: new DateTime(2000, 1, 1),
+        weight: 70,
+        height: 180,
+        visitsStreak: 0,
+        activityCoefId: 1,
+        dietId: 1,
+        caloriesStandard: 0 
+    );
+
+    return user is not null
+        ? Results.Ok(user)
+        : Results.Problem("Failed to create user");
+});
 
 // GraphQL endpoint
 app.UseGraphQL<ISchema>("/graphql");

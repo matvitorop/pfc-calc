@@ -111,7 +111,7 @@ namespace project_server.Schemas
                     {
                         Success = true,
                         Message = $"{input.FieldName} changed successfully",
-                        Data = dataUser
+                        Data = user
                     };
                 }catch(Exception ex)
                 {

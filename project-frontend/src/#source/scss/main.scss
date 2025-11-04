@@ -44,3 +44,424 @@ body {
     margin-bottom: 25px;
     margin-top: 45px;
 } */
+
+// ========= Profile Page =============
+// Light Theme Variables
+$primary-color: #10b981;
+$primary-light: #d1fae5;
+$text-dark: #374151;
+$text-gray: #6b7280;
+$text-light: #9ca3af;
+$bg-white: #ffffff;
+$bg-gray: #f3f4f6;
+$border-color: #e5e7eb;
+$red-color: #ef4444;
+
+// Dark Theme Variables
+$dark-bg: #1f2937;
+$dark-card-bg: #374151;
+$dark-text: #f9fafb;
+$dark-text-secondary: #d1d5db;
+$dark-border: #4b5563;
+
+// Mixins
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// Main Container
+.me-page {
+    min-height: 100vh;
+    background-color: $bg-gray;
+    @include flex-center;
+    padding: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+    transition: background-color 0.3s ease;
+
+    &.dark-theme {
+        background-color: $dark-bg;
+
+        .me-container {
+            background-color: $dark-card-bg;
+        }
+
+        .header .title,
+        .name {
+            color: $dark-text;
+        }
+
+        .header .back-btn .icon {
+            color: $dark-text;
+        }
+
+        .info-item {
+            background-color: $dark-bg;
+            border-color: $dark-border;
+
+            .info-label {
+                color: $dark-text-secondary;
+            }
+
+            .info-value {
+                color: $primary-color;
+            }
+        }
+
+        .theme-item {
+            border-color: $dark-border;
+
+            .theme-text {
+                color: $dark-text;
+            }
+        }
+
+        .logout-btn {
+            background-color: $dark-bg;
+        }
+
+        .version {
+            color: $dark-text-secondary;
+        }
+    }
+}
+
+.me-container {
+    width: 100%;
+    max-width: 24rem;
+    background-color: $bg-white;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding-bottom: 1.5rem;
+    transition: background-color 0.3s ease;
+}
+
+// Header
+.header {
+    @include flex-between;
+    padding: 1.5rem 1.25rem 1rem;
+    position: relative;
+
+    .back-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: $text-dark;
+            transition: color 0.3s ease;
+        }
+    }
+
+    .title {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: $text-dark;
+        margin: 0;
+        transition: color 0.3s ease;
+    }
+}
+
+// Profile Section
+.profile-section {
+    @include flex-center;
+    flex-direction: column;
+    padding: 0.5rem 0 1.5rem;
+
+    .avatar {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: $text-dark;
+        margin: 0 0 0.25rem;
+        transition: color 0.3s ease;
+    }
+
+    .email {
+        font-size: 0.875rem;
+        color: $primary-color;
+        margin: 0;
+    }
+}
+
+// Calorie Card
+.calorie-card {
+    background-color: $primary-light;
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    margin: 0 1.25rem 1rem;
+    @include flex-between;
+
+    .calorie-label {
+        font-size: 0.9375rem;
+        color: $text-gray;
+    }
+
+    .calorie-value {
+        font-size: 0.9375rem;
+        color: $primary-color;
+        font-weight: 600;
+    }
+}
+
+// Info List
+.info-list {
+    padding: 0 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.info-item {
+    background-color: $bg-white;
+    border: 1px solid $border-color;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    @include flex-between;
+    transition: all 0.3s ease;
+
+    .info-label {
+        font-size: 0.9375rem;
+        color: $text-gray;
+        transition: color 0.3s ease;
+    }
+
+    .info-value {
+        font-size: 0.9375rem;
+        color: $primary-color;
+        font-weight: 500;
+    }
+}
+
+// Theme Toggle Section
+.theme-toggle-section {
+    padding: 0 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.theme-item {
+    @include flex-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid $border-color;
+    transition: border-color 0.3s ease;
+
+    .theme-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .toggle-icon-wrapper {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        background-color: $primary-light;
+        @include flex-center;
+    }
+
+    .toggle-icon {
+        width: 1.25rem;
+        height: 0.75rem;
+        background-color: #d1d5db;
+        border-radius: 1rem;
+        position: relative;
+        transition: background-color 0.3s ease;
+
+        &.active {
+            background-color: $primary-color;
+
+            .toggle-inner {
+                transform: translateX(0.5rem);
+            }
+        }
+    }
+
+    .toggle-inner {
+        width: 0.625rem;
+        height: 0.625rem;
+        background-color: $bg-white;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 0.0625rem;
+        transform: translateY(-50%);
+        transition: transform 0.3s ease;
+    }
+
+    .theme-text {
+        font-size: 0.9375rem;
+        color: $text-dark;
+        transition: color 0.3s ease;
+    }
+}
+
+// Toggle Switch
+.toggle-switch {
+    position: relative;
+    width: 3rem;
+    height: 1.625rem;
+    cursor: pointer;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        border-radius: 2rem;
+        transition: background-color 0.3s ease;
+
+        &::before {
+            content: "";
+            position: absolute;
+            height: 1.25rem;
+            width: 1.25rem;
+            left: 0.1875rem;
+            bottom: 0.1875rem;
+            background-color: $bg-white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+    }
+
+    input:checked + .slider {
+        background-color: $primary-color;
+    }
+
+    input:checked + .slider::before {
+        transform: translateX(1.375rem);
+    }
+}
+
+// Logout Button
+.logout-btn {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: rgba(239, 68, 68, 0.05);
+    }
+
+    .logout-icon {
+        color: $red-color;
+    }
+
+    .logout-text {
+        color: $red-color;
+        font-size: 0.9375rem;
+        font-weight: 500;
+    }
+}
+
+// Version
+.version {
+    text-align: center;
+    color: $text-light;
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    transition: color 0.3s ease;
+}
+
+// ========== Upadate user modal ================
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+}
+
+.modal {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-input {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel {
+    background: #eee;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+}
+
+.btn-save {
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+}
+
+.info-item.clickable {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.info-item.clickable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
