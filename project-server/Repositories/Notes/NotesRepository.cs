@@ -33,7 +33,8 @@ namespace project_server.Repositories_part
         }
 
         public async Task<Notes?> CompleteNoteAsync(int noteId, int userId)
-        {
+        { 
+            try{
             using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"UPDATE Notes
                     SET is_completed = 1,
@@ -42,8 +43,47 @@ namespace project_server.Repositories_part
                     WHERE id = @Id AND user_id = @UserId
                         AND is_completed = 0;";
 
-            return await db.QueryFirstOrDefaultAsync<Notes>(sql,
+            var result = await db.QueryFirstOrDefaultAsync<Notes>(sql,
                 new { Id = noteId, UserId = userId });
+            if (result == null)
+            {
+                throw new InvalidOperationException(
+                    $"Нотатка {noteId} не знайдена або вже виконана");
+            }
+
+            return result;
+            }
+            catch (SqlException ex)
+            {
+            throw new DataException($"Помилка БД при виконанні нотатки {noteId}", ex);
+            }
+        }
+        public async Task<Notes?> RestoreNoteAsync(int noteId, int userId)
+        {
+            try
+            {
+                using IDbConnection db = new SqlConnection(_coonnectionString);
+                var sql = @"UPDATE Notes
+                    SET is_completed = 0,
+                        completed_date = NULL
+                    OUTPUT INSERTED.*
+                    WHERE id = @Id AND user_id = @UserId AND is_completed = 1;";
+
+                var result = await db.QueryFirstOrDefaultAsync<Notes>(sql,
+                    new { Id = noteId, UserId = userId });
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Нотатка {noteId} не знайдена або вже активна");
+                }
+
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new DataException($"Помилка БД при відновленні нотатки {noteId}", ex);
+            }
         }
 
         public async Task<Notes?> DeleteNoteAsync(int noteId, int userId)

@@ -4,9 +4,9 @@ using project_server.Models;
 
 namespace project_server.Schemas;
 
-    public class ItemsResponseType : ObjectGraphType<Items>    
+    public class ItemsType : ObjectGraphType<Items>    
     {
-        public ItemsResponseType()
+        public ItemsType()
         {   Name = "customItemResponse";
             Field(x => x.Id);
             Field(x => x.UserId, nullable: true);

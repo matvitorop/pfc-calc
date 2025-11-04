@@ -188,48 +188,190 @@ namespace project_server.Schemas
                 );
 
             //NOTES 
-            Field<NotesType>("addNote")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "title" },
-                        new QueryArgument<DateTimeGraphType> { Name = "dueDate" },
-                        new QueryArgument<BooleanGraphType> { Name = "isCompleted" }
-                    )
+            Field<NoteResponseType>("addNote")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "title" },
+                    new QueryArgument<DateTimeGraphType> { Name = "dueDate" },
+                    new QueryArgument<BooleanGraphType> { Name = "isCompleted" }
                 )
-                .ResolveAsync(async context =>
+            )
+            .ResolveAsync(async context =>
+            {
+                try
                 {
                     var title = context.GetArgument<string>("title");
                     var dueDate = context.GetArgument<DateTime?>("dueDate");
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    return await _notesRepository.AddNoteAsync(userId.Value, title, dueDate);
-                });
-            Field<NotesType>("deleteNote")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
-                )
-                .ResolveAsync(async context =>
+                    
+                    var result = await _notesRepository.AddNoteAsync(userId.Value, title, dueDate);
+                    
+                    if (result != null)
                     {
-                        var id = context.GetArgument<int>("id");
-                        var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                        return await _notesRepository.DeleteNoteAsync(id, userId.Value);
+                        return new NoteResponse
+                        {
+                            Success = true,
+                            Note = result,
+                            Message = "Нотатка створена"
+                        };
                     }
-                );
+                    else
+                    {
+                        return new NoteResponse
+                        {
+                            Success = false,
+                            Note = null,
+                            Message = "Не вдалося створити нотатку"
+                        };
+                    }
+                }
+               
+                catch (Exception ex)
+                {
+                    return new NoteResponse
+                    {
+                        Success = false,
+                        Note = null,
+                        Message = "Помилка: " + ex.Message
+                    };
+                }
+            });
+
+        Field<NoteResponseType>("deleteNote")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
+            )
+            .ResolveAsync(async context =>
+            {
+                try
+                {
+                    var id = context.GetArgument<int>("id");
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    
+                    var result = await _notesRepository.DeleteNoteAsync(id, userId.Value);
+                    
+                    if (result != null)
+                    {
+                        return new NoteResponse
+                        {
+                            Success = true,
+                            Note = result,
+                            Message = "Нотатка видалена"
+                        };
+                    }
+                    else
+                    {
+                        return new NoteResponse
+                        {
+                            Success = false,
+                            Note = null,
+                            Message = "Нотатка не знайдена"
+                        };
+                    }
+                }
+                
+                catch (Exception ex)
+                {
+                    return new NoteResponse
+                    {
+                        Success = false,
+                        Note = null,
+                        Message = "Помилка: " + ex.Message
+                    };
+                }
+            });
             Field<NotesType>("completeNote")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
                 )
                 .ResolveAsync(async context =>
+                {
+                        try
+                        {
+                            var id = context.GetArgument<int>("id");
+                            var userContext = context.UserContext as GraphQLUserContext;
+                            var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                            var result =  await _notesRepository.CompleteNoteAsync(id, userId.Value);
+
+                            if (result != null)
+                            {
+                                return new NoteResponse
+                                {
+                                    Success = true,
+                                    Note = result,
+                                    Message = "Нотатка виконана"
+                                };
+                            }
+                            else
+                            {
+                                return new NoteResponse
+                                {
+                                    Success = false,
+                                    Note = null,
+                                    Message = "Нотатка не знайдена або вже виконана"
+                                };
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return new NoteResponse
+                            {
+                                Success = false,
+                                Note = null,
+                                Message = $"Помилка: {ex.Message}"
+                            };
+                        } 
+                });
+                   
+            // Restore note
+            Field<NoteResponseType>("restoreNote")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
+                )
+                .ResolveAsync(async context =>
+                {
+                    try
                     {
                         var id = context.GetArgument<int>("id");
                         var userContext = context.UserContext as GraphQLUserContext;
                         var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                        return await _notesRepository.CompleteNoteAsync(id, userId.Value);
+                       var result =  await _notesRepository.RestoreNoteAsync(id, userId.Value);
+                       
+                       if (result != null)
+                       {
+                           return new NoteResponse
+                           {
+                               Success = true,
+                               Note = result,
+                               Message = "Нотатка відновлена"
+                           };
+                       }
+                       else
+                       {
+                           return new NoteResponse
+                           {
+                               Success = false,
+                               Note = null,
+                               Message = "Нотатка не знайдена або вже активна"
+                           };
+                       }
                     }
-                );
+                    catch (Exception ex)
+                    {
+                        return new NoteResponse
+                        {
+                            Success = false,
+                            Note = null,
+                            Message = $"Помилка: {ex.Message}"
+                        };
+                    }
+                });
+            //ITEMS
             Field<ItemsResponseType>("addCustomItem")
                 .Authorize()
                 .Arguments(new QueryArguments(
@@ -239,52 +381,89 @@ namespace project_server.Schemas
                 )
                 .ResolveAsync(async context =>
                 {
-                    var input = context.GetArgument<ItemsInput>("customItem");
-
-                    var calories = context.GetArgument<double?>("calories");
-
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    double finalCalories;
-
-                    if (!calories.HasValue)
+                    try
                     {
-                        finalCalories = _itemService.CalculateCalories(
-                            input.Carbs.Value,
-                            input.Proteins.Value,
-                            input.Fats.Value
-                        );
+                        var input = context.GetArgument<ItemsInput>("customItem");
+                        var calories = context.GetArgument<double?>("calories");
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                        
+                        if (string.IsNullOrEmpty(input.Name))
+                        {
+                            return new ItemsResponse
+                            {
+                                Success = false,
+                                Item = null,
+                                Message = "Назва продукту обов'язкова"
+                            };
+                        }
+
+                        double finalCalories;
+                        if (!calories.HasValue)
+                        {
+                            finalCalories = _itemService.CalculateCalories(
+                                input.Carbs.Value,
+                                input.Proteins.Value,
+                                input.Fats.Value
+                            );
+                        }
+                        else
+                        {
+                            finalCalories = calories.Value;
+                        }
+
+                        double proteins = input.Proteins ?? 0;
+                        double fats = input.Fats ?? 0;
+                        double carbs = input.Carbs ?? 0;
+                        
+                        var item = new Items
+                        {
+                            UserId = userId,
+                            Name = input.Name,
+                            Description = input.Description,
+                            Proteins = proteins,
+                            Fats = fats,
+                            Carbs = carbs,
+                            ApiId = null
+                        };
+                        
+                        var createdItem = await _itemsRepository.AddItemAsync(item);
+                        
+                        if (createdItem == null)
+                        {
+                            return new ItemsResponse
+                            {
+                                Success = false,
+                                Item = null,
+                                Message = "Не вдалося створити продукт"
+                            };
+                        }
+
+                        var itemCalories = new ItemCalories
+                        {
+                            ItemId = createdItem.Id,
+                            Calories = (float)finalCalories
+                        };
+                        
+                        await _itemService.AddItemAsync(itemCalories, createdItem);
+
+                        return new ItemsResponse
+                        {
+                            Success = true,
+                            Item = createdItem,
+                            Message = "Продукт успішно додано"
+                        };
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        finalCalories = calories.Value;
+                        return new ItemsResponse
+                        {
+                            Success = false,
+                            Item = null,
+                            Message = "Помилка: " + ex.Message
+                        };
                     }
-
-                    double proteins = input.Proteins ?? 0;
-                    double fats = input.Fats ?? 0;
-                    double carbs = input.Carbs ?? 0;
-
-                    var item = new Items
-                    {
-                        UserId = userId,
-                        Name = input.Name,
-                        Description = input.Description,
-                        Proteins = proteins,
-                        Fats = fats,
-                        Carbs = carbs,
-                        ApiId = null
-                    };
-                    var createdItem = await _itemsRepository.AddItemAsync(item);
-
-                    var itemCalories = new ItemCalories
-                    {
-                        ItemId = createdItem.Id,
-                        Calories = (float)finalCalories
-                    };
-                    await _itemService.AddItemAsync(itemCalories, createdItem);
-                    return createdItem;
-                }); //restore left
-
+                });
             Field<ItemsResponseType>("changeCustomItem")
                 .Authorize()
                 .Arguments(new QueryArguments(
@@ -297,17 +476,26 @@ namespace project_server.Schemas
                     {
                         var input = context.GetArgument<ItemsUpdateInput>("updateCustomItem");
                         var calories = context.GetArgument<double?>("calories");
-
                         var userContext = context.UserContext as GraphQLUserContext;
                         var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                        // Валідація
+                        if (string.IsNullOrEmpty(input.Name))
+                        {
+                            return new ItemsResponse
+                            {
+                                Success = false,
+                                Item = null,
+                                Message = "Назва продукту обов'язкова"
+                            };
+                        }
 
                         double proteins = input.Proteins ?? 0;
                         double fats = input.Fats ?? 0;
                         double carbs = input.Carbs ?? 0;
 
                         double finalCalories = calories ?? _itemService.CalculateCalories(proteins, fats, carbs);
-
-
+                        
                         var updatedItem = await _itemsRepository.ChangeItemAsync(
                             input.Id,
                             null,
@@ -319,11 +507,21 @@ namespace project_server.Schemas
                             input.Description
                         );
 
+                        if (updatedItem == null)
+                        {
+                            return new ItemsResponse
+                            {
+                                Success = false,
+                                Item = null,
+                                Message = "Продукт не знайдено або не вдалося оновити"
+                            };
+                        }
+                        
                         var existingCalories = await _caloriesRepository.GetItemAsync(input.Id);
                         if (existingCalories != null)
                         {
                             existingCalories.Calories = finalCalories;
-                            var updatedCalories = await _caloriesRepository.UpdateItemCaloriesAsync(existingCalories);
+                            await _caloriesRepository.UpdateItemCaloriesAsync(existingCalories);
                         }
                         else
                         {
@@ -335,13 +533,22 @@ namespace project_server.Schemas
                             await _itemService.AddItemAsync(itemCalories, updatedItem);
                         }
 
-                        return updatedItem;
+                        return new ItemsResponse
+                        {
+                            Success = true,
+                            Item = updatedItem,
+                            Message = "Продукт успішно оновлено"
+                        };
                     }
+                   
                     catch (Exception ex)
                     {
-                        if (context.UserContext is GraphQLUserContext)
-                            throw new ExecutionError(ex.Message);
-                        throw;
+                        return new ItemsResponse
+                        {
+                            Success = false,
+                            Item = null,
+                            Message = "Помилка: " + ex.Message
+                        };
                     }
                 });
         }
