@@ -19,10 +19,9 @@ namespace project_server.Repositories_part
             await db.OpenAsync();
             Console.WriteLine("Connected to DB successfully!");
 
-            var sql = @"INSERT INTO Notes (user_id, title, due_date, is_completed, completed_date)
-                    OUTPUT INSERTED.*
-                    VALUES (@User_id, @Title, @Due_date, 0, NULL);";
-
+            var sql = @"INSERT INTO Notes (user_id, title, due_date)
+            OUTPUT INSERTED.*
+            VALUES (@User_id, @Title, @Due_date);";
             return await db.QuerySingleAsync<Notes>(sql,
                 new
                 {

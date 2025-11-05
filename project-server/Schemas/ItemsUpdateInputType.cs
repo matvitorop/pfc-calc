@@ -22,7 +22,7 @@ public class ItemsUpdateInputType : InputObjectGraphType<ItemsUpdateInput>
             Name = "updateCustomItem";
 
             Field(x => x.Id); // require для update
-            Field(x => x.Name);
+            Field(x => x.Name, nullable: true);
             Field(x => x.Description, nullable: true);
             Field(x => x.Proteins, nullable: true);
             Field(x => x.Fats, nullable: true);

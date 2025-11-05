@@ -13,7 +13,7 @@ namespace project_server.Services
             _itemCaloriesRepository=itemCaloriesRepository;
         }
 
-        public double CalculateCalories(double carbs, double proteins, double fats)
+        public double? CalculateCalories(double carbs, double proteins, double fats)
         {
             if (proteins != 0 && fats != 0 && carbs != 0)
             {
@@ -23,7 +23,7 @@ namespace project_server.Services
             }
             else
             {
-                throw new ArgumentException("To calculate calories, you need to enter proteins, fats and carbohydrates, or calories directly.");
+                return null;
             }
 
         }

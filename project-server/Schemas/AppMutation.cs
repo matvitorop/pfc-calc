@@ -192,8 +192,7 @@ namespace project_server.Schemas
             .Authorize()
             .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "title" },
-                    new QueryArgument<DateTimeGraphType> { Name = "dueDate" },
-                    new QueryArgument<BooleanGraphType> { Name = "isCompleted" }
+                    new QueryArgument<DateTimeGraphType> { Name = "dueDate" }
                 )
             )
             .ResolveAsync(async context =>
@@ -372,7 +371,7 @@ namespace project_server.Schemas
                     }
                 });
             //ITEMS
-            Field<ItemsResponseType>("addCustomItem")
+          Field<ItemsResponseType>("addCustomItem")
                 .Authorize()
                 .Arguments(new QueryArguments(
                         new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
@@ -401,11 +400,23 @@ namespace project_server.Schemas
                         double finalCalories;
                         if (!calories.HasValue)
                         {
-                            finalCalories = _itemService.CalculateCalories(
+                            var calculatedCalories = _itemService.CalculateCalories(
                                 input.Carbs.Value,
                                 input.Proteins.Value,
                                 input.Fats.Value
                             );
+                            if (!calculatedCalories.HasValue)
+                            {
+                                return new ItemsResponse
+                                {
+                                    Success = false,
+                                    Item = null,
+                                    Message = "Вкажіть калорії або хоча б один з показників: білки, жири або вуглеводи"
+                                };
+                            }
+    
+                            finalCalories = calculatedCalories.Value;
+
                         }
                         else
                         {
@@ -415,7 +426,7 @@ namespace project_server.Schemas
                         double proteins = input.Proteins ?? 0;
                         double fats = input.Fats ?? 0;
                         double carbs = input.Carbs ?? 0;
-                        
+
                         var item = new Items
                         {
                             UserId = userId,
@@ -426,9 +437,9 @@ namespace project_server.Schemas
                             Carbs = carbs,
                             ApiId = null
                         };
-                        
+
                         var createdItem = await _itemsRepository.AddItemAsync(item);
-                        
+
                         if (createdItem == null)
                         {
                             return new ItemsResponse
@@ -444,9 +455,18 @@ namespace project_server.Schemas
                             ItemId = createdItem.Id,
                             Calories = (float)finalCalories
                         };
-                        
-                        await _itemService.AddItemAsync(itemCalories, createdItem);
 
+                        var addedCalories = await _itemService.AddItemAsync(itemCalories, createdItem);
+
+                        if (addedCalories == null)
+                        {
+                            return new ItemsResponse
+                            {
+                                Success = false,
+                                Item = createdItem,
+                                Message = "Продукт створено, але не вдалося додати калорії"
+                            };
+                        }
                         return new ItemsResponse
                         {
                             Success = true,
@@ -479,7 +499,6 @@ namespace project_server.Schemas
                         var userContext = context.UserContext as GraphQLUserContext;
                         var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
-                        // Валідація
                         if (string.IsNullOrEmpty(input.Name))
                         {
                             return new ItemsResponse
@@ -489,13 +508,34 @@ namespace project_server.Schemas
                                 Message = "Назва продукту обов'язкова"
                             };
                         }
-
+                        
+                        double finalCalories;
+                        if (!calories.HasValue)
+                        {
+                            var calculatedCalories = _itemService.CalculateCalories(
+                                input.Carbs.Value,
+                                input.Proteins.Value,
+                                input.Fats.Value
+                            );
+                            if (!calculatedCalories.HasValue)
+                            {
+                                return new ItemsResponse
+                                {
+                                    Success = false,
+                                    Item = null,
+                                    Message = "Вкажіть калорії або хоча б один з показників: білки, жири або вуглеводи"
+                                };
+                            }
+                            finalCalories = calculatedCalories.Value;
+                        }
+                        else
+                        {
+                            finalCalories = calories.Value;
+                        }
                         double proteins = input.Proteins ?? 0;
                         double fats = input.Fats ?? 0;
                         double carbs = input.Carbs ?? 0;
 
-                        double finalCalories = calories ?? _itemService.CalculateCalories(proteins, fats, carbs);
-                        
                         var updatedItem = await _itemsRepository.ChangeItemAsync(
                             input.Id,
                             null,
