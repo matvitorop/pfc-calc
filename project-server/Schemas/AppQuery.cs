@@ -25,6 +25,17 @@ namespace project_server.Schemas
             Field<ListGraphType<DietsResponseType>>("getDiets")
                 .ResolveAsync(async context => await dietsRepository.GetDietsAsync());
 
+            Field<BooleanGraphType>("isAuthorized")               
+                .ResolveAsync(async context =>
+                {
+                    var userId = context.GetUserId(_jwtHelper);
+
+                    if (userId == null || userId <= 0)
+                        return false;
+
+                    return true;
+                });
+
             Field<DetailsResponseType>("getDetails")
             .Authorize()
             .ResolveAsync(async context =>
