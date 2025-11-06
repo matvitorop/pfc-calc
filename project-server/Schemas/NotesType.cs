@@ -10,7 +10,7 @@ public class NotesType : ObjectGraphType<Notes>
         Field(x => x.Id);
         Field(x => x.UserId);
         Field(x => x.Title);
-        Field(x => x.DueDate);
+        Field(x => x.DueDate, nullable: true);
         Field(x => x.IsCompleted);
         Field(x => x.CompletedDate, nullable: true);
     }
