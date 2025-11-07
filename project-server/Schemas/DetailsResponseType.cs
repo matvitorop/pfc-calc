@@ -24,7 +24,7 @@ namespace project_server.Schemas
             Field(x => x.ActivityCoefId).Description("Activity coefficient ID");
             Field(x => x.DietId).Description("Diet ID");
             Field(x => x.CaloriesStandard).Description("Standard calories");
-
+            Field(x => x.VisitsStreak).Description("User`s visit streak");
         }
     }
 

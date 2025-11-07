@@ -17,13 +17,15 @@ import {
     logoutUserSuccess,
     logoutUserFailure,
 } from '../reducers/userSlice';
-import type { IUser } from '../../models/IUser';
+import type { User } from '../../models/User';
+import type { Days } from '../../models/Days';
+import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
 
 interface GetUserResponse {
     getDetails: {
         success: boolean;
         message: string;
-        data: IUser;
+        data: User;
     };
 }
 
@@ -31,7 +33,7 @@ interface ChangeDetailsResponse {
     changeDetails: {
         success: boolean;
         message: string;
-        data: IUser;
+        data: User;
     };
 }
 
@@ -41,6 +43,29 @@ interface LogoutResponse {
         message: string;
     };
 }
+
+interface GetSummaryResponse {
+    getSummary: Days[];
+}
+const GET_SUMMARY = `
+  query {
+    getSummary {
+      id
+      userId
+      day
+      mealTypeId
+      itemId
+      measurement
+      name
+      proteins
+      fats
+      carbs
+      description
+      apiId
+      calories
+    }
+  }
+`;
 
 const GET_USER = `
   query {
@@ -91,6 +116,28 @@ const LOGOUT_USER = `
 type UpdateUserAction = ReturnType<typeof updateUserDetails>;
 
 type MyEpic = Epic<Action, Action, RootState, AppDispatch>;
+
+export const fetchSummaryEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(fetchSummary.type),
+        switchMap(() =>
+            from(graphqlFetch<GetSummaryResponse>(GET_SUMMARY)).pipe(
+                map(res => {
+                    if (res.errors) {
+                        return fetchSummaryFailure(res.errors[0].message);
+                    }
+
+                    const result = res.data?.getSummary;
+                    if (!result) {
+                        return fetchSummaryFailure('No data received');
+                    }
+
+                    return fetchSummarySuccess(result);
+                }),
+                catchError(err => of(fetchSummaryFailure(err.message || 'Unexpected error while fetching summary'))),
+            ),
+        ),
+    );
 
 export const fetchUser: MyEpic = action$ =>
     action$.pipe(

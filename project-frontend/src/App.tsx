@@ -5,6 +5,7 @@ import { fetchUserDetails } from './store/reducers/userSlice';
 import { useEffect } from 'react';
 import '../css/main.css';
 import { useFetchUserData } from './hooks/fetchUserData';
+import MainPage from './components/MainPage';
 function App() {
     /* const user = {
         id: 1,
@@ -35,7 +36,7 @@ function App() {
     return (
         <>
             <ProfilePage {...user} />
-            {/*  {<ProfilePage {...data} />} */}
+            <MainPage />
         </>
     );
 }

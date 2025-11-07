@@ -1,4 +1,4 @@
-export interface User {
+/* export interface User {
     id: number;
     email: string;
     userName: string;
@@ -8,7 +8,7 @@ export interface User {
     activityCoefId: number;
     dietId: number;
     caloriesStandard: number;
-}
+} */
 
 export type UserFieldKey = 'email' | 'userName' | 'age' | 'weight' | 'height' | 'activityCoefId' | 'dietId' | 'caloriesStandard';
 

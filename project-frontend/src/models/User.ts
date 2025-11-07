@@ -1,4 +1,4 @@
-export interface IUser {
+export interface User {
     id: number;
     email: string;
     userName: string;
@@ -8,4 +8,5 @@ export interface IUser {
     activityCoefId: number;
     dietId: number;
     caloriesStandard: number;
+    VisitsStreak: number;
 }

@@ -1,10 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { IUser } from '../../models/IUser';
+import type { User } from '../../models/User';
 
 export interface UserState {
     loading: boolean;
     error: string | null;
-    data: IUser | null;
+    data: User | null;
 }
 
 //! del test-data from state after all testing
@@ -18,7 +18,8 @@ const intialState: UserState = {
         height: 175,
         activityCoefId: 2,
         dietId: 1,
-        caloriesStandard: 2000,
+        caloriesStandard: 3500,
+        VisitsStreak: 5,
     },
     loading: false,
     error: null,
@@ -38,7 +39,7 @@ export const userSlice = createSlice({
             state.error = null;
         },
 
-        fetchUserDetailsSuccess(state, action: PayloadAction<IUser>) {
+        fetchUserDetailsSuccess(state, action: PayloadAction<User>) {
             state.loading = false;
             state.data = action.payload;
         },
@@ -53,7 +54,7 @@ export const userSlice = createSlice({
             state.error = null;
         },
 
-        updateUserDetailsSuccess(state, action: PayloadAction<IUser>) {
+        updateUserDetailsSuccess(state, action: PayloadAction<User>) {
             state.loading = false;
             if (state.data) {
                 state.data = {

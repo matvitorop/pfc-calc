@@ -1,5 +1,5 @@
 import React, { type FC } from 'react';
-import type { IUser } from '../models/IUser';
+import type { User } from '../models/User';
 import { useState } from 'react';
 import lightThemeIcon from '../assets/lightThemeIcon.svg';
 import darkThemeIcon from '../assets/DarkThemeIcon.svg';
@@ -12,7 +12,7 @@ import '../../css/main.css';
 import UpdateUserModal from './UpdateUserModal';
 import { toggleTheme } from '../store/reducers/themeSlice';
 
-const ProfilePage: FC<IUser> = user => {
+const ProfilePage: FC<User> = user => {
     // const [darkTheme, setDarkTheme] = useState(false);
     const [modalField, setModalField] = useState<{ fieldName: string; label: string; value: string | number } | null>(null);
 
