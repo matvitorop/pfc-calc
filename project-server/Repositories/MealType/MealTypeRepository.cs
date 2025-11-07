@@ -67,7 +67,19 @@ namespace project_server.Repositories_part
                 "OUTPUT DELETED.*" +
                 "WHERE id = @Id AND user_id = @UserId";
 
-            return await db.QuerySingleOrDefaultAsync<MealTypes>(sql, new { Id = id, UserId = userId }); ;
+            return await db.QuerySingleOrDefaultAsync<MealTypes>(sql, new { Id = id, UserId = userId });
+        }
+
+
+        public async Task<MealTypes?> UpdateNameByIdAsync(int userId, int id, string name)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = "UPDATE Meal_Types SET name = @name " +
+                "OUTPUT INSERTED.* " +
+                "WHERE id = @Id AND user_id = @UserId ";
+
+            return await db.QuerySingleOrDefaultAsync<MealTypes>(sql, new { Id = id, UserId = userId, name }); 
         }
     }
 }

@@ -20,6 +20,21 @@ import {
 import type { User } from '../../models/User';
 import type { Days } from '../../models/Days';
 import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
+import {
+    createMeal,
+    createMealFailure,
+    createMealSuccess,
+    deleteMeal,
+    deleteMealFailure,
+    deleteMealSuccess,
+    fetchMeals,
+    fetchMealsFailure,
+    fetchMealsSuccess,
+    updateMeal,
+    updateMealFailure,
+    updateMealSuccess,
+    type Meal,
+} from '../reducers/mealSlice';
 
 interface GetUserResponse {
     getDetails: {
@@ -47,6 +62,7 @@ interface LogoutResponse {
 interface GetSummaryResponse {
     getSummary: Days[];
 }
+
 const GET_SUMMARY = `
   query {
     getSummary {
@@ -113,8 +129,52 @@ const LOGOUT_USER = `
 }
 `;
 
-type UpdateUserAction = ReturnType<typeof updateUserDetails>;
+const GET_MEAL_TYPES = `
+ query {
+  getUserMealTypes {
+    success
+    message
+    data {
+      id
+      name
+    }
+  }
+}
+`;
+const CREATE_MEAL = `
+ mutation AddMealType($name:String!) {
+  addMealType(name: $name) 
+  {
+    id
+    name
+  }
+}
+`;
 
+const UPDATE_MEAL_NAME = `
+ mutation ChangeMealTypeName($id: Int!,$name:String!) {
+  changeMealTypeName(id: $id,name: $name) 
+  {
+    id
+    name
+  }
+}
+`;
+
+const DELETE_MEAL = `
+ mutation DeleteMealTypeById($id:Int!) {
+  deleteMealTypeById(id: $id) 
+  {
+    id
+    name
+  }
+}
+`;
+
+type UpdateUserAction = ReturnType<typeof updateUserDetails>;
+type UpdateUserMeal = ReturnType<typeof updateMeal>;
+type createUserMeal = ReturnType<typeof createMeal>;
+type deleteUserMeal = ReturnType<typeof deleteMeal>;
 type MyEpic = Epic<Action, Action, RootState, AppDispatch>;
 
 export const fetchSummaryEpic: MyEpic = action$ =>
@@ -207,4 +267,98 @@ export const logout: MyEpic = action$ =>
         ),
     );
 
-export const rootEpic = combineEpics(fetchUser, updateUser, logout);
+export const fetchMealsEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(fetchMeals.type),
+        switchMap(() =>
+            from(graphqlFetch<Meal[]>(GET_MEAL_TYPES)).pipe(
+                map(res => {
+                    if (res.errors) {
+                        return fetchMealsFailure(res.errors[0].message);
+                    }
+
+                    const result = res?.data;
+                    if (!result) {
+                        return fetchMealsFailure('No data received');
+                    }
+
+                    return fetchMealsSuccess(result);
+                }),
+                catchError(err => of(fetchMealsFailure(err.message || 'Unexpected error while fetching users mealTypes'))),
+            ),
+        ),
+    );
+
+export const createMealEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(createMeal.type),
+        switchMap((action: createUserMeal) => {
+            const name = action.payload;
+
+            return from(graphqlFetch<Meal>(CREATE_MEAL, { name })).pipe(
+                map(res => {
+                    if (res.errors) {
+                        return createMealFailure(res.errors[0].message);
+                    }
+
+                    const result = res.data;
+                    if (!result) {
+                        return createMealFailure('Failed to update');
+                    }
+
+                    return createMealSuccess(result);
+                }),
+                catchError(err => of(createMealFailure(err.message || 'Unexpected error while creating meal'))),
+            );
+        }),
+    );
+
+export const deleteMealEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(deleteMeal.type),
+        switchMap((action: deleteUserMeal) => {
+            const id = action.payload;
+
+            return from(graphqlFetch<Meal>(DELETE_MEAL, { id })).pipe(
+                map(res => {
+                    if (res.errors) {
+                        return deleteMealFailure(res.errors[0].message);
+                    }
+
+                    const result = res.data;
+                    if (!result) {
+                        return deleteMealFailure('Failed to update');
+                    }
+
+                    return deleteMealSuccess(result);
+                }),
+                catchError(err => of(deleteMealFailure(err.message || 'Unexpected error while creating meal'))),
+            );
+        }),
+    );
+// think about return type of updating meal on back
+export const updateMealEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(updateMeal.type),
+        switchMap((action: UpdateUserMeal) => {
+            const { id, name } = action.payload;
+
+            return from(graphqlFetch<Meal>(UPDATE_MEAL_NAME, { id, name })).pipe(
+                map(res => {
+                    if (res.errors) {
+                        return updateMealFailure(res.errors[0].message);
+                    }
+
+                    const result = res.data;
+                    if (!result) {
+                        return updateMealFailure('Failed to update');
+                    }
+
+                    return updateMealSuccess(result);
+                }),
+                catchError(err => of(updateMealFailure(err.message || 'Unexpected error while updating'))),
+            );
+        }),
+    );
+
+export const rootEpic = combineEpics(fetchUser, updateUser, logout, fetchSummaryEpic, fetchMealsEpic, updateMealEpic, createMealEpic, deleteMealEpic);

@@ -46,6 +46,23 @@ export const mealSlice = createSlice({
             state.error = action.payload;
         },
 
+        createMeal(state, action: PayloadAction<string>) {
+            state.loading = true;
+            state.error = null;
+        },
+
+        createMealSuccess(state, action: PayloadAction<Meal>) {
+            state.loading = false;
+            if (state.data) {
+                state.data.push(action.payload);
+            }
+        },
+
+        createMealFailure(state, action: PayloadAction<string>) {
+            state.loading = false;
+            state.error = action.payload;
+        },
+
         updateMeal(state, _action: PayloadAction<UpdateMealPayload>) {
             state.loading = true;
             state.error = null;
@@ -69,10 +86,10 @@ export const mealSlice = createSlice({
             state.loading = true;
             state.error = null;
         },
-        deleteMealSuccess(state, action: PayloadAction<number>) {
+        deleteMealSuccess(state, action: PayloadAction<Meal>) {
             state.loading = false;
             if (state.data) {
-                state.data = state.data.filter(el => el.id !== action.payload);
+                state.data = state.data.filter(el => el.id !== action.payload.id);
             }
         },
         deleteMealFailure(state, action: PayloadAction<string>) {
@@ -85,6 +102,9 @@ export const {
     fetchMeals,
     fetchMealsSuccess,
     fetchMealsFailure,
+    createMeal,
+    createMealSuccess,
+    createMealFailure,
     updateMeal,
     updateMealSuccess,
     updateMealFailure,

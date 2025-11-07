@@ -8,5 +8,6 @@ namespace project_server.Repositories_part
         Task<MealTypes?> CreateAsync(int userId, string name);
         Task<MealTypes?> DeleteByNameAsync(int userId, string name);
         Task<MealTypes?> DeleteByIdAsync(int userId, int id);
+        Task<MealTypes?> UpdateNameByIdAsync(int userId, int id, string name);
     }
 }
