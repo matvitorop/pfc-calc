@@ -139,15 +139,13 @@ namespace project_server.Schemas
 
                 var result = await _counterChangerService.CheckForStreakResetAsync(_jwtHelper.GetEmailFromToken(userContext.User), recentDays);
 
-                // Overthink result later
-                return new ResetResponse
-                {
-                    Success = true,
-                    Message = result == null
-                        ? $"Nothing to change {userId}"
-                        : "Streak changed"
-                };
-            });
+                return ApiResponse<ResetResponse>.Ok(
+                    new ResetResponse
+                    {
+                        CurrentStreak = result
+                    }, "Streak changed successfully");
+            
+            }); 
         
             Field<MealTypesType>("addMealType")
                 .Authorize()
