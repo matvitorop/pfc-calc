@@ -2,13 +2,13 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Days } from '../../models/Days';
 
 interface SummaryState {
-    items: Days[];
+    days: Days[];
     loading: boolean;
     error: string | null;
 }
 
 const initialState: SummaryState = {
-    items: [],
+    days: [],
     loading: false,
     error: null,
 };
@@ -23,7 +23,7 @@ const summarySlice = createSlice({
         },
         fetchSummarySuccess: (state, action: PayloadAction<Days[]>) => {
             state.loading = false;
-            state.items = action.payload;
+            state.days = action.payload;
             state.error = null;
         },
         fetchSummaryFailure: (state, action: PayloadAction<string>) => {
@@ -31,7 +31,7 @@ const summarySlice = createSlice({
             state.error = action.payload;
         },
         clearSummary: state => {
-            state.items = [];
+            state.days = [];
             state.error = null;
         },
     },

@@ -33,8 +33,8 @@ import {
     updateMeal,
     updateMealFailure,
     updateMealSuccess,
-    type Meal,
-} from '../reducers/mealSlice';
+    type MealType,
+} from '../reducers/mealTypeSlice';
 
 interface GetUserResponse {
     getDetails: {
@@ -271,7 +271,7 @@ export const fetchMealsEpic: MyEpic = action$ =>
     action$.pipe(
         ofType(fetchMeals.type),
         switchMap(() =>
-            from(graphqlFetch<Meal[]>(GET_MEAL_TYPES)).pipe(
+            from(graphqlFetch<MealType[]>(GET_MEAL_TYPES)).pipe(
                 map(res => {
                     if (res.errors) {
                         return fetchMealsFailure(res.errors[0].message);
@@ -295,7 +295,7 @@ export const createMealEpic: MyEpic = action$ =>
         switchMap((action: createUserMeal) => {
             const name = action.payload;
 
-            return from(graphqlFetch<Meal>(CREATE_MEAL, { name })).pipe(
+            return from(graphqlFetch<MealType>(CREATE_MEAL, { name })).pipe(
                 map(res => {
                     if (res.errors) {
                         return createMealFailure(res.errors[0].message);
@@ -319,7 +319,7 @@ export const deleteMealEpic: MyEpic = action$ =>
         switchMap((action: deleteUserMeal) => {
             const id = action.payload;
 
-            return from(graphqlFetch<Meal>(DELETE_MEAL, { id })).pipe(
+            return from(graphqlFetch<MealType>(DELETE_MEAL, { id })).pipe(
                 map(res => {
                     if (res.errors) {
                         return deleteMealFailure(res.errors[0].message);
@@ -343,7 +343,7 @@ export const updateMealEpic: MyEpic = action$ =>
         switchMap((action: UpdateUserMeal) => {
             const { id, name } = action.payload;
 
-            return from(graphqlFetch<Meal>(UPDATE_MEAL_NAME, { id, name })).pipe(
+            return from(graphqlFetch<MealType>(UPDATE_MEAL_NAME, { id, name })).pipe(
                 map(res => {
                     if (res.errors) {
                         return updateMealFailure(res.errors[0].message);

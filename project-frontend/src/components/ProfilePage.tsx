@@ -21,7 +21,6 @@ const ProfilePage: FC<User> = user => {
     const handleToggleTheme = () => {
         dispatch(toggleTheme());
     };
-    //^ we need to change type of input despite of fieldName type (age -date, email -email...)
     const openUpdateUserModal = (fieldName: string, label: string, value: string | number) => {
         setModalField({ fieldName, label, value });
     };

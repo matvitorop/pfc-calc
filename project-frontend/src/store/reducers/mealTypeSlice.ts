@@ -1,20 +1,20 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { User } from '../../models/User';
 
-export interface Meal {
+export interface MealType {
     id: number;
     name: string;
 }
 
-export interface MealState {
+export interface MealTypeState {
     loading: boolean;
     error: string | null;
-    data: Meal[] | null;
+    mealTypes: MealType[] | null;
 }
 
-//! del test-data from state after all testing
-const intialState: MealState = {
-    data: [
+//! del test-mealTypes from state after all testing
+const intialState: MealTypeState = {
+    mealTypes: [
         { id: 1, name: 'breakfast' },
         { id: 2, name: 'Lunch' },
         { id: 3, name: 'Dinner' },
@@ -23,7 +23,7 @@ const intialState: MealState = {
     error: null,
 };
 
-interface UpdateMealPayload {
+interface UpdateMealTypePayload {
     id: number;
     name: string;
 }
@@ -36,9 +36,9 @@ export const mealSlice = createSlice({
             state.error = null;
         },
 
-        fetchMealsSuccess(state, action: PayloadAction<Meal[]>) {
+        fetchMealsSuccess(state, action: PayloadAction<MealType[]>) {
             state.loading = false;
-            state.data = action.payload;
+            state.mealTypes = action.payload;
         },
 
         fetchMealsFailure(state, action: PayloadAction<string>) {
@@ -51,10 +51,10 @@ export const mealSlice = createSlice({
             state.error = null;
         },
 
-        createMealSuccess(state, action: PayloadAction<Meal>) {
+        createMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.data) {
-                state.data.push(action.payload);
+            if (state.mealTypes) {
+                state.mealTypes.push(action.payload);
             }
         },
 
@@ -63,16 +63,16 @@ export const mealSlice = createSlice({
             state.error = action.payload;
         },
 
-        updateMeal(state, _action: PayloadAction<UpdateMealPayload>) {
+        updateMeal(state, _action: PayloadAction<UpdateMealTypePayload>) {
             state.loading = true;
             state.error = null;
         },
 
-        updateMealSuccess(state, action: PayloadAction<Meal>) {
+        updateMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.data) {
-                state.data = {
-                    ...state.data,
+            if (state.mealTypes) {
+                state.mealTypes = {
+                    ...state.mealTypes,
                     ...action.payload,
                 };
             }
@@ -86,10 +86,10 @@ export const mealSlice = createSlice({
             state.loading = true;
             state.error = null;
         },
-        deleteMealSuccess(state, action: PayloadAction<Meal>) {
+        deleteMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.data) {
-                state.data = state.data.filter(el => el.id !== action.payload.id);
+            if (state.mealTypes) {
+                state.mealTypes = state.mealTypes.filter(el => el.id !== action.payload.id);
             }
         },
         deleteMealFailure(state, action: PayloadAction<string>) {

@@ -1,7 +1,9 @@
-import React, { type FC, useEffect, useState } from 'react';
-import { Calendar, Plus, TrendingUp, BarChart3 } from 'lucide-react';
+import React, { type FC, useEffect, useRef, useState } from 'react';
+import { Calendar, Plus, TrendingUp, BarChart3, Edit2, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchSummary } from '../store/reducers/summarySlice';
+import { createMeal, deleteMeal, fetchMeals, updateMeal } from '../store/reducers/mealTypeSlice';
+import UpdateMealModal from './UpdateMealModal';
 
 interface MacroData {
     current: number;
@@ -24,17 +26,21 @@ interface Meal {
 }
 
 const MainPage: FC = () => {
+    const [modalField, setModalField] = useState<{ id: number; label: string; value: string } | null>(null);
     const dispatch = useAppDispatch();
-    const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
-    const user = useAppSelector(state => state.userReducer);
-    const { items, loading, error } = useAppSelector(state => state.summaryReducer);
     useEffect(() => {
-        // Fetch summary for today when component mounts
+        dispatch(fetchMeals());
         dispatch(fetchSummary());
     }, []);
+    const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
+    const user = useAppSelector(state => state.userReducer);
+    const { days, loading, error } = useAppSelector(state => state.summaryReducer);
+    const { mealTypes, loading: mealTypesLoading, error: mealTypesError } = useAppSelector(state => state.mealReducer);
+
+    const mealIcons = [{ icon: '🥐' }, { icon: '🍜' }, { icon: '🍝' }]; //^ change on func
 
     const calculateTotals = () => {
-        return items.reduce(
+        return days.reduce(
             (acc, item) => ({
                 calories: acc.calories + (item.calories || 0),
                 proteins: acc.proteins + (item.proteins || 0) * (item.measurement / 100),
@@ -45,8 +51,22 @@ const MainPage: FC = () => {
         );
     };
 
+    const calcMealCalories = (name: string) => {};
+
+    const openUpdateMealModal = (id: number, label: string, value: string) => {
+        setOpenMenuId(null);
+        setModalField({ id, label, value });
+    };
+
+    const handleUpdateMeal = (newValue: string) => {
+        if (modalField) {
+            dispatch(updateMeal({ id: modalField.id, name: newValue }));
+            setModalField(null);
+        }
+    };
+
     const totals = calculateTotals();
-    // Mock data - replace with actual data from Redux store
+    //^ calc goal depence on diet info
     const [calorieData] = useState<CalorieData>({
         consumed: totals.calories,
         goal: user.data?.caloriesStandard || 3400,
@@ -72,10 +92,38 @@ const MainPage: FC = () => {
         /*  navigate('/profile'); */
     };
 
-    const handleAddMeal = (mealId: number) => {
-        // Add logic to navigate to meal adding page or open modal
-        console.log(`Add meal for ${mealId}`);
+    const handleAddMeal = () => {
+        if (newMealName !== null || newMealName !== '') {
+            dispatch(createMeal(newMealName));
+        }
     };
+    const [showAddMeal, setShowAddMeal] = useState(false);
+    const [newMealName, setNewMealName] = useState('');
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+    const handleDeleteMeal = (id: number) => {
+        setOpenMenuId(null);
+        dispatch(deleteMeal(id));
+    };
+
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setOpenMenuId(null);
+            }
+        };
+
+        if (openMenuId !== null) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openMenuId]);
+
     /* if (loading) {
         return <div>Loading...</div>;
     }
@@ -102,7 +150,7 @@ const MainPage: FC = () => {
 
                 {/* Summary Section */}
                 <div className="summary-section">
-                    <h2 className="section-title">Summary</h2>
+                    <h2 className="section-title mg-1">Summary</h2>
 
                     {/* Circular Progress */}
                     <div className="calorie-progress-wrapper">
@@ -180,23 +228,71 @@ const MainPage: FC = () => {
                 <div className="meals-section">
                     <div className="meals-header">
                         <h2 className="section-title">Meals</h2>
-                        <button className="add-meal-btn" aria-label="Add new meal">
+                        <button className="add-meal-btn" aria-label="Add new meal" onClick={() => setShowAddMeal(!showAddMeal)}>
                             <Plus size={20} />
                         </button>
                     </div>
-
+                    {showAddMeal && (
+                        <div className="add-meal-form">
+                            <input
+                                type="text"
+                                placeholder="Meal type name..."
+                                value={newMealName}
+                                onChange={e => setNewMealName(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter') handleAddMeal();
+                                    if (e.key === 'Escape') {
+                                        setShowAddMeal(false);
+                                        setNewMealName('');
+                                    }
+                                }}
+                                autoFocus
+                            />
+                            <button onClick={handleAddMeal} className="confirm-btn">
+                                Додати
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowAddMeal(false);
+                                    setNewMealName('');
+                                }}
+                                className="cancel-add-btn"
+                            >
+                                Скасувати
+                            </button>
+                        </div>
+                    )}
                     <div className="meals-list">
                         {meals.map(meal => (
-                            <div key={meal.id} className="meal-card">
+                            <div key={meal.id} className="meal-card" ref={openMenuId === meal.id ? menuRef : null}>
                                 <div className="meal-info">
+                                    <button
+                                        className="meal-show-menu"
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            setOpenMenuId(openMenuId === meal.id ? null : meal.id);
+                                        }}
+                                    >
+                                        ⋮
+                                    </button>
                                     <span className="meal-icon">{meal.icon}</span>
                                     <div className="meal-details">
                                         <div className="meal-name">{meal.name}</div>
                                         <div className="meal-calories">{meal.calories} / 569 kcal</div>
-                                        {/*change on just showing amount of calories by meal */}
+
+                                        {openMenuId === meal.id && (
+                                            <div className="dropdown-menu">
+                                                <button onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)} className="menu-item">
+                                                    <Edit2 size={16} /> Edit
+                                                </button>
+                                                <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
+                                                    <Trash2 size={16} /> Delete
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                                <button className="meal-add-btn" onClick={() => handleAddMeal(meal.id)} aria-label={`Add ${meal.name}`}>
+                                <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
                                     <Plus size={24} />
                                 </button>
                             </div>
@@ -221,6 +317,16 @@ const MainPage: FC = () => {
                         <span>Reports</span>
                     </button>
                 </div>
+                {/* Modal */}
+                {modalField && (
+                    <UpdateMealModal
+                        id={modalField.id}
+                        label={modalField.label}
+                        initialValue={modalField.value}
+                        onClose={() => setModalField(null)}
+                        onSave={handleUpdateMeal}
+                    />
+                )}
             </div>
         </div>
     );
