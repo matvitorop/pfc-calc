@@ -13,6 +13,8 @@ using project_server.Schemas;
 using project_server.Services;
 using project_server.Services_part;
 using System.Text;
+using project_server.Repositories.Item;
+using project_server.Repositories.ItemCalorie;
 
 // =========== BUILDER ===========
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +45,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();//change
+builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
+builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
+builder.Services.AddScoped<INotesRepository, NotesRepository>();
 
 builder.Services.AddScoped<IDietsRepository, project_server.Repositories.Diet.DietsRepository>();
 builder.Services.AddScoped<IActivityCoefficientsRepository, project_server.Repositories.ActivityCoef.ActivityCoefficientsRepository>();
@@ -52,9 +58,18 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
 
-builder.Services.AddScoped<IDaysRepository, DaysRepository>();
+builder.Services.AddScoped<IDaysService, DaysService>();
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();//hmm??(dublicate)
+builder.Services.AddScoped<IItemService, ItemService>();
+
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
+
+builder.Services.AddHttpClient<FatSecretService>();
+builder.Services.AddScoped<FatSecretService>();
+
+builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
+builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
@@ -102,6 +117,14 @@ builder.Services.AddScoped<UserPublicType>();
 builder.Services.AddScoped<DetailsInputType>();
 builder.Services.AddScoped<DietsResponseType>();
 
+builder.Services.AddScoped<NotesType>();
+builder.Services.AddScoped<DaysType>();
+builder.Services.AddScoped<ItemsInputType>();
+builder.Services.AddScoped<ItemsResponseType>();
+builder.Services.AddScoped<ItemCaloriesType>();
+builder.Services.AddScoped<RegisterInputType>();
+builder.Services.AddScoped<ItemShortType>();
+
 // Register GraphQL Schema 
 builder.Services.AddScoped<ISchema, AppSchema>(); 
 
@@ -139,11 +162,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-app.MapGet("/", () => "GraphQL Server is running!");
+app.MapGet("/", async (FatSecretService fatSecret) =>
+{
+    //int foodId = 33691;
+    var json = await fatSecret.GetFoodByNameAsync("appl", 3);
+    return Results.Content(json, "application/json");
+});
 
 // GraphQL endpoint
 app.UseGraphQL<ISchema>("/graphql");
-app.UseGraphQLGraphiQL("/ui/graphiql");
+app.UseGraphQLGraphiQL("/ui/graphiql"); //last trouble with paths
 
 // GraphQL UI
 //app.UseGraphQLGraphiQL("/ui/graphiql", new GraphiQLOptions());

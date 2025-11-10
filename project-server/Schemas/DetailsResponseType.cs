@@ -5,9 +5,7 @@ namespace project_server.Schemas
 {
     public class DetailsResponse
     {
-        public bool Success { get; set; }
-        public Users? Data { get; set; }
-        public string Message { get; set; }
+        public Users? UserDatails { get; set; }
     }
 
     public class UserPublicType : ObjectGraphType<Users>
@@ -31,9 +29,7 @@ namespace project_server.Schemas
         public DetailsResponseType()
         {
             Name = "DetailsResponse";
-            Field(x => x.Success).Description("Getting user's details success status");
-            Field(x => x.Message).Description("Getted details");
-            Field<UserPublicType>("data").Resolve(context => context.Source.Data);
+            Field<UserPublicType>("userDetails").Resolve(context => context.Source.UserDatails);
         }
     }
 }
