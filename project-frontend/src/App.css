@@ -1,8 +1,8 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+    /* Bootstrap_у не потрібні ці стилі. 
+    Ваш компонент <RegisterForm> з класом .container 
+    тепер сам подбає про ширину та відступи.
+  */
 }
 
 .logo {

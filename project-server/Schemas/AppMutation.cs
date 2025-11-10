@@ -1,6 +1,7 @@
 ﻿using GraphQL;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using project_server.Models_part;
 using project_server.Repositories.Day;
 using project_server.Repositories_part;
@@ -13,181 +14,211 @@ using project_server.Services_part;
 namespace project_server.Schemas
 {
     public class AppMutation : ObjectGraphType
+{
+    public AppMutation(IUserService userService, 
+        JwtHelper _jwtHelper,
+        IStreakService _counterChangerService, 
+        IDaysRepository _daysRepository, 
+        IMealTypeRepository _mealTypeRepository)
     {
-        public AppMutation(IUserService userService,
-            JwtHelper _jwtHelper,
-            IStreakService _counterChangerService,
-            IDaysRepository _daysRepository,
-            IMealTypeRepository _mealTypeRepository,
-            INotesRepository _notesRepository,
-            IItemCaloriesRepository _caloriesRepository, //used in service
-            IItemService _itemService,
-            IItemsRepository _itemsRepository)
-        {
-            Field<LoginResponseType>("loginUser")
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "email" },
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "password" }
-                ))
-                .ResolveAsync(async context =>
-                    {
-                        var email = context.GetArgument<string>("email");
-                        var password = context.GetArgument<string>("password");
+        Field<ApiResponseGraphType<AuthResponseType, AuthResponse>>("loginUser")
+        .Arguments(new QueryArguments(
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "email" },
+        new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "password" }
+        ))
+        .ResolveAsync(async context =>
+            {
+                var email = context.GetArgument<string>("email");
+                var password = context.GetArgument<string>("password");
 
-                        var user = await userService.AuthenticateAsync(email, password);
+                var user = await userService.AuthenticateAsync(email, password);
 
-                        if (user == null)
-                        {
-                            return new LoginResponse
-                            {
-                                Success = false,
-                                Message = "Invalid username or password"
-                            };
-                        }
-
-                        var jwt = _jwtHelper.GenerateToken(user);
-
-                        if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
-                        {
-                            userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
-                            {
-                                HttpOnly = true,
-                                Secure = false,
-                                SameSite = SameSiteMode.Strict,
-                                Expires = DateTimeOffset.UtcNow.AddHours(1)
-                            });
-                        }
-
-                        return new LoginResponse
-                        {
-                            Success = true,
-                            Token = jwt,
-                            Message = "Logged in successfully"
-                        };
-                    }
-                );
-
-            Field<LogoutResponseType>("logout")
-                .Authorize()
-                .ResolveAsync(async context =>
+                if (user == null)
                 {
+                    return ApiResponse<AuthResponse>.Fail("Invalid Credentials");
+                }
+
+                var jwt = _jwtHelper.GenerateToken(user);
+
+                if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
+                {
+                    userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = false,                
+                        SameSite = SameSiteMode.Strict,
+                        Expires = DateTimeOffset.UtcNow.AddHours(1)
+                    });
+                }
+
+                return ApiResponse<AuthResponse>.Ok(new AuthResponse
+                {
+                    Token = jwt
+                }, "Login successful");
+            });
+
+        Field<ApiResponseGraphType<AuthResponseType, AuthResponse>>("registerUser")
+        .Argument<RegisterInputType>("user", "registering user data")
+        .ResolveAsync(async context =>
+        {
+            try
+            {
+                var user = context.GetArgument<Users>("user");
+                
+                var registeredUser = await userService.RegisterAsync(
+                    user.Email, user.HashPass, user.Username,
+                    user.Age, user.Weight, user.Height,
+                    0, user.ActivityCoefId, user.DietId, user.CaloriesStandard
+                );
+        
+                if (registeredUser != null)
+                {
+                    var jwt = _jwtHelper.GenerateToken(user);
+        
+        
                     if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
                     {
-                        userContext.HttpContext.Request.Cookies.TryGetValue("jwt", out var jwt);
-                        userContext.HttpContext.Response.Cookies.Delete("jwt");
-
-                        return new LogoutResponse
+                        userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
                         {
-                            Success = true,
-                            Message = $"Congrat, Logged out successfully, {jwt}"
-                        };
+                            HttpOnly = true,
+                            Secure = false,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = DateTimeOffset.UtcNow.AddHours(1)
+                        });
                     }
 
-                    return new LogoutResponse
+                    return ApiResponse<AuthResponse>.Ok(new AuthResponse
                     {
-                        Success = false,
-                        Message = "Logout failed - no HTTP context"
-                    };
-                });
+                        Token = jwt
+                    }, "Registration successful");
 
-            Field<DetailsResponseType>("changeDetails")
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<DetailsInputType>> { Name = "details" }
-                ))
-                .Authorize()
-                .ResolveAsync(async context =>
+                }
+                else
                 {
-                    var input = context.GetArgument<DetailsInput>("details");
+                    return ApiResponse<AuthResponse>.Fail("Registration failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<AuthResponse>.Fail($"Registration failed: {ex.Message}");
+            }
+        });
 
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+        Field<ApiResponseGraphType<NoContentGraphType, NoContent>>("logout")
+        .Authorize()
+        .ResolveAsync(async context =>
+        {
+            if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
+            {
+                userContext.HttpContext.Request.Cookies.TryGetValue("jwt", out var jwt);
+                userContext.HttpContext.Response.Cookies.Delete("jwt");
+        
+                return ApiResponse<NoContent>.Ok(new NoContent(), "Logout successful");
+            }
+        
+            return ApiResponse<NoContent>.Fail("Logout failed");
+        });
 
-                    if (!userId.HasValue)
-                    {
-                        return new DetailsResponse
-                        {
-                            Success = false,
-                            Message = "User not authenticated or token invalid",
-                            Data = null
-                        };
-                    }
+        Field<ApiResponseGraphType<DetailsResponseType, DetailsResponse>>("changeDetails")
+        .Arguments(new QueryArguments(
+            new QueryArgument<NonNullGraphType<DetailsInputType>> { Name = "details" }
+        ))
+        .Authorize()
+        .ResolveAsync(async context =>
+        {
+            var input = context.GetArgument<DetailsInput>("details");
+            var userId = context.GetUserId(_jwtHelper);
 
-                    var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
+            if (!userId.HasValue)
+            {
+                return ApiResponse<DetailsResponse>.Fail("User not authenticated or token invalid");
+            }
 
-                    if (user == null)
-                        return new DetailsResponse { Success = false, Message = "User not found", Data = null };
+            var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
 
-                    var property = typeof(Users).GetProperty(input.FieldName);
-                    if (property == null)
-                        return new DetailsResponse
-                            { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
+            if (user == null)
+                return ApiResponse<DetailsResponse>.Fail("User not fouund");
 
-                    var dataUser = new Users { Id = user.Id };
-                    property.SetValue(dataUser, property.GetValue(user));
+            var property = typeof(Users).GetProperty(input.FieldName);
+            if (property == null)
+                return ApiResponse<DetailsResponse>.Fail($"Field '{input.FieldName}' not found");
 
-                    return new DetailsResponse
-                    {
-                        Success = true,
-                        Message = $"{input.FieldName} changed successfully",
-                        Data = dataUser
-                    };
-                });
+            var dataUser = new Users { Id = user.Id };
+            property.SetValue(dataUser, property.GetValue(user));
 
-            Field<ResetResponseType>("checkForStreakReset")
-                .Authorize()
-                .ResolveAsync(async context =>
+            return ApiResponse<DetailsResponse>.Ok(
+                new DetailsResponse
                 {
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    UserDatails = dataUser
+                },
+                $"{input.FieldName} changed successfully"
+            );
+        });
 
-                    var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
+        Field<ApiResponseGraphType<ResetResponseType, ResetResponse>>("checkForStreakReset")
+        .Authorize()
+        .ResolveAsync(async context =>
+        {
+            var userId = context.GetUserId(_jwtHelper);
 
-                    var result =
-                        await _counterChangerService.CheckForStreakResetAsync(
-                            _jwtHelper.GetEmailFromToken(userContext.User), recentDays);
+            var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
 
-                    // Overthink result later
-                    return new ResetResponse
-                    {
-                        Success = true,
-                        Message = result == null
-                            ? $"Nothing to change {userId}"
-                            : "Streak changed"
-                    };
-                });
+            var result = await _counterChangerService.CheckForStreakResetAsync(context.GetUserEmail(_jwtHelper), recentDays);
 
-            Field<MealTypesType>("addMealType")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
-                ))
-                .ResolveAsync(async context =>
-                    {
-                        var name = context.GetArgument<string>("name");
-                        var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+            return ApiResponse<ResetResponse>.Ok(
+                new ResetResponse
+                {
+                    CurrentStreak = result
+                }, "Streak changed successfully");
+        
+        }); 
+    
+        Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("addMealType")
+        .Authorize()
+        .Arguments(new QueryArguments(
+            new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
+        ))
+        .ResolveAsync(async context =>
+            {
+                var name = context.GetArgument<string>("name");
+                var userId = context.GetUserId(_jwtHelper);
 
-                        return await _mealTypeRepository.CreateAsync(userId.Value, name);
-                    }
-                );
+                var mealTypes = await _mealTypeRepository.CreateAsync(userId.Value, name);
 
-            Field<MealTypesType>("deleteMealType")
-                .Authorize()
-                .Arguments(new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
-                ))
-                .ResolveAsync(async context =>
-                    {
-                        var name = context.GetArgument<string>("name");
+                if (mealTypes == null)
+                {
+                    return ApiResponse<MealTypesResponse>.Fail("Failed to add meal type");
+                }
 
-                        var userContext = context.UserContext as GraphQLUserContext;
-                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                return ApiResponse<MealTypesResponse>.Ok(new MealTypesResponse
+                {
+                    Items = new List<MealTypes> { mealTypes }
+                }, "Meal type added successfully");
+            });
 
-                        return await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
-                    }
-                );
+        Field<ApiResponseGraphType<MealTypesResponseType, MealTypesResponse>>("deleteMealType")
+        .Authorize()
+        .Arguments(new QueryArguments(
+            new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "name" }
+        ))
+        .ResolveAsync(async context =>
+            {
+                var name = context.GetArgument<string>("name");
+                var userId = context.GetUserId(_jwtHelper);
 
-            //NOTES 
+                var deletedMealType = await _mealTypeRepository.DeleteByNameAsync(userId.Value, name);
+
+                if (deletedMealType == null)
+                {
+                    return ApiResponse<MealTypesResponse>.Fail("Failed to delete meal type");
+                }
+                
+                return ApiResponse<MealTypesResponse>.Ok(new MealTypesResponse
+                {
+                    Items = new List<MealTypes> { await _mealTypeRepository.DeleteByNameAsync(userId.Value, name) }
+                }, "Meal type deleted successfully");
+
+            });
             Field<NoteResponseType>("addNote")
             .Authorize()
             .Arguments(new QueryArguments(
@@ -199,13 +230,16 @@ namespace project_server.Schemas
             {
                 try
                 {
+                    Success = false,
+                    Message = "Logout failed - no HTTP context"
+                };
                     var title = context.GetArgument<string>("title");
                     var dueDate = context.GetArgument<DateTime?>("dueDate");
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    
+
                     var result = await _notesRepository.AddNoteAsync(userId.Value, title, dueDate);
-                    
+
                     if (result != null)
                     {
                         return new NoteResponse
@@ -213,7 +247,7 @@ namespace project_server.Schemas
                             Success = true,
                             Note = result,
                             Message = "Нотатка створена"
-                        };
+                                                    };
                     }
                     else
                     {
@@ -225,7 +259,7 @@ namespace project_server.Schemas
                         };
                     }
                 }
-               
+
                 catch (Exception ex)
                 {
                     return new NoteResponse
@@ -236,8 +270,8 @@ namespace project_server.Schemas
                     };
                 }
             });
-
-        Field<NoteResponseType>("deleteNote")
+            
+            Field<NoteResponseType>("deleteNote")
             .Authorize()
             .Arguments(new QueryArguments(
                 new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
@@ -249,9 +283,9 @@ namespace project_server.Schemas
                     var id = context.GetArgument<int>("id");
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    
+
                     var result = await _notesRepository.DeleteNoteAsync(id, userId.Value);
-                    
+
                     if (result != null)
                     {
                         return new NoteResponse
@@ -271,13 +305,12 @@ namespace project_server.Schemas
                         };
                     }
                 }
-                
                 catch (Exception ex)
                 {
                     return new NoteResponse
                     {
                         Success = false,
-                        Note = null,
+                                                Note = null,
                         Message = "Помилка: " + ex.Message
                     };
                 }
@@ -295,7 +328,6 @@ namespace project_server.Schemas
                             var userContext = context.UserContext as GraphQLUserContext;
                             var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
                             var result =  await _notesRepository.CompleteNoteAsync(id, userId.Value);
-
                             if (result != null)
                             {
                                 return new NoteResponse
@@ -312,7 +344,7 @@ namespace project_server.Schemas
                                     Success = false,
                                     Note = null,
                                     Message = "Нотатка не знайдена або вже виконана"
-                                };
+                                     };
                             }
                         }
                         catch (Exception ex)
@@ -325,7 +357,7 @@ namespace project_server.Schemas
                             };
                         } 
                 });
-                   
+
             // Restore note
             Field<NoteResponseType>("restoreNote")
                 .Authorize()
@@ -340,7 +372,7 @@ namespace project_server.Schemas
                         var userContext = context.UserContext as GraphQLUserContext;
                         var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
                        var result =  await _notesRepository.RestoreNoteAsync(id, userId.Value);
-                       
+
                        if (result != null)
                        {
                            return new NoteResponse
@@ -357,7 +389,7 @@ namespace project_server.Schemas
                                Success = false,
                                Note = null,
                                Message = "Нотатка не знайдена або вже активна"
-                           };
+                                                          };
                        }
                     }
                     catch (Exception ex)
@@ -386,7 +418,7 @@ namespace project_server.Schemas
                         var calories = context.GetArgument<double?>("calories");
                         var userContext = context.UserContext as GraphQLUserContext;
                         var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                        
+
                         if (string.IsNullOrEmpty(input.Name))
                         {
                             return new ItemsResponse
@@ -396,7 +428,6 @@ namespace project_server.Schemas
                                 Message = "Назва продукту обов'язкова"
                             };
                         }
-
                         double finalCalories;
                         if (!calories.HasValue)
                         {
@@ -412,22 +443,19 @@ namespace project_server.Schemas
                                     Success = false,
                                     Item = null,
                                     Message = "Вкажіть калорії або хоча б один з показників: білки, жири або вуглеводи"
-                                };
+                                                                    };
                             }
-    
-                            finalCalories = calculatedCalories.Value;
 
-                        }
+                            finalCalories = calculatedCalories.Value;
+                            }
                         else
                         {
                             finalCalories = calories.Value;
                         }
-
-                        double proteins = input.Proteins ?? 0;
+                         double proteins = input.Proteins ?? 0;
                         double fats = input.Fats ?? 0;
                         double carbs = input.Carbs ?? 0;
-
-                        var item = new Items
+                                                var item = new Items
                         {
                             UserId = userId,
                             Name = input.Name,
@@ -437,9 +465,7 @@ namespace project_server.Schemas
                             Carbs = carbs,
                             ApiId = null
                         };
-
                         var createdItem = await _itemsRepository.AddItemAsync(item);
-
                         if (createdItem == null)
                         {
                             return new ItemsResponse
@@ -455,9 +481,7 @@ namespace project_server.Schemas
                             ItemId = createdItem.Id,
                             Calories = (float)finalCalories
                         };
-
                         var addedCalories = await _itemService.AddItemAsync(itemCalories, createdItem);
-
                         if (addedCalories == null)
                         {
                             return new ItemsResponse
@@ -481,10 +505,10 @@ namespace project_server.Schemas
                             Success = false,
                             Item = null,
                             Message = "Помилка: " + ex.Message
-                        };
+                             };
                     }
                 });
-            Field<ItemsResponseType>("changeCustomItem")
+                Field<ItemsResponseType>("changeCustomItem")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<ItemsUpdateInputType>> { Name = "updateCustomItem" },
@@ -492,13 +516,12 @@ namespace project_server.Schemas
                 ))
                 .ResolveAsync(async context =>
                 {
-                    try
+                try
                     {
                         var input = context.GetArgument<ItemsUpdateInput>("updateCustomItem");
                         var calories = context.GetArgument<double?>("calories");
                         var userContext = context.UserContext as GraphQLUserContext;
                         var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-
                         if (string.IsNullOrEmpty(input.Name))
                         {
                             return new ItemsResponse
@@ -506,9 +529,9 @@ namespace project_server.Schemas
                                 Success = false,
                                 Item = null,
                                 Message = "Назва продукту обов'язкова"
-                            };
+                                                            };
                         }
-                        
+
                         double finalCalories;
                         if (!calories.HasValue)
                         {
@@ -524,7 +547,7 @@ namespace project_server.Schemas
                                     Success = false,
                                     Item = null,
                                     Message = "Вкажіть калорії або хоча б один з показників: білки, жири або вуглеводи"
-                                };
+                                    };
                             }
                             finalCalories = calculatedCalories.Value;
                         }
@@ -535,7 +558,7 @@ namespace project_server.Schemas
                         double proteins = input.Proteins ?? 0;
                         double fats = input.Fats ?? 0;
                         double carbs = input.Carbs ?? 0;
-
+                        
                         var updatedItem = await _itemsRepository.ChangeItemAsync(
                             input.Id,
                             null,
@@ -546,7 +569,7 @@ namespace project_server.Schemas
                             carbs,
                             input.Description
                         );
-
+                        
                         if (updatedItem == null)
                         {
                             return new ItemsResponse
@@ -554,9 +577,9 @@ namespace project_server.Schemas
                                 Success = false,
                                 Item = null,
                                 Message = "Продукт не знайдено або не вдалося оновити"
-                            };
+                                                            };
                         }
-                        
+
                         var existingCalories = await _caloriesRepository.GetItemAsync(input.Id);
                         if (existingCalories != null)
                         {
@@ -580,7 +603,7 @@ namespace project_server.Schemas
                             Message = "Продукт успішно оновлено"
                         };
                     }
-                   
+
                     catch (Exception ex)
                     {
                         return new ItemsResponse
@@ -590,7 +613,8 @@ namespace project_server.Schemas
                             Message = "Помилка: " + ex.Message
                         };
                     }
-                });
-        }
+                });    
     }
+
+  }
 }
