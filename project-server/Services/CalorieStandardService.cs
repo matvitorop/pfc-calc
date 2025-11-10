@@ -52,11 +52,6 @@ namespace project_server.Services
            var updatedUser = await _userRepo.UpdateUserDetailsAsync(user.Id, "calories_standard", newCalories);
             return updatedUser;
         }
-
-
     }
-
-
-        
 }
 

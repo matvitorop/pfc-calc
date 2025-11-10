@@ -119,7 +119,9 @@ namespace project_server.Services_part
                     nameof(Users.Weight),
                     nameof(Users.Height),
                     nameof(Users.ActivityCoefId),
-                    nameof(Users.DietId)                };
+                    nameof(Users.DietId)                
+                };
+
                 bool isCustomDiet =      
                     string.Equals(fieldName, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
                     convertedValue is int dietId &&
@@ -143,30 +145,30 @@ namespace project_server.Services_part
             }
         }
 
-        
 
 
-        public async Task<DetailsResponse> GetUserDetailsAsync(string userEmail)
-        {
-            var user = await _userRepo.GetByEmailAsync(userEmail);
-
-            if (user == null)
-            {
-                return new DetailsResponse
-                {
-                    Success = false,
-                    Message = "User not found",
-                    Data = null
-                };
-            }
-
-            return new DetailsResponse
-            {
-                Success = true,
-                Message = "User details retrieved successfully",
-                Data = user  
-            };
-        }
+        // UNUSED METHOD
+        //public async Task<DetailsResponse> GetUserDetailsAsync(string userEmail)
+        //{
+        //    var user = await _userRepo.GetByEmailAsync(userEmail);
+        //
+        //    if (user == null)
+        //    {
+        //        return new DetailsResponse
+        //        {
+        //            Success = false,
+        //            Message = "User not found",
+        //            Data = null
+        //        };
+        //    }
+        //
+        //    return new DetailsResponse
+        //    {
+        //        Success = true,
+        //        Message = "User details retrieved successfully",
+        //        Data = user  
+        //    };
+        //}
     }
 }
 
