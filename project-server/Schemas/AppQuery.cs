@@ -2,11 +2,12 @@
 using GraphQL.Types;
 using project_server.Services;
 using GraphQL.Authorization;
-
 using project_server.Repositories;
 using project_server.Repositories.ActivityCoef;
 using project_server.Repositories.Diet;
 using project_server.Repositories_part;
+using project_server.Repositories.Day;
+
 using project_server.Repositories.Item;
 // ПОДУМАТИ НАД ОБГОРТКОЮ КЛАСУ
 namespace project_server.Schemas
@@ -16,11 +17,13 @@ namespace project_server.Schemas
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
             JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository,
-            IItemsRepository _itemsRepository, IDaysService _daysService)
+            IItemsRepository _itemsRepository, IDaysService _daysService,
+            INotesRepository _notesRepository, IDaysRepository _daysRepository)
+
         {
 
             Field<ListGraphType<ActivityCoefficientsResponseType>>("getCoef")
-               .ResolveAsync(async context => await activityCoefRepository.GetAcitivityCoefsAsync());
+                .ResolveAsync(async context => await activityCoefRepository.GetAcitivityCoefsAsync());
 
             Field<ListGraphType<DietsResponseType>>("getDiets")
                 .ResolveAsync(async context => await dietsRepository.GetDietsAsync());
@@ -44,7 +47,10 @@ namespace project_server.Schemas
 
                 if (userEmail == null)
                 {
-                    return new DetailsResponse
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userEmail = _jwtHelper.GetEmailFromToken(userContext?.User);
+
+                    if (userEmail == null)
                     {
                         UserDatails = null
                     };
@@ -118,6 +124,43 @@ namespace project_server.Schemas
 
                 return await _daysService.GetUserSummaryAsync(userId.Value, day);
             });
+            
+            Field<ListGraphType<NotesType>>("getActiveNotes")
+                .Authorize()
+                .ResolveAsync(async context =>
+                    {
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                        return await _notesRepository.GetActiveNotesAsync(userId.Value);
+                    }
+                );
+            Field<ListGraphType<NotesType>>("getCompletedNotes")
+                .Authorize()
+                .ResolveAsync(async context =>
+                    {
+                        var userContext = context.UserContext as GraphQLUserContext;
+                        var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                        return await _notesRepository.GetCompletedNotesAsync(userId.Value);
+                    }
+                );
+            //DAYS
+            Field<ListGraphType<DaysType>>("getDays")
+                .Authorize()
+                .Arguments(new QueryArguments(
+                    new QueryArgument<DateTimeGraphType> { Name = "day" },
+                    new QueryArgument<IntGraphType> { Name = "limit" }
+                ))
+                .ResolveAsync(async context =>
+                {
+                    var userContext = context.UserContext as GraphQLUserContext;
+                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    var day = context.GetArgument<DateTime?>("day");
+                    var limit = context.GetArgument<int?>("limit");
+
+                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit);
+                });
         }
 
     }    

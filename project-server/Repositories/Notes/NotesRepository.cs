@@ -15,12 +15,10 @@ namespace project_server.Repositories_part
         }
         public async Task<Notes> AddNoteAsync(int userId, string title, DateTime? dueDate)
         {
-            using IDbConnection db = new SqlConnection(_coonnectionString);
-
-            var sql = @"INSERT INTO Notes (user_id, title, due_date, is_completed, completed_date)
-                    OUTPUT INSERTED.*
-                    VALUES (@User_id, @Title, @Due_date, 0, NULL);";
-
+            using var db = new SqlConnection(_coonnectionString);
+            var sql = @"INSERT INTO Notes (user_id, title, due_date)
+            OUTPUT INSERTED.*
+            VALUES (@User_id, @Title, @Due_date);";
             return await db.QuerySingleAsync<Notes>(sql,
                 new
                 {
@@ -30,27 +28,68 @@ namespace project_server.Repositories_part
                 });
         }
 
-        public async Task<Notes?> CompleteNoteAsync(int noteId)
-        {
+        public async Task<Notes?> CompleteNoteAsync(int noteId, int userId)
+        { 
+            try{
             using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"UPDATE Notes
                     SET is_completed = 1,
                     completed_date = GETDATE()
                     OUTPUT INSERTED.*
-                    WHERE id = @Id and is_completed = 0;";
+                    WHERE id = @Id AND user_id = @UserId
+                        AND is_completed = 0;";
 
-            return await db.QueryFirstOrDefaultAsync<Notes>(sql,
-                new { Id = noteId });
+            var result = await db.QueryFirstOrDefaultAsync<Notes>(sql,
+                new { Id = noteId, UserId = userId });
+            if (result == null)
+            {
+                throw new InvalidOperationException(
+                    $"Нотатка {noteId} не знайдена або вже виконана");
+            }
+
+            return result;
+            }
+            catch (SqlException ex)
+            {
+            throw new DataException($"Помилка БД при виконанні нотатки {noteId}", ex);
+            }
+        }
+        public async Task<Notes?> RestoreNoteAsync(int noteId, int userId)
+        {
+            try
+            {
+                using IDbConnection db = new SqlConnection(_coonnectionString);
+                var sql = @"UPDATE Notes
+                    SET is_completed = 0,
+                        completed_date = NULL
+                    OUTPUT INSERTED.*
+                    WHERE id = @Id AND user_id = @UserId AND is_completed = 1;";
+
+                var result = await db.QueryFirstOrDefaultAsync<Notes>(sql,
+                    new { Id = noteId, UserId = userId });
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Нотатка {noteId} не знайдена або вже активна");
+                }
+
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new DataException($"Помилка БД при відновленні нотатки {noteId}", ex);
+            }
         }
 
-        public async Task<Notes?> DeleteNoteAsync(int noteId)
+        public async Task<Notes?> DeleteNoteAsync(int noteId, int userId)
         {
             using IDbConnection db = new SqlConnection(_coonnectionString);
             var sql = @"DELETE FROM Notes
                     OUTPUT DELETED.*
-                    WHERE Id = @NoteId";
+                    WHERE Id = @NoteId AND user_id = @UserId";
 
-            return await db.QueryFirstOrDefaultAsync<Notes>(sql, new { NoteId = noteId });
+            return await db.QueryFirstOrDefaultAsync<Notes>(sql, new { NoteId = noteId, UserId = userId });
 
         }
 
