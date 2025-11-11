@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { graphqlFetch } from "../../GraphQL/fecthRequest";
+import { graphqlFetch } from "../../GraphQL/fetchRequest";
+
 
 interface LoginFormData {
     email: string;

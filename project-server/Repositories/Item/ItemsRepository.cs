@@ -34,6 +34,16 @@ namespace project_server.Repositories.Item
             return gotItem ?? null;
         }
 
+
+        public async Task<Items?> GetItemByApiIdAsync(string apiId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+            var sql = "SELECT * FROM Items WHERE api_id = @ApiId";
+            var result = await db.QueryFirstOrDefaultAsync<Items>(sql, new { ApiId = apiId });
+
+            return result ?? null;
+        }
+
         public async Task<Items> ChangeItemAsync(int itemId, string? apiId, int userId, string name, double proteins, double fats, double carbs, string? description)
         {
             using IDbConnection db = new SqlConnection(_connectionString);

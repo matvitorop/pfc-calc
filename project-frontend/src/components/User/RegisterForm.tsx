@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../../store/store";
 import { fetchStart as fetchCoefStart} from "../../store/coef/coefSlice";
 import { fetchStart as fetchDietsStart } from "../../store/diets/dietSlice";
-import { graphqlFetch } from "../../GraphQL/fecthRequest";
+import { graphqlFetch } from "../../GraphQL/fetchRequest";
 
 interface RegisterFormData {
     email: string;

@@ -50,6 +50,12 @@ builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
 builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
 
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();
+builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
+builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
+builder.Services.AddScoped<INotesRepository, NotesRepository>();
+
+
 builder.Services.AddScoped<IDietsRepository, project_server.Repositories.Diet.DietsRepository>();
 builder.Services.AddScoped<IActivityCoefficientsRepository, project_server.Repositories.ActivityCoef.ActivityCoefficientsRepository>();
 
@@ -57,19 +63,15 @@ builder.Services.AddScoped<IActivityCoefficientsRepository, project_server.Repos
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICalorieStandardService,CalorieStandardService>();
-
 builder.Services.AddScoped<IDaysService, DaysService>();
-builder.Services.AddScoped<IDaysRepository, DaysRepository>();//hmm??(dublicate)
 builder.Services.AddScoped<IItemService, ItemService>();
+
 
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
 
 builder.Services.AddHttpClient<FatSecretService>();
 builder.Services.AddScoped<FatSecretService>();
-
-builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
-builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
@@ -112,10 +114,24 @@ builder.Services
 
 // Register GraphQL Types
 builder.Services.AddScoped<ActivityCoefficientsResponseType>();
+
 builder.Services.AddScoped<DetailsResponseType>();
 builder.Services.AddScoped<UserPublicType>();
-builder.Services.AddScoped<DetailsInputType>();
+builder.Services.AddScoped<ItemsResponseType>();
 builder.Services.AddScoped<DietsResponseType>();
+builder.Services.AddScoped<DaysResponseType>();
+
+builder.Services.AddScoped<DaysInputType>();
+builder.Services.AddScoped<DetailsInputType>();
+
+
+builder.Services.AddScoped<NotesType>();
+builder.Services.AddScoped<DaysType>();
+builder.Services.AddScoped<ItemsInputType>();
+builder.Services.AddScoped<ItemsResponseType>();
+builder.Services.AddScoped<ItemCaloriesType>();
+builder.Services.AddScoped<RegisterInputType>();
+builder.Services.AddScoped<ItemShortType>();
 
 builder.Services.AddScoped<NotesType>();
 builder.Services.AddScoped<DaysType>();

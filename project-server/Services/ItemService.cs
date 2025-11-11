@@ -28,11 +28,31 @@ namespace project_server.Services
 
         }
 
+        // додати обробник помилок
+        public async Task<ItemCalories> AddItemAsync(Items items)
+        {
+            try
+            {
+                ItemCalories item = new ItemCalories();
+                item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
+                item.ItemId = item.Id;
+                var result = await _itemCaloriesRepository.AddItemAsync(item);
+                if (result != null) { return result; }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+
         //add error handler
         public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items) //items сould delete
         {
 //            item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
             return await _itemCaloriesRepository.AddItemAsync(item);
+
         }
     }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of, catchError } from "rxjs";
-import { graphqlFetch } from "../../GraphQL/fecthRequest";
+import { graphqlFetch } from "../../GraphQL/fetchRequest";
+
 
 interface ItemShort {
     id: number;

@@ -20,4 +20,5 @@ namespace project_server.Schemas;
             Field(x => x.Item, nullable: true, type: typeof(ItemsType));
             Field(x => x.Message);
         }
+
     }

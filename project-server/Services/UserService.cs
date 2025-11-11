@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using project_server.Models_part;
 using project_server.Repositories_part;
 using project_server.Schemas;
@@ -15,10 +16,9 @@ namespace project_server.Services_part
         private static string SnakeToPascalCase(string str)
         {
             if (string.IsNullOrEmpty(str)) return str;
-
             return string.Join("", str
                 .Split('_', StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1)));
+                .Select(s => s.Length == 0 ? "" : char.ToUpperInvariant(s[0]) + s.Substring(1)));
         }
 
         public UserService(IUserRepository userRepo, IAuthService authService, ICalorieStandardService calorieStandart)
@@ -91,27 +91,26 @@ namespace project_server.Services_part
             try
             {
                 string fieldNamePascalCase = SnakeToPascalCase(fieldName);
-
                 var property = typeof(Users).GetProperty(fieldNamePascalCase);
                 if (property == null)
                     throw new ArgumentException($"Field '{fieldNamePascalCase}' not found in Users model");
 
                 var targetType = property.PropertyType;
-
                 object? convertedValue;
                 try
-                { 
+                {
                     var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
                     convertedValue = Convert.ChangeType(value, underlyingType);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine($"Type conversion failed for field '{fieldName}': {ex.Message}");
                     return null;
                 }
 
                 var updatedUser = await _userRepo.UpdateUserDetailsAsync(id, fieldName, convertedValue);
-                if (updatedUser == null) return null;
-
+                if (updatedUser == null)
+                    return null;
 
                 var fieldsThatAffectCalories = new HashSet<string>
                 {
@@ -119,20 +118,19 @@ namespace project_server.Services_part
                     nameof(Users.Weight),
                     nameof(Users.Height),
                     nameof(Users.ActivityCoefId),
-                    nameof(Users.DietId)                
+                    nameof(Users.DietId)
                 };
 
-                bool isCustomDiet =      
-                    string.Equals(fieldName, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
+                bool isCustomDiet =
+                    string.Equals(fieldNamePascalCase, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
                     convertedValue is int dietId &&
-                    dietId == (int)DietСonstants.CustomCalorieDietId;
+                    dietId == (int)DietConstants.CustomCalorieDietId;
 
                 if (isCustomDiet)
                     return updatedUser;
 
-                if (fieldsThatAffectCalories.Contains(fieldName))
+                if (fieldsThatAffectCalories.Contains(fieldNamePascalCase))
                 {
-
                     updatedUser = await _caloriesStandartService.RecalculateCaloriesStandard(updatedUser);
                 }
 
@@ -144,35 +142,10 @@ namespace project_server.Services_part
                 throw;
             }
         }
-
-
-
-        // UNUSED METHOD
-        //public async Task<DetailsResponse> GetUserDetailsAsync(string userEmail)
-        //{
-        //    var user = await _userRepo.GetByEmailAsync(userEmail);
-        //
-        //    if (user == null)
-        //    {
-        //        return new DetailsResponse
-        //        {
-        //            Success = false,
-        //            Message = "User not found",
-        //            Data = null
-        //        };
-        //    }
-        //
-        //    return new DetailsResponse
-        //    {
-        //        Success = true,
-        //        Message = "User details retrieved successfully",
-        //        Data = user  
-        //    };
-        //}
     }
 }
 
-public enum DietСonstants
+public enum DietConstants
 {
     CustomCalorieDietId = 4
 }

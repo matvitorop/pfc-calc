@@ -1,14 +1,16 @@
 ﻿using GraphQL;
-using GraphQL.Types;
-using project_server.Services;
 using GraphQL.Authorization;
+using GraphQL.Types;
+using project_server.Models_part;
+
 using project_server.Repositories;
 using project_server.Repositories.ActivityCoef;
-using project_server.Repositories.Diet;
-using project_server.Repositories_part;
 using project_server.Repositories.Day;
-
+using project_server.Repositories.Diet;
 using project_server.Repositories.Item;
+using project_server.Repositories_part;
+using project_server.Services;
+
 // ПОДУМАТИ НАД ОБГОРТКОЮ КЛАСУ
 namespace project_server.Schemas
 {
@@ -16,6 +18,8 @@ namespace project_server.Schemas
     {
         public AppQuery(IActivityCoefficientsRepository activityCoefRepository,
             IDietsRepository dietsRepository, IUserRepository userRepository,
+
+
             JwtHelper _jwtHelper, IMealTypeRepository _mealTypeRepository,
             IItemsRepository _itemsRepository, IDaysService _daysService,
             INotesRepository _notesRepository, IDaysRepository _daysRepository)
@@ -43,30 +47,26 @@ namespace project_server.Schemas
             .Authorize()
             .ResolveAsync(async context =>
             {
-                var userEmail = context.GetUserEmail(_jwtHelper);
+                try
+                {
+                    var userEmail = context.GetUserEmail(_jwtHelper);
+                    var user = await userRepository.GetByEmailAsync(userEmail);
 
-                if (userEmail == null)
+
+                    return new DetailsResponse
+                    {
+                        // змінив поки без success, message
+                        UserDatails = user
+                    };
+                }
+                catch (Exception ex)
                 {
                     return new DetailsResponse
                     {
+                        // змінив поки без success, message
                         UserDatails = null
                     };
                 }
-            
-                var user = await userRepository.GetByEmailAsync(userEmail);
-            
-                if (user == null)
-                {
-                    return new DetailsResponse
-                    {
-                        UserDatails = null
-                    };
-                }
-            
-                return new DetailsResponse
-                {
-                    UserDatails = user
-                };
             });
 
             Field<StringGraphType>("privateHello")
