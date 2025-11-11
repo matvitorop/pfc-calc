@@ -18,28 +18,28 @@ interface dietState {
 const initialState: dietState = {
     data: [],
     loading: false,
-    error: null
-}
+    error: null,
+};
 
 const dietSlice = createSlice({
     name: 'diets',
     initialState,
     reducers: {
-        fetchStart: (state) => {
+        fetchDietsStart: state => {
             state.loading = true;
             state.error = null;
         },
-        fetchSuccess: (state, action: PayloadAction<Diet[]>) => {
+        fetchDietsSuccess: (state, action: PayloadAction<Diet[]>) => {
             state.data = action.payload;
             state.loading = false;
             state.error = null;
         },
-        fetchFailure: (state, action: PayloadAction<string>) => {
+        fetchDietsFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
     },
-})
+});
 
-export const { fetchStart, fetchSuccess, fetchFailure } = dietSlice.actions;
+export const { fetchDietsStart, fetchDietsSuccess, fetchDietsFailure } = dietSlice.actions;
 export default dietSlice.reducer;

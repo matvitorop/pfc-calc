@@ -6,10 +6,10 @@ import { useEffect } from 'react';
 import '../css/main.css';
 import { useFetchUserData } from './hooks/fetchUserData';
 import MainPage from './components/MainPage';
-import RegisterForm from './components/User/RegisterForm'
-import LoginForm from './components/User/LoginForm'
-import SearchItem from './components/Items/SearchItem'
-import 'bootstrap/dist/css/bootstrap.min.css';
+import RegisterForm from './components/User/RegisterForm';
+import LoginForm from './components/User/LoginForm';
+import SearchItem from './components/Items/SearchItem';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
     /* const user = {
@@ -24,13 +24,13 @@ function App() {
         caloriesStandard: 2000,
     }; */
 
-    const { user, loading, error } = useFetchUserData();
+    const { user } = useFetchUserData();
     //const { data, loading, error } = useAppSelector(state => state.userReducer);
-    if (loading) {
+    if (user.loading) {
         return <div>Loading profile data...</div>;
     }
-    if (error) {
-        return <div>Happend error: {error} </div>;
+    if (user.error) {
+        return <div>Happend error: {user.error} </div>;
     }
     if (!user) {
         return <div>User`s data not accessable.</div>;
@@ -40,7 +40,7 @@ function App() {
     } */
     return (
         <>
-            <ProfilePage {...user} />
+            <ProfilePage {...user.data} />
             <MainPage />
         </>
     );

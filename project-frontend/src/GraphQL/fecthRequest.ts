@@ -5,24 +5,25 @@ export interface fetchResponse<T> {
 
 const GRAPHQL_API_URL = 'https://localhost:7049/graphql';
 
-export const graphqlFetch = async<T>(
+export const graphqlFetch = async <T>(
     query: string,
-    variables : Record<string, any> = {},
-    allowCredentials: boolean = false): Promise<fetchResponse<T>> => {
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    variables: Record<string, any> = {},
+    allowCredentials: boolean = false,
+): Promise<fetchResponse<T>> => {
     const response = await fetch(GRAPHQL_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: allowCredentials ? 'include' : 'same-origin',
         body: JSON.stringify({ query, variables }),
-    })
+    });
 
     const text = await response.text();
 
     try {
         return JSON.parse(text);
     } catch {
-        console.error("Non-JSON response:", text);
-        throw new Error("Invalid JSON from server");
+        console.error('Non-JSON response:', text);
+        throw new Error('Invalid JSON from server');
     }
-}
+};

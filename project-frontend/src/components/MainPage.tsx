@@ -31,6 +31,7 @@ const MainPage: FC = () => {
     useEffect(() => {
         dispatch(fetchMeals());
         dispatch(fetchSummary());
+        // will be fetch for notes
     }, []);
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
     const user = useAppSelector(state => state.userReducer);
