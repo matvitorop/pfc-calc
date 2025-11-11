@@ -18,6 +18,8 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.4",
     "redux": "^5.0.1",
+    "bootstrap": "^5.3.8",
+    "react-hook-form": "^7.65.0",
     "redux-observable": "^3.0.0-rc.2",
     "rxjs": "^7.8.2"
   },
