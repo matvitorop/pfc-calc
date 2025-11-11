@@ -1,9 +1,9 @@
 import { ofType } from 'redux-observable';
 import { from, of } from 'rxjs';
 import { mergeMap, map, catchError } from 'rxjs/operators';
-import { fetchStart, fetchSuccess, fetchFailure } from '../coef/coefSlice';
+import { fetchCoefStart, fetchCoefSuccess, fetchCoefFailure } from '../../store/coef/coefSlice';
 import { graphqlFetch } from '../../GraphQL/fetchRequest';
-import type { ActivityCoefficient } from '../coef/coefSlice';
+import type { ActivityCoefficient } from '../../store/coef/coefSlice';
 
 const getCoef = `
         query{
@@ -17,11 +17,11 @@ const getCoef = `
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchCoefEpic = (action$: any) =>
     action$.pipe(
-        ofType(fetchStart.type),
+        ofType(fetchCoefStart.type),
         mergeMap(() =>
             from(graphqlFetch<{ getCoef: ActivityCoefficient[] }>(getCoef)).pipe(
-                map(res => fetchSuccess(res.data?.getCoef ?? [])),
-                catchError(err => of(fetchFailure(err.message))),
+                map(res => fetchCoefSuccess(res.data?.getCoef ?? [])),
+                catchError(err => of(fetchCoefFailure(err.message))),
             ),
         ),
     );

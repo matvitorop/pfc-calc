@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../store/store";
-import { fetchStart as fetchCoefStart} from "../../store/coef/coefSlice";
-import { fetchStart as fetchDietsStart } from "../../store/diets/dietSlice";
-import { graphqlFetch } from "../../GraphQL/fetchRequest";
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '../../store/reducers/rootReducer';
+import { fetchCoefStart } from '../../store/coef/coefSlice';
+import { fetchDietsStart } from '../../store/diets/dietSlice';
+import { graphqlFetch } from '../../GraphQL/fetchRequest';
+import type { AppDispatch } from '../../store/store';
 
 interface RegisterFormData {
     email: string;
@@ -19,8 +20,8 @@ interface RegisterFormData {
 
 const RegisterForm: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { data: coefs } = useSelector((state: RootState) => state.coef);
-    const { data: diets } = useSelector((state: RootState) => state.diets);
+    const { data: coefs } = useSelector((state: RootState) => state.coefReducer);
+    const { data: diets } = useSelector((state: RootState) => state.dietReducer);
 
     const {
         register,
@@ -65,20 +66,20 @@ const RegisterForm: React.FC = () => {
             const result = res.data?.registerUser;
 
             if (res.errors) {
-                console.error("GraphQL errors:", res.errors);
-                alert(res.errors[0].message || "Registration failed");
+                console.error('GraphQL errors:', res.errors);
+                alert(res.errors[0].message || 'Registration failed');
                 return;
             }
 
             if (result?.success) {
-                console.log("Registration successful!");
-                alert("Registered successfully!");
+                console.log('Registration successful!');
+                alert('Registered successfully!');
             } else {
-                alert(result?.message || "Registration failed");
+                alert(result?.message || 'Registration failed');
             }
         } catch (err) {
-            console.error("Network or server error:", err);
-            alert("Error during registration");
+            console.error('Network or server error:', err);
+            alert('Error during registration');
         }
     };
 
@@ -94,62 +95,54 @@ const RegisterForm: React.FC = () => {
                                 <label className="form-label">Email</label>
                                 <input
                                     type="email"
-                                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                                    {...register("email", {
-                                        required: "Email is required",
+                                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                    {...register('email', {
+                                        required: 'Email is required',
                                         pattern: {
                                             value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                            message: "Invalid email format",
+                                            message: 'Invalid email format',
                                         },
                                     })}
                                 />
-                                {errors.email && (
-                                    <div className="invalid-feedback d-block">{errors.email.message}</div>
-                                )}
+                                {errors.email && <div className="invalid-feedback d-block">{errors.email.message}</div>}
                             </div>
 
                             <div className="mb-3">
                                 <label className="form-label">Username</label>
                                 <input
                                     type="text"
-                                    className={`form-control ${errors.username ? "is-invalid" : ""}`}
-                                    {...register("username", {
-                                        required: "Username is required",
+                                    className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+                                    {...register('username', {
+                                        required: 'Username is required',
                                     })}
                                 />
-                                {errors.username && (
-                                    <div className="invalid-feedback d-block">{errors.username.message}</div>
-                                )}
+                                {errors.username && <div className="invalid-feedback d-block">{errors.username.message}</div>}
                             </div>
 
                             <div className="mb-3">
                                 <label className="form-label">Password</label>
                                 <input
                                     type="password"
-                                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                                    {...register("password", {
-                                        required: "Password is required",
+                                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                    {...register('password', {
+                                        required: 'Password is required',
                                         minLength: {
                                             value: 6,
-                                            message: "Password must be at least 6 characters",
+                                            message: 'Password must be at least 6 characters',
                                         },
                                     })}
                                 />
-                                {errors.password && (
-                                    <div className="invalid-feedback d-block">{errors.password.message}</div>
-                                )}
+                                {errors.password && <div className="invalid-feedback d-block">{errors.password.message}</div>}
                             </div>
 
                             <div className="mb-3">
                                 <label className="form-label">Birthdate</label>
                                 <input
                                     type="date"
-                                    className={`form-control ${errors.age ? "is-invalid" : ""}`}
-                                    {...register("age", { required: "Birthdate is required" })}
+                                    className={`form-control ${errors.age ? 'is-invalid' : ''}`}
+                                    {...register('age', { required: 'Birthdate is required' })}
                                 />
-                                {errors.age && (
-                                    <div className="invalid-feedback d-block">{errors.age.message}</div>
-                                )}
+                                {errors.age && <div className="invalid-feedback d-block">{errors.age.message}</div>}
                             </div>
 
                             <div className="mb-3">
@@ -157,70 +150,57 @@ const RegisterForm: React.FC = () => {
                                 <input
                                     type="number"
                                     step="0.1"
-                                    className={`form-control ${errors.weight ? "is-invalid" : ""}`}
-                                    {...register("weight", {
-                                        required: "Weight is required",
-                                        min: { value: 1, message: "Weight must be positive" },
+                                    className={`form-control ${errors.weight ? 'is-invalid' : ''}`}
+                                    {...register('weight', {
+                                        required: 'Weight is required',
+                                        min: { value: 1, message: 'Weight must be positive' },
                                     })}
                                 />
-                                {errors.weight && (
-                                    <div className="invalid-feedback d-block">{errors.weight.message}</div>
-                                )}
+                                {errors.weight && <div className="invalid-feedback d-block">{errors.weight.message}</div>}
                             </div>
                             <div className="mb-3">
                                 <label className="form-label">Height (cm)</label>
                                 <input
                                     type="number"
                                     step="0.1"
-                                    className={`form-control ${errors.height ? "is-invalid" : ""}`}
-                                    {...register("height", {
-                                        required: "Height is required",
-                                        min: { value: 1, message: "Height must be positive" },
+                                    className={`form-control ${errors.height ? 'is-invalid' : ''}`}
+                                    {...register('height', {
+                                        required: 'Height is required',
+                                        min: { value: 1, message: 'Height must be positive' },
                                     })}
                                 />
-                                {errors.height && (
-                                    <div className="invalid-feedback d-block">{errors.height.message}</div>
-                                )}
+                                {errors.height && <div className="invalid-feedback d-block">{errors.height.message}</div>}
                             </div>
 
                             <div className="mb-3">
                                 <label className="form-label">Activity Coefficient</label>
                                 <select
                                     className="form-select"
-                                    {...register("activityCoefId", {
-                                        required: "Please select activity",
+                                    {...register('activityCoefId', {
+                                        required: 'Please select activity',
                                     })}
                                 >
                                     <option value="">Select...</option>
-                                    {coefs.map((c) => (
+                                    {coefs.map(c => (
                                         <option key={c.id} value={c.id}>
                                             {c.name} ({c.value})
                                         </option>
                                     ))}
                                 </select>
-                                {errors.activityCoefId && (
-                                    <div className="invalid-feedback d-block">
-                                        {errors.activityCoefId.message}
-                                    </div>
-                                )}
+                                {errors.activityCoefId && <div className="invalid-feedback d-block">{errors.activityCoefId.message}</div>}
                             </div>
 
                             <div className="mb-3">
                                 <label className="form-label">Diet Type</label>
-                                <select
-                                    className="form-select"
-                                    {...register("dietId", { required: "Please select diet" })}
-                                >
+                                <select className="form-select" {...register('dietId', { required: 'Please select diet' })}>
                                     <option value="">Select...</option>
-                                    {diets.map((d) => (
+                                    {diets.map(d => (
                                         <option key={d.id} value={d.id}>
                                             {d.name}
                                         </option>
                                     ))}
                                 </select>
-                                {errors.dietId && (
-                                    <div className="invalid-feedback d-block">{errors.dietId.message}</div>
-                                )}
+                                {errors.dietId && <div className="invalid-feedback d-block">{errors.dietId.message}</div>}
                             </div>
 
                             <button type="submit" className="btn btn-primary w-100 mt-3">

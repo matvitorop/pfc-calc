@@ -2,8 +2,9 @@ import React, { type FC, useEffect, useRef, useState } from 'react';
 import { Calendar, Plus, TrendingUp, BarChart3, Edit2, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchSummary } from '../store/reducers/summarySlice';
-import { createMeal, deleteMeal, fetchMeals, updateMeal } from '../store/reducers/mealTypeSlice';
+import { createMeal, createMealSuccess, deleteMeal, fetchMeals, updateMeal } from '../store/reducers/mealTypeSlice';
 import UpdateMealModal from './UpdateMealModal';
+import AddMealTypeForm from './addMealTypeForm';
 
 interface MacroData {
     current: number;
@@ -28,13 +29,14 @@ interface Meal {
 const MainPage: FC = () => {
     const [modalField, setModalField] = useState<{ id: number; label: string; value: string } | null>(null);
     const dispatch = useAppDispatch();
-    useEffect(() => {
+    /* useEffect(() => {
         dispatch(fetchMeals());
         dispatch(fetchSummary());
         // will be fetch for notes
-    }, []);
+    }, []); */
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
     const user = useAppSelector(state => state.userReducer);
+
     const { days, loading, error } = useAppSelector(state => state.summaryReducer);
     const { mealTypes, loading: mealTypesLoading, error: mealTypesError } = useAppSelector(state => state.mealReducer);
 
@@ -75,12 +77,7 @@ const MainPage: FC = () => {
         fats: { current: totals.fats, goal: 118 },
         carbs: { current: totals.carbs, goal: 340 },
     });
-
-    const [meals] = useState<Meal[]>([
-        { id: 1, name: 'Breakfast', calories: 0, icon: '🥐' },
-        { id: 2, name: 'Lunch', calories: 0, icon: '🍜' },
-        { id: 3, name: 'Dinner', calories: 0, icon: '🍝' },
-    ]);
+    const meals = useAppSelector(state => state.mealReducer);
 
     const calculatePercentage = (current: number, goal: number): number => {
         return Math.min((current / goal) * 100, 100);
@@ -93,13 +90,16 @@ const MainPage: FC = () => {
         /*  navigate('/profile'); */
     };
 
-    const handleAddMeal = () => {
+    const handleAddMeal = (newMealName: string) => {
         if (newMealName !== null || newMealName !== '') {
             dispatch(createMeal(newMealName));
         }
     };
+    const onCloseAddingMealForm = () => {
+        setShowAddMeal(!showAddMeal);
+    };
     const [showAddMeal, setShowAddMeal] = useState(false);
-    const [newMealName, setNewMealName] = useState('');
+    // const [newMealName, setNewMealName] = useState('');
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
     const handleDeleteMeal = (id: number) => {
@@ -233,13 +233,17 @@ const MainPage: FC = () => {
                             <Plus size={20} />
                         </button>
                     </div>
-                    {showAddMeal && (
+                    {
+                        showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />
+                        /* (
                         <div className="add-meal-form">
                             <input
                                 type="text"
                                 placeholder="Meal type name..."
                                 value={newMealName}
-                                onChange={e => setNewMealName(e.target.value)}
+                                onChange={e => {
+                                    setNewMealName(e.target.value);
+                                }}
                                 onKeyDown={e => {
                                     if (e.key === 'Enter') handleAddMeal();
                                     if (e.key === 'Escape') {
@@ -249,7 +253,7 @@ const MainPage: FC = () => {
                                 }}
                                 autoFocus
                             />
-                            <button onClick={handleAddMeal} className="confirm-btn">
+                            <button onClick={() => handleAddMeal()} className="confirm-btn">
                                 Додати
                             </button>
                             <button
@@ -262,42 +266,44 @@ const MainPage: FC = () => {
                                 Скасувати
                             </button>
                         </div>
-                    )}
+                        ) */
+                    }
                     <div className="meals-list">
-                        {meals.map(meal => (
-                            <div key={meal.id} className="meal-card" ref={openMenuId === meal.id ? menuRef : null}>
-                                <div className="meal-info">
-                                    <button
-                                        className="meal-show-menu"
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            setOpenMenuId(openMenuId === meal.id ? null : meal.id);
-                                        }}
-                                    >
-                                        ⋮
-                                    </button>
-                                    <span className="meal-icon">{meal.icon}</span>
-                                    <div className="meal-details">
-                                        <div className="meal-name">{meal.name}</div>
-                                        <div className="meal-calories">{meal.calories} / 569 kcal</div>
+                        {meals.mealTypes &&
+                            meals.mealTypes.map(meal => (
+                                <div key={meal.id} className="meal-card" ref={openMenuId === meal.id ? menuRef : null}>
+                                    <div className="meal-info">
+                                        <button
+                                            className="meal-show-menu"
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                setOpenMenuId(openMenuId === meal.id ? null : meal.id);
+                                            }}
+                                        >
+                                            ⋮
+                                        </button>
+                                        <span className="meal-icon">{/*meal.icon*/}</span>
+                                        <div className="meal-details">
+                                            <div className="meal-name">{meal.name}</div>
+                                            <div className="meal-calories">{/*meal.calories*/} / 569 kcal</div>
 
-                                        {openMenuId === meal.id && (
-                                            <div className="dropdown-menu">
-                                                <button onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)} className="menu-item">
-                                                    <Edit2 size={16} /> Edit
-                                                </button>
-                                                <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
-                                                    <Trash2 size={16} /> Delete
-                                                </button>
-                                            </div>
-                                        )}
+                                            {openMenuId === meal.id && (
+                                                <div className="dropdown-menu">
+                                                    <button onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)} className="menu-item">
+                                                        <Edit2 size={16} /> Edit
+                                                    </button>
+                                                    <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
+                                                        <Trash2 size={16} /> Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                    <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
+                                        <Plus size={24} />
+                                    </button>
                                 </div>
-                                <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
-                                    <Plus size={24} />
-                                </button>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
 

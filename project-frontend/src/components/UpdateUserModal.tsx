@@ -2,6 +2,7 @@ import { type FC, useState } from 'react';
 import { UserFieldMap } from '../store/types';
 import { useForm, Controller } from 'react-hook-form';
 import '../../css/main.css';
+import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 interface UpdateUserModalProps {
     fieldName: string;
     label: string;
@@ -9,7 +10,7 @@ interface UpdateUserModalProps {
     onClose: () => void;
     onSave: (value: string) => void;
 }
-interface FormData {
+export interface FormData {
     value: string;
 }
 
@@ -26,7 +27,6 @@ const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialVa
     });
 
     const onSubmit = (data: FormData) => {
-        console.log(data);
         onSave(data.value);
     };
     const getValidationRules = () => {
@@ -94,20 +94,8 @@ const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialVa
             break;
     }
 
-    //! del(only using for testing) change on fetch
-    const Diets = [
-        { id: 1, name: 'usual diet' },
-        { id: 2, name: 'gain weight' },
-        { id: 3, name: 'loose diet' },
-        { id: 4, name: 'more carbs' },
-    ];
-    const ActivityCoefs = [
-        { id: 1, name: 'Coach potato' },
-        { id: 2, name: 'moderate activity' },
-        { id: 3, name: 'active' },
-        { id: 4, name: 'too active' },
-    ];
-    //!=============================
+    const { diets, activityCoefs } = useFetchDiets_ActCoefsData();
+
     return (
         <div className="modal-overlay">
             <div className="modal">
@@ -124,12 +112,12 @@ const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialVa
                             render={({ field }) => (
                                 <select {...field} className={errors.value ? 'modal-input error' : 'modal-input'}>
                                     {fieldName === UserFieldMap.activityCoefId
-                                        ? ActivityCoefs.map(el => (
+                                        ? activityCoefs.data.map(el => (
                                               <option key={el.id} value={el.id}>
                                                   {el.name}
                                               </option>
                                           ))
-                                        : Diets.map(el => (
+                                        : diets.data.map(el => (
                                               <option key={el.id} value={el.id}>
                                                   {el.name}
                                               </option>
@@ -151,7 +139,14 @@ const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialVa
                     {errors.value && <span className="error-message">{errors.value.message}</span>}
 
                     <div className="modal-actions">
-                        <button type="button" onClick={onClose} className="btn-cancel">
+                        <button
+                            type="button"
+                            onClick={e => {
+                                e.preventDefault();
+                                onClose();
+                            }}
+                            className="btn-cancel"
+                        >
                             Cancel
                         </button>
                         <button type="submit" className="btn-save">
