@@ -12,27 +12,47 @@ namespace project_server.Services
         {
             _itemCaloriesRepository=itemCaloriesRepository;
         }
-        public double CalculateCalories(double carbs, double proteins, double fats)
+
+        public double? CalculateCalories(double carbs, double proteins, double fats)
         {
-            var result = (proteins * 4) + (fats * 9) + (carbs * 4);
-            return result;
+            if (proteins != 0 && fats != 0 && carbs != 0)
+            {
+                var result = (proteins * 4) + (fats * 9) + (carbs * 4);
+                return result;
+
+            }
+            else
+            {
+                return null;
+            }
+
         }
 
         // додати обробник помилок
-        public async Task <ItemCalories> AddItemAsync(Items items)
+        public async Task<ItemCalories> AddItemAsync(Items items)
         {
             try
-            {   ItemCalories item = new ItemCalories();
+            {
+                ItemCalories item = new ItemCalories();
                 item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
                 item.ItemId = item.Id;
-               var result =  await _itemCaloriesRepository.AddItemAsync(item);
+                var result = await _itemCaloriesRepository.AddItemAsync(item);
                 if (result != null) { return result; }
                 return null;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
                 throw;
             }
+        }
+
+
+        //add error handler
+        public async Task <ItemCalories> AddItemAsync(ItemCalories item, Items items) //items сould delete
+        {
+//            item.Calories = CalculateCalories(items.Carbs, items.Proteins, items.Fats);
+            return await _itemCaloriesRepository.AddItemAsync(item);
 
         }
     }

@@ -2,7 +2,7 @@ import { fetchStart, fetchSuccess, fetchFailure } from "../diets/dietSlice";
 import { ofType } from "redux-observable";
 import { from, of } from "rxjs";
 import { mergeMap, map, catchError } from "rxjs/operators";
-import { graphqlFetch } from "../../GraphQL/fecthRequest";
+import { graphqlFetch } from "../../GraphQL/fetchRequest";
 import type { Diet } from "../diets/dietSlice";
 
 const getDiets = `

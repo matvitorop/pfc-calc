@@ -30,12 +30,8 @@ namespace project_server.Repositories.Item
             using IDbConnection db = new SqlConnection(_connectionString);
             var sql = "SELECT * FROM Items WHERE name = @Name AND user_id = @UserId";
             var gotItem = await db.QueryFirstOrDefaultAsync<Items>(sql, new { Name = name, UserId = userId });
-            
-            return gotItem ?? new Items
-            {
-                Name = name,
-                UserId = userId
-            };
+
+            return gotItem ?? null;
         }
 
 
@@ -68,6 +64,28 @@ namespace project_server.Repositories.Item
                 Description = description,
                 ApiId = apiId
             };
+        }
+
+        public async Task<IEnumerable<ItemShortDTO>> SearchItemsByNameAsync(string partialName, int userId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = @"
+                SELECT id, name
+                FROM Items
+                WHERE name LIKE '%' + @PartialName + '%'
+                ";
+            var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName });
+            return items;
+        }
+
+        public Task<Items?> GetItemByIdAsync(int itemId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = "SELECT * FROM Items WHERE id = @ItemId";
+
+            return db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
         }
     }
 

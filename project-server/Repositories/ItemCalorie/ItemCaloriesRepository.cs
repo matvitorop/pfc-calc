@@ -30,5 +30,14 @@ namespace project_server.Repositories.ItemCalorie
             
             return await db.QueryFirstOrDefaultAsync<ItemCalories>(sql, new { ItemId = itemId });
         }
+        public async Task<ItemCalories> UpdateItemCaloriesAsync(ItemCalories itemCalories)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+            var sql = @"UPDATE ItemCalories 
+                SET calories = @Calories 
+                WHERE item_id = @ItemId";
+            var result = await db.QuerySingleOrDefaultAsync<ItemCalories>(sql, itemCalories);
+            return result ?? itemCalories;
+        }
     }
 }

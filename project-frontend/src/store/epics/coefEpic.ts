@@ -2,7 +2,7 @@ import { ofType } from "redux-observable";
 import { from, of } from "rxjs";
 import { mergeMap, map, catchError } from "rxjs/operators";
 import { fetchStart, fetchSuccess, fetchFailure } from "../coef/coefSlice";
-import { graphqlFetch } from "../../GraphQL/fecthRequest";
+import { graphqlFetch } from "../../GraphQL/fetchRequest";
 import type { ActivityCoefficient } from "../coef/coefSlice"; 
 
 const getCoef = `

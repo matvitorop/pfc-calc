@@ -1,9 +1,10 @@
-﻿using System.Diagnostics.Metrics;
+using System.Diagnostics.Metrics;
 using project_server.Models;
 using project_server.Repositories.Day;
 using project_server.Repositories.Item;
 using project_server.Repositories_part;
 using project_server.Schemas;
+using project_server.Repositories.ItemCalorie;
 
 namespace project_server.Services
 {
@@ -13,13 +14,15 @@ namespace project_server.Services
         private readonly IItemsRepository _itemRepo;
         private readonly IDaysRepository _daysRepo;
         private readonly IItemService _itemService;
+        private readonly IItemCaloriesRepository _itemCaloriesRepository;
 
-        public DaysService(IUserRepository userRepository, IItemsRepository itemRepository, IDaysRepository daysRepository, IItemService itemService)
+        public DaysService(IUserRepository userRepository, IItemsRepository itemRepository, IDaysRepository daysRepository, IItemService itemService, IItemCaloriesRepository itemCaloriesRepository)
         {
             _userRepo = userRepository;
             _itemRepo = itemRepository;
             _daysRepo = daysRepository;
             _itemService = itemService;
+            _itemCaloriesRepository = itemCaloriesRepository;
         }
 
         public async Task<Days?> AddItemForDayAsync(int userId, DateTime day, int? mealTypeId, Items item, double measuremant)
@@ -83,6 +86,37 @@ namespace project_server.Services
             {   
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<UserDayItemDTO>> GetUserSummaryAsync(int userId, DateTime day)
+        {
+            var days = await _daysRepo.GetDaysAsync(userId, day);
+            var userDayItems = new List<UserDayItemDTO>();
+
+            foreach (var d in days)
+            {
+                var item = await _itemRepo.GetItemByIdAsync(d!.ItemId);
+                var calories = await _itemCaloriesRepository.GetItemAsync(d.ItemId);
+
+                userDayItems.Add(new UserDayItemDTO
+                {
+                    Id = d.Id,
+                    UserId = d.UserId,
+                    Day = d.Day,
+                    MealTypeId = d.MealTypeId,
+                    ItemId = d.ItemId,
+                    Measurement = d.Measurement,
+                    Name = item?.Name,
+                    Proteins = item?.Proteins,
+                    Fats = item?.Fats,
+                    Carbs = item?.Carbs,
+                    Description = item?.Description,
+                    ApiId = item?.ApiId,
+                    Calories = calories?.Calories
+                });
+            }
+
+            return userDayItems;
         }
     }
 }

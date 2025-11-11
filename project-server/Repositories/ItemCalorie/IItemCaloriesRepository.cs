@@ -6,5 +6,6 @@ namespace project_server.Repositories.ItemCalorie
     {
         Task<ItemCalories> AddItemAsync(ItemCalories calories);
         Task<ItemCalories?> GetItemAsync(int itemId);
+        Task <ItemCalories> UpdateItemCaloriesAsync(ItemCalories itemCalories);
     }
 }

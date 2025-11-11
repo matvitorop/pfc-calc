@@ -45,10 +45,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMealTypeRepository, MealTypeRepository>();
 builder.Services.AddScoped<INotesRepository, NotesRepository>();
+
+builder.Services.AddScoped<IDaysRepository, DaysRepository>();
 builder.Services.AddScoped<IItemsRepository, ItemsRepository>();
 builder.Services.AddScoped<IItemCaloriesRepository, ItemCaloriesRepository>();
-builder.Services.AddScoped<IDaysRepository, DaysRepository>();
-
+builder.Services.AddScoped<INotesRepository, NotesRepository>();
 
 
 builder.Services.AddScoped<IDietsRepository, project_server.Repositories.Diet.DietsRepository>();
@@ -64,6 +65,9 @@ builder.Services.AddScoped<IItemService, ItemService>();
 
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IStreakService, StreakService>();
+
+builder.Services.AddHttpClient<FatSecretService>();
+builder.Services.AddScoped<FatSecretService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
@@ -117,6 +121,14 @@ builder.Services.AddScoped<DaysInputType>();
 builder.Services.AddScoped<DetailsInputType>();
 
 
+builder.Services.AddScoped<NotesType>();
+builder.Services.AddScoped<DaysType>();
+builder.Services.AddScoped<ItemsInputType>();
+builder.Services.AddScoped<ItemsResponseType>();
+builder.Services.AddScoped<ItemCaloriesType>();
+builder.Services.AddScoped<RegisterInputType>();
+builder.Services.AddScoped<ItemShortType>();
+
 // Register GraphQL Schema 
 builder.Services.AddScoped<ISchema, AppSchema>(); 
 
@@ -154,33 +166,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-//app.MapGet("/", () => "GraphQL Server is running!");
 
-app.MapGet("/", async (
-    [FromServices] IUserService userService 
-) =>
+app.MapGet("/", async (FatSecretService fatSecret) =>
 {
-    var user = await userService.RegisterAsync(
-        email: "test@example.com",
-        password: "123456",
-        username: "Mycola",
-        age: new DateTime(2000, 1, 1),
-        weight: 70,
-        height: 180,
-        visitsStreak: 0,
-        activityCoefId: 1,
-        dietId: 1,
-        caloriesStandard: 0 
-    );
-
-    return user is not null
-        ? Results.Ok(user)
-        : Results.Problem("Failed to create user");
+    //int foodId = 33691;
+    var json = await fatSecret.GetFoodByNameAsync("appl", 3);
+    return Results.Content(json, "application/json");
 });
 
 // GraphQL endpoint
 app.UseGraphQL<ISchema>("/graphql");
-app.UseGraphQLGraphiQL("/ui/graphiql");
+app.UseGraphQLGraphiQL("/ui/graphiql"); //last trouble with paths
 
 // GraphQL UI
 //app.UseGraphQLGraphiQL("/ui/graphiql", new GraphiQLOptions());
