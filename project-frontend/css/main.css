@@ -1116,3 +1116,107 @@ body {
     background: #454545;
     border-bottom: 1px solid #555;
 }
+
+/* MODAL OVERLAY */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+/* MODAL CARD */
+.modal-card {
+    background: #ffffff;
+    padding: 22px;
+    width: 90%;
+    max-width: 420px;
+    border-radius: 18px;
+    position: relative;
+    box-shadow: rgba(0,0,0,0.2) 0px 4px 16px;
+}
+
+.dark-theme .modal-card {
+    background: #1f2937;
+    color: #fff;
+}
+
+/* TITLE */
+.modal-title {
+    font-size: 22px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+/* ROWS */
+.modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.modal-label {
+    opacity: 0.7;
+}
+
+.modal-description {
+    margin-top: 14px;
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+/* BUTTONS */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 22px;
+}
+
+.btn-add {
+    background: #10b981;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* CLOSE BUTTON */
+.modal-close {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    font-size: 22px;
+    font-weight: 300;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #aaa;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #fff;
+}
+
+.dark-theme .modal-close {
+    color: #999;
+}
+
+.dark-theme .modal-close:hover {
+    color: #fff;
+}
