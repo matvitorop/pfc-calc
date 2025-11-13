@@ -6,9 +6,56 @@ interface SummaryState {
     loading: boolean;
     error: string | null;
 }
-
+//! del test-days from state after all testing
 const initialState: SummaryState = {
-    days: [],
+    days: [
+        {
+            id: 1,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-13',
+            mealTypeId: 1,
+            measurement: 100,
+            name: 'banana',
+            proteins: 1.3,
+            fats: 0.3,
+            carbs: 27,
+            description: 'tatsty medium banana',
+            apiId: null,
+            calories: 105,
+        },
+
+        {
+            id: 4,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-13',
+            mealTypeId: 1,
+            measurement: 50,
+            name: 'banana',
+            proteins: 1.3,
+            fats: 0.3,
+            carbs: 27,
+            description: 'tasty medium banana',
+            apiId: null,
+            calories: 105,
+        },
+        {
+            id: 5,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-13',
+            mealTypeId: 2,
+            measurement: 327,
+            name: 'tomato cream soup',
+            proteins: 58.5,
+            fats: 103.5,
+            carbs: 288,
+            description: 'tomato cream soup info ... lalala',
+            apiId: null,
+            calories: 287,
+        },
+    ],
     loading: false,
     error: null,
 };

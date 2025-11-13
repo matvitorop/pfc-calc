@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { fetchDietsStart, type Diet } from '../store/diets/dietSlice';
 import { fetchCoefStart, type ActivityCoefficient } from '../store/coef/coefSlice';
 import useFetchData from './fetchData';
-
+import { type RootState } from '../store/reducers/rootReducer';
 interface UseFetchDiets_CoefDataReturn {
     diets: {
         data: Diet[];
@@ -19,9 +19,26 @@ interface UseFetchDiets_CoefDataReturn {
 }
 
 export const useFetchDiets_ActCoefsData = (): UseFetchDiets_CoefDataReturn => {
-    const diets = useFetchData(state => state.dietReducer, fetchDietsStart);
+    const dietsSelector = useCallback(
+        (state: RootState) => ({
+            data: state.dietReducer.data,
+            loading: state.dietReducer.loading,
+            error: state.dietReducer.error,
+        }),
+        [],
+    );
 
-    const activityCoefs = useFetchData(state => state.coefReducer, fetchCoefStart);
+    const coefsSelector = useCallback(
+        (state: RootState) => ({
+            data: state.coefReducer.data,
+            loading: state.coefReducer.loading,
+            error: state.coefReducer.error,
+        }),
+        [],
+    );
+
+    const diets = useFetchData(dietsSelector, fetchDietsStart);
+    const activityCoefs = useFetchData(coefsSelector, fetchCoefStart);
 
     const isLoading = diets.loading || activityCoefs.loading;
     const hasError = Boolean(diets.error || activityCoefs.error);

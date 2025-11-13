@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from './redux';
 import { fetchUserDetails } from '../store/reducers/userSlice';
 import useFetchData from './fetchData';
 import type { User } from '../models/User';
-
+import { type RootState } from '../store/reducers/rootReducer';
 interface UseFetchUserDataReturn {
     user: {
         data: User;
@@ -15,7 +15,15 @@ interface UseFetchUserDataReturn {
 }
 
 export const useFetchUserData = (): UseFetchUserDataReturn => {
-    const user = useFetchData(state => state.userReducer, fetchUserDetails);
+    const selector = useCallback(
+        (state: RootState) => ({
+            data: state.userReducer.data,
+            loading: state.userReducer.loading,
+            error: state.userReducer.error,
+        }),
+        [],
+    );
+    const user = useFetchData(selector, fetchUserDetails);
     const isLoading = user.loading;
     const hasError = Boolean(user.error);
     return useMemo(
