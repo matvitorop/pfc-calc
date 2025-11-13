@@ -1073,6 +1073,7 @@ body {
 
 /* RESULTS DROPDOWN */
 .search-results {
+    padding: 0;
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
@@ -1088,6 +1089,7 @@ body {
 }
 
 .dark-theme .search-results {
+    color: #fff;
     background: #2e2e2e;
     border-color: #3a3a3a;
 }
@@ -1110,5 +1112,7 @@ body {
     }
 
 .dark-theme .search-result-item:hover {
-    background: #3a3a3a;
+    color: #fff;
+    background: #454545;
+    border-bottom: 1px solid #555;
 }
