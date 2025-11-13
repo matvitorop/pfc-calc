@@ -19,8 +19,8 @@ interface RegisterFormData {
 
 const RegisterForm: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { data: coefs } = useSelector((state: RootState) => state.coef);
-    const { data: diets } = useSelector((state: RootState) => state.diets);
+    const { data: coefs } = useSelector((state: RootState) => state.coefReducer);
+    const { data: diets } = useSelector((state: RootState) => state.dietReducer);
 
     const {
         register,
