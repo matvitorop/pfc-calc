@@ -56,7 +56,7 @@ namespace project_server.Schemas
                             HttpOnly = true,
                             Secure = false,
                             SameSite = SameSiteMode.Strict,
-                            Expires = DateTimeOffset.UtcNow.AddHours(1)
+                            Expires = DateTimeOffset.UtcNow.AddHours(10)
                         });
                     }
 
@@ -92,7 +92,7 @@ namespace project_server.Schemas
                                 HttpOnly = true,
                                 Secure = false,
                                 SameSite = SameSiteMode.Strict,
-                                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                                Expires = DateTimeOffset.UtcNow.AddHours(10)
                             });
                         }
 

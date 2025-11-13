@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchSummary } from '../store/reducers/summarySlice';
 import { createMeal, deleteMeal, fetchMeals, updateMeal } from '../store/reducers/mealTypeSlice';
 import UpdateMealModal from './UpdateMealModal';
-
+import SearchItem  from './Items/SearchItem';
 interface MacroData {
     current: number;
     goal: number;
@@ -232,6 +232,7 @@ const MainPage: FC = () => {
                             <Plus size={20} />
                         </button>
                     </div>
+                    <SearchItem />
                     {showAddMeal && (
                         <div className="add-meal-form">
                             <input

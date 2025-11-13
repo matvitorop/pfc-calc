@@ -22,6 +22,7 @@ const SearchItem: React.FC = () => {
     const [results, setResults] = useState<ItemShort[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         if (!inputRef.current) return;
@@ -60,31 +61,40 @@ const SearchItem: React.FC = () => {
             )
             .subscribe((data) => {
                 if (data) setResults(data);
+                setOpen(true);
             });
 
         return () => subscription.unsubscribe();
     }, []);
 
     return (
-        <div className="container py-4">
-            <h3 className="mb-3">Search Items</h3>
+        <div className="search-card">
             <input
                 ref={inputRef}
                 type="text"
-                className="form-control mb-3"
-                placeholder="Type to search..."
+                className="search-input"
+                placeholder="Search items..."
+                onFocus={() => results.length > 0 && setOpen(true)}
             />
 
-            {loading && <div>Loading...</div>}
-            {error && <div className="text-danger">Error: {error}</div>}
+            {loading && <div className="search-loading">Loading...</div>}
+            {error && <div className="search-error">Error: {error}</div>}
 
-            <ul className="list-group">
-                {results.map((item) => (
-                    <li key={item.id} className="list-group-item">
-                        {item.name}
-                    </li>
-                ))}
-            </ul>
+            {open && results.length > 0 && (
+                <ul className="search-results">
+                    {results.map((item) => (
+                        <li
+                            key={item.id}
+                            className="search-result-item"
+                            onClick={() => {
+                                setOpen(false);
+                            }}
+                        >
+                            {item.name}
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
