@@ -1,14 +1,14 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Days } from '../../models/Days';
 
-interface SummaryState {
-    days: Days[];
+interface DaysState {
+    data: Days[];
     loading: boolean;
     error: string | null;
 }
 //! del test-days from state after all testing
-const initialState: SummaryState = {
-    days: [
+const initialState: DaysState = {
+    data: [
         {
             id: 1,
             userId: 1,
@@ -60,30 +60,26 @@ const initialState: SummaryState = {
     error: null,
 };
 
-const summarySlice = createSlice({
-    name: 'summary',
+const daysSlice = createSlice({
+    name: 'days',
     initialState,
     reducers: {
-        fetchSummary: state => {
+        fetchDays: state => {
             state.loading = true;
             state.error = null;
         },
-        fetchSummarySuccess: (state, action: PayloadAction<Days[]>) => {
+        fetchDaysSuccess: (state, action: PayloadAction<Days[]>) => {
             state.loading = false;
-            state.days = action.payload;
+            state.data = action.payload;
             state.error = null;
         },
-        fetchSummaryFailure: (state, action: PayloadAction<string>) => {
+        fetchDaysFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
-        },
-        clearSummary: state => {
-            state.days = [];
-            state.error = null;
         },
     },
 });
 
-export const { fetchSummary, fetchSummarySuccess, fetchSummaryFailure, clearSummary } = summarySlice.actions;
+export const { fetchDays, fetchDaysSuccess, fetchDaysFailure } = daysSlice.actions;
 
-export default summarySlice.reducer;
+export default daysSlice.reducer;

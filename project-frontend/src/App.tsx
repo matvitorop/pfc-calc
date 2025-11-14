@@ -9,6 +9,8 @@ import MainPage from './components/MainPage';
 import RegisterForm from './components/User/RegisterForm';
 import LoginForm from './components/User/LoginForm';
 import SearchItem from './components/Items/SearchItem';
+import ErrorPage from './components/ErrorPage';
+import LoadingPage from './components/LoadingPage';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -27,10 +29,10 @@ function App() {
     const { user } = useFetchUserData();
     //const { data, loading, error } = useAppSelector(state => state.userReducer);
     if (user.loading) {
-        return <div>Loading profile data...</div>;
+        return <LoadingPage />;
     }
     if (user.error) {
-        return <div>Happend error: {user.error} </div>;
+        return <ErrorPage />;
     }
     if (!user) {
         return <div>User`s data not accessable.</div>;

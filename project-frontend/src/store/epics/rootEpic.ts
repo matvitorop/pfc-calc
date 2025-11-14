@@ -19,7 +19,7 @@ import {
 } from '../reducers/userSlice';
 import type { User } from '../../models/User';
 import type { Days } from '../../models/Days';
-import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
+import { fetchDays, fetchDaysFailure, fetchDaysSuccess } from '../reducers/daysSlice';
 import {
     createMeal,
     createMealFailure,
@@ -37,7 +37,6 @@ import {
 } from '../reducers/mealTypeSlice';
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
-
 
 interface GetUserResponse {
     getDetails: {
@@ -62,11 +61,11 @@ interface LogoutResponse {
     };
 }
 
-interface GetSummaryResponse {
-    getSummary: Days[];
+interface GetDaysResponse {
+    getDays: Days[];
 }
 
-const GET_SUMMARY = `
+const GET_DAYS = `
   query {
     getSummary {
       id
@@ -182,22 +181,22 @@ type MyEpic = Epic<Action, Action, RootState, AppDispatch>;
 
 export const fetchSummaryEpic: MyEpic = action$ =>
     action$.pipe(
-        ofType(fetchSummary.type),
+        ofType(fetchDays.type),
         switchMap(() =>
-            from(graphqlFetch<GetSummaryResponse>(GET_SUMMARY)).pipe(
+            from(graphqlFetch<GetDaysResponse>(GET_DAYS)).pipe(
                 map(res => {
                     if (res.errors) {
-                        return fetchSummaryFailure(res.errors[0].message);
+                        return fetchDaysFailure(res.errors[0].message);
                     }
 
-                    const result = res.data?.getSummary;
+                    const result = res.data?.getDays;
                     if (!result) {
-                        return fetchSummaryFailure('No data received');
+                        return fetchDaysFailure('No data received');
                     }
 
-                    return fetchSummarySuccess(result);
+                    return fetchDaysSuccess(result);
                 }),
-                catchError(err => of(fetchSummaryFailure(err.message || 'Unexpected error while fetching summary'))),
+                catchError(err => of(fetchDaysFailure(err.message || 'Unexpected error while fetching days'))),
             ),
         ),
     );
@@ -364,4 +363,15 @@ export const updateMealEpic: MyEpic = action$ =>
         }),
     );
 
-export const rootEpic = combineEpics(fetchCoefEpic, fetchDietsEpic, fetchUser, updateUser, logout, fetchSummaryEpic, fetchMealsEpic, updateMealEpic, createMealEpic, deleteMealEpic);
+export const rootEpic = combineEpics(
+    fetchCoefEpic,
+    fetchDietsEpic,
+    fetchUser,
+    updateUser,
+    logout,
+    fetchSummaryEpic,
+    fetchMealsEpic,
+    updateMealEpic,
+    createMealEpic,
+    deleteMealEpic,
+);

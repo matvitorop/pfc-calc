@@ -13,15 +13,15 @@ interface UseFetchMealTypesReturn {
 }
 
 export const useFetchMealTypes = (): UseFetchMealTypesReturn => {
-    const selector = useCallback(
+    /* const selector = useCallback(
         (state: RootState) => ({
-            data: state.mealReducer.mealTypes,
+            data: state.mealReducer.data,
             loading: state.mealReducer.loading,
             error: state.mealReducer.error,
         }),
         [],
-    );
-    const mealTypes = useFetchData(selector, fetchMeals);
+    ); */
+    const mealTypes = useFetchData((state: RootState) => state.mealReducer, fetchMeals);
     const isLoading = mealTypes.loading;
     const hasError = Boolean(mealTypes.error);
 

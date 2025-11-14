@@ -19,7 +19,7 @@ interface UseFetchDiets_CoefDataReturn {
 }
 
 export const useFetchDiets_ActCoefsData = (): UseFetchDiets_CoefDataReturn => {
-    const dietsSelector = useCallback(
+    /* const dietsSelector = useCallback(
         (state: RootState) => ({
             data: state.dietReducer.data,
             loading: state.dietReducer.loading,
@@ -35,10 +35,10 @@ export const useFetchDiets_ActCoefsData = (): UseFetchDiets_CoefDataReturn => {
             error: state.coefReducer.error,
         }),
         [],
-    );
+    ); */
 
-    const diets = useFetchData(dietsSelector, fetchDietsStart);
-    const activityCoefs = useFetchData(coefsSelector, fetchCoefStart);
+    const diets = useFetchData((state: RootState) => state.dietReducer, fetchDietsStart);
+    const activityCoefs = useFetchData((state: RootState) => state.coefReducer, fetchCoefStart);
 
     const isLoading = diets.loading || activityCoefs.loading;
     const hasError = Boolean(diets.error || activityCoefs.error);

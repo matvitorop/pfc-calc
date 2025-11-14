@@ -15,15 +15,15 @@ interface UseFetchUserDataReturn {
 }
 
 export const useFetchUserData = (): UseFetchUserDataReturn => {
-    const selector = useCallback(
+    /*  const selector = useCallback(
         (state: RootState) => ({
             data: state.userReducer.data,
             loading: state.userReducer.loading,
             error: state.userReducer.error,
         }),
         [],
-    );
-    const user = useFetchData(selector, fetchUserDetails);
+    ); */
+    const user = useFetchData((state: RootState) => state.userReducer, fetchUserDetails);
     const isLoading = user.loading;
     const hasError = Boolean(user.error);
     return useMemo(

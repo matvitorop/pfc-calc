@@ -1,18 +1,18 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import userReducer from './userSlice';
 import themeReducer from './themeSlice';
-import summaryReducer from './summarySlice';
+import daysReducer from './daysSlice';
 import mealReducer from './mealTypeSlice';
 import coefReducer from '../coef/coefSlice';
-import dietReducer from "../diets/dietSlice";
+import dietReducer from '../diets/dietSlice';
 
 export const rootReducer = combineReducers({
     userReducer,
     themeReducer,
-    summaryReducer,
+    daysReducer,
     mealReducer,
     coefReducer,
-    dietReducer
+    dietReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

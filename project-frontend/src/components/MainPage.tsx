@@ -1,15 +1,15 @@
 import React, { type FC, useEffect, useRef, useState } from 'react';
 import { Calendar, Plus, TrendingUp, BarChart3, Edit2, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { fetchSummary } from '../store/reducers/summarySlice';
-import { createMeal, createMealSuccess, deleteMeal, deleteMealSuccess, fetchMeals, updateMeal } from '../store/reducers/mealTypeSlice';
+import { createMeal, deleteMeal, updateMeal } from '../store/reducers/mealTypeSlice';
 import UpdateMealModal from './UpdateMealModal';
 import AddMealTypeForm from './AddMealTypeForm';
 import { useFetchMealTypes } from '../hooks/fetchMealTypes';
 import { useFetchDays } from '../hooks/fetchDays';
-import useFetchData from '../hooks/fetchData';
 import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 import { useFetchUserData } from '../hooks/fetchUserData';
+import LoadingPage from './LoadingPage';
+import ErrorPage from './ErrorPage';
 
 interface MacroData {
     current: number;
@@ -43,7 +43,7 @@ const MainPage: FC = () => {
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme); // later think about it
     const isLoading = mealsInfo.isLoading || daysInfo.isLoading || diets_coefs.isLoading || userInfo.isLoading;
     const hasError = mealsInfo.hasError || daysInfo.hasError || diets_coefs.hasError || userInfo.hasError;
-    console.log(isLoading, hasError);
+    //*only for testing:  console.log(isLoading, hasError); */
     const calculateTotals = () => {
         if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
             return { calories: 0, proteins: 0, fats: 0, carbs: 0 };
@@ -135,26 +135,19 @@ const MainPage: FC = () => {
     }, [openMenuId]);
 
     if (hasError) {
-        return (
-            <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
-                <div className="main-container">
-                    <div className="main-page__loading">
-                        <span>Happend error during fetching your data</span>
-                    </div>
-                </div>
-            </div>
-        );
+        return <ErrorPage />;
     }
 
     if (isLoading || !daysInfo.days.data || !mealsInfo.meals.mealTypes || !userInfo.user.data) {
         return (
-            <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
+            <LoadingPage />
+            /* <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
                 <div className="main-container">
                     <div className="main-page__loading">
                         <span>loading ...</span>
                     </div>
                 </div>
-            </div>
+            </div> */
         );
     }
     return (
@@ -311,7 +304,7 @@ const MainPage: FC = () => {
                                         <span className="meal-icon">{/*meal.icon*/}</span>
                                         <div className="meal-details">
                                             <div className="meal-name">{meal.name}</div>
-                                            <div className="meal-calories">{calcMealCalories(meal.id)} / 569 kcal</div>
+                                            <div className="meal-calories">{calcMealCalories(meal.id)} kcal</div>
 
                                             {openMenuId === meal.id && (
                                                 <div className="dropdown-menu">

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import useFetchData from './fetchData';
 import type { Days } from '../models/Days';
-import { fetchSummary } from '../store/reducers/summarySlice';
+import { fetchDays } from '../store/reducers/daysSlice';
 import { type RootState } from '../store/reducers/rootReducer';
 //^think about rename on Days all that in summary
 interface UseFetchDaysReturn {
@@ -15,16 +15,18 @@ interface UseFetchDaysReturn {
 }
 
 export const useFetchDays = (): UseFetchDaysReturn => {
-    const selector = useCallback(
+    /*  const selector = useCallback(
         (state: RootState) => ({
-            data: state.summaryReducer.days,
+            data: state.summaryReducer.data,
             loading: state.summaryReducer.loading,
             error: state.summaryReducer.error,
         }),
         [],
-    );
+    ); 
+    // const days = useFetchData(selector, fetchSummary);
+    */
+    const days = useFetchData((state: RootState) => state.daysReducer, fetchDays);
 
-    const days = useFetchData(selector, fetchSummary);
     const isLoading = days.loading;
     const hasError = Boolean(days.error);
 
