@@ -1,0 +1,299 @@
+﻿/* Notes Page */
+.notes-page {
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    padding: 2rem 1rem;
+}
+
+.notes-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.notes-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #6b7280;
+    padding: 2rem;
+}
+
+/* Error Message */
+.error-message {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 1rem;
+    color: #c00;
+}
+
+/* Add Note Form */
+.add-note-form {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.note-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.note-input:focus {
+    border-color: #10b981;
+}
+
+.date-toggle-btn {
+    background: none;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.date-toggle-btn:hover {
+    background-color: #f3f4f6;
+    border-color: #10b981;
+}
+
+.add-btn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-btn:hover:not(:disabled) {
+    background-color: #059669;
+}
+
+.add-btn:disabled {
+    background-color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.date-picker {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.date-input {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.clear-date-btn {
+    background: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.clear-date-btn:hover {
+    background-color: #f3f4f6;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+}
+
+.count {
+    color: #6b7280;
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+/* Notes List */
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Note Item */
+.note-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.note-item:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.note-item.overdue {
+    border-color: #fca5a5;
+    background-color: #fef2f2;
+}
+
+.note-item.completed {
+    opacity: 0.7;
+}
+
+/* Checkbox */
+.complete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.complete-btn:hover .checkbox {
+    border-color: #10b981;
+    background-color: #d1fae5;
+}
+
+.checkbox.checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.checkmark {
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Note Content */
+.note-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.note-title {
+    font-size: 1rem;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.note-title.completed-text {
+    text-decoration: line-through;
+    color: #6b7280;
+}
+
+.due-date {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.due-date.overdue {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.completed-date {
+    font-size: 0.875rem;
+    color: #059669;
+    font-style: italic;
+}
+
+/* Delete Button */
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #fee;
+}
+
+/* Toggle Completed Button */
+.toggle-completed-btn {
+    width: 100%;
+    padding: 12px;
+    margin: 1.5rem 0;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-completed-btn:hover {
+    background-color: #f9fafb;
+    border-color: #10b981;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+/* Active/Completed Sections */
+.active-notes-section,
+.completed-notes-section {
+    margin-bottom: 2rem;
+}
+
+.completed-notes-section {
+    opacity: 0.9;
+}

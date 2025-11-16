@@ -10,6 +10,8 @@ import RegisterForm from './components/User/RegisterForm'
 import LoginForm from './components/User/LoginForm'
 import SearchItem from './components/Items/SearchItem'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import NotesPage from "./components/Notes/NotesPage.tsx";
+import './components/Notes/Notes.css'; // Імпорт стилів
 
 function App() {
     /* const user = {
@@ -42,6 +44,7 @@ function App() {
         <>
             <ProfilePage {...user} />
             <MainPage />
+            <NotesPage/>
         </>
     );
 }

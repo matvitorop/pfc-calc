@@ -1,8 +1,11 @@
 ﻿import {ofType} from 'redux-observable';
 import {async, from, of} from 'rxjs';
 import {mergeMap, map, catchError} from 'rxjs/operators';
-import {graphqlFetch} from './../models/Notes'; //import { graphqlFetch } from '../../GraphQL/fetchRequest';
-import type {Note} from './../models/Notes'; //import type { Note } from '../../models/Notes';
+import { graphqlFetch } from "../GraphQL/fetchRequest";
+import type { Epic } from 'redux-observable';
+import type { Action } from '@reduxjs/toolkit';
+import type { RootState } from '../store/reducers/rootReducer';
+import type {Note} from './../models/Notes';
 import
 {
     fetchActiveNotesRequest,
@@ -23,9 +26,14 @@ import
     deleteNoteRequest,
     deleteNoteSuccess,
     deleteNoteFailure,
-} from '../store/reducers/notesSlice'; //from '../reducers/notesSlice';
-// GraphQL queries - just as backend
+} from '../store/reducers/notesSlice';
 
+type AddNoteAction = ReturnType<typeof addNoteRequest>;
+type CompleteNoteAction = ReturnType<typeof completeNoteRequest>;
+type RestoreNoteAction = ReturnType<typeof restoreNoteRequest>;
+type DeleteNoteAction = ReturnType<typeof deleteNoteRequest>;
+type MyEpic = Epic<Action, Action, RootState>;
+// GraphQL queries - just as backend
 const GET_ACTIVE_NOTES = `
     query {
         getActiveNotes {
@@ -151,11 +159,12 @@ export const fetchCompletedNotesEpic = (action$: any) =>
 export const addNoteEpic = (action$: any) =>
     action$.pipe(
         ofType(addNoteRequest.type),
-        mergeMap((action) =>
-            from(
+        mergeMap((action: AddNoteAction) => {
+            const {title, dueDate} = action.payload;
+            return from(
                 graphqlFetch<{ addNote: { success: boolean; note: Note; message: string } }>(
                     ADD_NOTE,
-                    {title: action.payload.title, dueDate: action.payload.dueDate}
+                    {title, dueDate}
                 )
             ).pipe(
                 map((res) => {
@@ -170,17 +179,18 @@ export const addNoteEpic = (action$: any) =>
                 }),
                 catchError((err) => of(addNoteFailure(err.message)))
             )
-        )
+        })
     );
 // Epic 4: Complete note
 export const completeNoteEpic = (action$: any) =>
     action$.pipe(
         ofType(completeNoteRequest.type),
-        mergeMap((action) =>
-            from(
+        mergeMap((action: CompleteNoteAction) =>{
+            const noteId = action.payload;
+            return from(
                 graphqlFetch<{ completeNote: { success: boolean; note: Note; message: string } }>(
                     COMPLETE_NOTE,
-                    { id: action.payload }
+                    { id: noteId }
                 )
             ).pipe(
                 map((res) => {
@@ -195,17 +205,18 @@ export const completeNoteEpic = (action$: any) =>
                 }),
                 catchError((err) => of(completeNoteFailure(err.message)))
             )
-        )
+        })
     );
 // Epic 5: Restore note
 export const restoreNoteEpic = (action$: any) =>
     action$.pipe(
         ofType(restoreNoteRequest.type),
-        mergeMap((action) =>
-            from(
+        mergeMap((action: RestoreNoteAction) => {
+            const noteId = action.payload;
+            return from(
                 graphqlFetch<{ restoreNote: { success: boolean; note: Note; message: string } }>(
                     RESTORE_NOTE,
-                    { id: action.payload }
+                    { id: noteId }
                 )
             ).pipe(
                 map((res) => {
@@ -220,17 +231,18 @@ export const restoreNoteEpic = (action$: any) =>
                 }),
                 catchError((err) => of(restoreNoteFailure(err.message)))
             )
-        )
+        })
     );
 // Epic 6: Delete note
 export const deleteNoteEpic = (action$: any) =>
     action$.pipe(
         ofType(deleteNoteRequest.type),
-        mergeMap((action) =>
-            from(
+        mergeMap((action: DeleteNoteAction) => {
+            const noteId = action.payload;
+            return from(
                 graphqlFetch<{ deleteNote: { success: boolean; note: Note; message: string } }>(
                     DELETE_NOTE,
-                    { id: action.payload }
+                    { id: noteId }
                 )
             ).pipe(
                 map((res) => {
@@ -245,5 +257,5 @@ export const deleteNoteEpic = (action$: any) =>
                 }),
                 catchError((err) => of(deleteNoteFailure(err.message)))
             )
-        )
+        })
     );
