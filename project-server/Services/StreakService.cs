@@ -22,36 +22,37 @@ namespace project_server.Services
                 if (user == null)
                     return null;
 
-                if (recentDays == null || !recentDays.Any())
-                    return null;
-
-                var orderedDays = recentDays
-                    .OrderByDescending(d => d.Day)
-                    .Select(d => d.Day.Date)
-                    .ToList();
-
                 int currentStreak = user.VisitsStreak ?? 0;
 
-                if (orderedDays.Count == 1)
+                if (recentDays == null || !recentDays.Any())
                 {
                     currentStreak = 1;
                 }
                 else
                 {
-                    var lastDay = orderedDays[0];
-                    var prevDay = orderedDays[1];
-                    var diff = (lastDay - prevDay).Days;
+                    var orderedDays = recentDays
+                        .OrderByDescending(d => d.Day)
+                        .Select(d => d.Day.Date)
+                        .ToList();
 
-                    if (diff == 0)
+                    if (orderedDays.Count == 1)
                     {
-                    }
-                    else if (diff == 1)
-                    {
-                        currentStreak += 1;
+                        currentStreak = 1;
                     }
                     else
                     {
-                        currentStreak = 1;
+                        var lastDay = orderedDays[0];
+                        var prevDay = orderedDays[1];
+                        var diff = (lastDay - prevDay).Days;
+
+                        if (diff == 1)
+                        {
+                            currentStreak += 1;
+                        }
+                        else if (diff > 1)
+                        {
+                            currentStreak = 1;
+                        }
                     }
                 }
 
