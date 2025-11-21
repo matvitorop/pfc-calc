@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of, catchError } from "rxjs";
 import { graphqlFetch } from "../../GraphQL/fetchRequest";
 import ItemDetailsModal from "./ItemDetailsModal";
+import "../../../css/searchItem.css";
 
 interface ItemFull {
     id: number;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addItemToSummary } from "../../store/reducers/summarySlice";
-
+import "../../../css/modalWindow.css";
 interface ItemDetailsProps {
     item: {
         id: number;
