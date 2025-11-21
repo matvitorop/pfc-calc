@@ -40,8 +40,8 @@ function App() {
     } */
     return (
         <>
-            <LoginForm />
             <RegisterForm />
+            <LoginForm />
             <MainPage />
             <ProfilePage {...user} />
         </>
