@@ -1220,3 +1220,36 @@ body {
 .dark-theme .modal-close:hover {
     color: #fff;
 }
+
+.modal-card {
+    width: 380px;
+    transition: all 0.3s ease;
+}
+
+.modal-expanded {
+    width: 430px;
+    height: 480px;
+}
+
+.expanded-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-weight {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.btn-confirm {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}

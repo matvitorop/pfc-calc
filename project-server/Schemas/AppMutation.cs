@@ -25,7 +25,6 @@ namespace project_server.Schemas
             INotesRepository _notesRepository,
             IItemsRepository _itemsRepository,
             IItemService _itemService,
-
             IItemCaloriesRepository _caloriesRepository,
             IDaysService _daysService)
 

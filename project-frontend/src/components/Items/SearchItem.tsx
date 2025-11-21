@@ -154,8 +154,8 @@ const SearchItem: React.FC = () => {
                 <ItemDetailsModal
                     item={selectedItem}
                     onClose={() => setSelectedItem(null)}
-                    onAdd={(id) => console.log("ADD ITEM:", id)}
-                    onDelete={(id) => console.log("DELETE ITEM:", id)}
+                    onAdd={() => { }} 
+                    onDelete={() => { }}
                 />
             )}
         </div>

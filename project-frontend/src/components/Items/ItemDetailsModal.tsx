@@ -1,3 +1,7 @@
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addItemToSummary } from "../../store/reducers/summarySlice";
+
 interface ItemDetailsProps {
     item: {
         id: number;
@@ -15,10 +19,44 @@ interface ItemDetailsProps {
     onDelete: (id: number) => void;
 }
 
-const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose, onAdd, onDelete }) => {
+const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
+    const dispatch = useDispatch();
+    const [expanded, setExpanded] = useState(false);
+    const [weight, setWeight] = useState<number>(0);
+
+    const handleExpand = () => setExpanded(true);
+
+    const handleConfirmAdd = () => {
+        dispatch(
+            addItemToSummary({
+                day: new Date().toISOString(),
+                mealTypeId: 1011,
+                measurement: weight,
+                item: {
+                    id: item.id,
+                    userId: item.userId,
+                    name: item.name,
+                    proteins: item.proteins,
+                    fats: item.fats,
+                    carbs: item.carbs,
+                    description: item.description,
+                    apiId: item.apiId,
+                },
+            })
+        );
+
+        console.log("Dispatch addItemToSummary:", {
+            id: item.id,
+            weight,
+            mealTypeId: 1011,
+        });
+
+        onClose();
+    };
+
     return (
         <div className="modal-overlay">
-            <div className="modal-card">
+            <div className={`modal-card ${expanded ? "modal-expanded" : ""}`}>
                 <h2 className="modal-title">{item.name}</h2>
 
                 <div className="modal-section">
@@ -46,12 +84,28 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose, onAdd, on
                     )}
                 </div>
 
-                <div className="modal-buttons">
-                    <button className="btn-add" onClick={() => onAdd(item.id)}>Add</button>
-                    <button className="btn-delete" onClick={() => onDelete(item.id)}>Delete</button>
-                </div>
+                {!expanded ? (
+                    <div className="modal-buttons">
+                        <button className="btn-add" onClick={handleExpand}>Add</button>
+                        <button className="btn-delete">Delete</button>
+                    </div>
+                ) : (
+                    <div className="expanded-section">
+                        <input
+                            type="number"
+                            className="input-weight"
+                            placeholder="Enter weight in grams"
+                            value={weight}
+                            onChange={(e) => setWeight(Number(e.target.value))}
+                        />
 
-                <button className="modal-close" onClick={onClose} aria-label="Close dialog">x</button>
+                        <button className="btn-confirm" onClick={handleConfirmAdd}>
+                            Confirm Add
+                        </button>
+                    </div>
+                )}
+
+                <button className="modal-close" onClick={onClose}>x</button>
             </div>
         </div>
     );
