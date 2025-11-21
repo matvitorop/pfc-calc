@@ -37,7 +37,15 @@ import {
 } from '../reducers/mealTypeSlice';
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
-
+/////
+import {
+    fetchActiveNotesEpic,
+    fetchCompletedNotesEpic,
+    addNoteEpic,
+    completeNoteEpic,
+    restoreNoteEpic,
+    deleteNoteEpic,
+} from './notesEpic';
 
 interface GetUserResponse {
     getDetails: {
@@ -364,4 +372,20 @@ export const updateMealEpic: MyEpic = action$ =>
         }),
     );
 
-export const rootEpic = combineEpics(fetchCoefEpic, fetchDietsEpic, fetchUser, updateUser, logout, fetchSummaryEpic, fetchMealsEpic, updateMealEpic, createMealEpic, deleteMealEpic);
+export const rootEpic = combineEpics(
+    fetchCoefEpic,
+    fetchDietsEpic,
+    fetchUser,
+    updateUser,
+    logout,
+    fetchSummaryEpic,
+    fetchMealsEpic,
+    updateMealEpic,
+    createMealEpic,
+    deleteMealEpic,
+    fetchActiveNotesEpic,
+    fetchCompletedNotesEpic,
+    addNoteEpic,
+    completeNoteEpic,
+    restoreNoteEpic,
+    deleteNoteEpic);

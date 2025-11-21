@@ -6,10 +6,48 @@ export interface NotesState {
     loading: boolean;
     error: string | null;
 }
+/* id: number;
+    userId: number;
+    title: string;
+    dueDate: string | null;
+    isCompleted: boolean;
+    completedDate: string | null;*/
 
 const initialState: NotesState = {
-    activeNotes: [],
-    completedNotes: [],
+    activeNotes: [
+        /*{
+            id: 3,
+            userId: 1,
+            title: "Buy groceriesTest",
+            dueDate: new Date('2024-12-20').toISOString(),  // ✅ ISO string
+            isCompleted: false,
+            completedDate: null,
+        },
+        {
+            id: 4,
+            userId: 1,
+            title: "Finish homeworkTest",
+            dueDate: new Date('2024-12-22').toISOString(),
+            isCompleted: false,
+            completedDate: null,
+        },
+        {
+            id: 5,
+            userId: 1,
+            title: "Call dentistTest",
+            dueDate: null,  // ✅ Може бути null
+            isCompleted: false,
+            completedDate: null,
+        },*/
+    ],
+    completedNotes: [/*{
+        id: 6,
+        userId: 1,
+        title: "Submit assignmentTest",
+        dueDate: new Date('2024-12-15').toISOString(),
+        isCompleted: true,
+        completedDate: new Date('2024-12-15T14:30:00').toISOString(),  // ✅ Коли виконано
+    },*/],
     loading: false,
     error: null,
 };
@@ -19,13 +57,14 @@ export const notesSlice = createSlice({
     initialState,
     reducers: {
         // Fetch active notes
-        fetchActiveNotesRequest: (state) => {
-            state.loading = true;
+            fetchActiveNotesRequest: (state) => {
+            state.loading = false;
             state.error = null;
         },
         fetchActiveNotesSuccess: (state, action: PayloadAction<Note[]>)  => {
             state.loading = false;
             state.activeNotes = action.payload;
+            state.error = null;
         },
         fetchActiveNotesFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
@@ -33,12 +72,13 @@ export const notesSlice = createSlice({
             
         },
         fetchCompletedNotesRequest: (state) => {
-            state.loading = true;
+            state.loading = false;
             state.error = null;
         },
         fetchCompletedNotesSuccess: (state, action: PayloadAction<Note[]>) => {
             state.loading = false;
             state.completedNotes = action.payload;
+            state.error = null;
         },
         fetchCompletedNotesFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
@@ -52,14 +92,15 @@ export const notesSlice = createSlice({
         addNoteSuccess: (state, action: PayloadAction<Note>) => {
             state.loading = false;
             state.activeNotes.push(action.payload);
+            state.error = null;
         },
         addNoteFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
         //completeNote
-        completeNoteRequest: (state, action: PayloadAction<number>) => {
-            state.loading = true;
+        completeNoteRequestStarted: (state, action: PayloadAction<number>) => {
+            state.loading = false;
             state.error = null;
         },
         completeNoteSuccess: (state, action: PayloadAction<Note>) => {
@@ -68,6 +109,7 @@ export const notesSlice = createSlice({
             state.activeNotes = state.activeNotes.filter(n => n.id != action.payload.id);
             //adding to completed
             state.completedNotes.unshift(action.payload);
+            state.error = null;
         },
         completeNoteFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
@@ -76,12 +118,14 @@ export const notesSlice = createSlice({
         //restoreNote
         restoreNoteRequest: (state, action: PayloadAction<number>) => {
             state.loading = true;
-            
+            state.error = null;
+
         },
         restoreNoteSuccess: (state, action: PayloadAction<Note>) => {
             state.loading = false;
             state.completedNotes = state.completedNotes.filter(n => n.id != action.payload.id);
             state.activeNotes.unshift(action.payload);
+            state.error = null;
         },
         restoreNoteFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
@@ -90,11 +134,13 @@ export const notesSlice = createSlice({
         //deleteNote
         deleteNoteRequest: (state, action: PayloadAction<number>) => {
             state.loading = true;
+            state.error = null;
         },
         deleteNoteSuccess: (state, action: PayloadAction<number>) => {
             state.loading = false;
             state.activeNotes = state.activeNotes.filter(n => n.id != action.payload);
             state.completedNotes = state.completedNotes.filter(n => n.id != action.payload);
+            state.error = null;
         },
         deleteNoteFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
@@ -113,7 +159,7 @@ export const {
     addNoteRequest,
     addNoteSuccess,
     addNoteFailure,
-    completeNoteRequest,
+    completeNoteRequestStarted,
     completeNoteSuccess,
     completeNoteFailure,
     restoreNoteRequest,

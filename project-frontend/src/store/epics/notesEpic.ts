@@ -1,11 +1,11 @@
 ﻿import {ofType} from 'redux-observable';
 import {async, from, of} from 'rxjs';
 import {mergeMap, map, catchError} from 'rxjs/operators';
-import { graphqlFetch } from "../GraphQL/fetchRequest";
+import { graphqlFetch } from "../../GraphQL/fetchRequest";
 import type { Epic } from 'redux-observable';
 import type { Action } from '@reduxjs/toolkit';
-import type { RootState } from '../store/reducers/rootReducer';
-import type {Note} from './../models/Notes';
+import type { RootState } from '../reducers/rootReducer';
+import type {Note} from '../../models/Notes';
 import
 {
     fetchActiveNotesRequest,
@@ -17,7 +17,7 @@ import
     addNoteRequest,
     addNoteSuccess,
     addNoteFailure,
-    completeNoteRequest,
+    completeNoteRequestStarted,
     completeNoteSuccess,
     completeNoteFailure,
     restoreNoteRequest,
@@ -26,10 +26,10 @@ import
     deleteNoteRequest,
     deleteNoteSuccess,
     deleteNoteFailure,
-} from '../store/reducers/notesSlice';
+} from '../reducers/notesSlice';
 
 type AddNoteAction = ReturnType<typeof addNoteRequest>;
-type CompleteNoteAction = ReturnType<typeof completeNoteRequest>;
+type CompleteNoteAction = ReturnType<typeof completeNoteRequestStarted>;
 type RestoreNoteAction = ReturnType<typeof restoreNoteRequest>;
 type DeleteNoteAction = ReturnType<typeof deleteNoteRequest>;
 type MyEpic = Epic<Action, Action, RootState>;
@@ -122,22 +122,34 @@ const DELETE_NOTE = `
         }
     }
 `;
+console.log('✅✅✅ notesEpic.ts FILE LOADED ✅✅✅');
 //Epics
 // Epic 1: Fetch active notes
-export const fetchActiveNotesEpic = (action$: any) =>
-    action$.pipe(ofType(fetchActiveNotesRequest.type),
-        mergeMap(() =>
-            from(graphqlFetch<{ getActiveNotes: Note[] }>(GET_ACTIVE_NOTES)).pipe(
-                map(res => {
+export const fetchActiveNotesEpic: MyEpic = (action$) =>
+    action$.pipe(
+        ofType(fetchActiveNotesRequest.type),
+        mergeMap(() => {
+            console.log('1️⃣ [Epic] Action received, starting fetch...');
+
+            return from(graphqlFetch<{ getActiveNotes: Note[] }>(GET_ACTIVE_NOTES)).pipe(
+                map((res) => {
+                    console.log('2️⃣ [Epic] Response received:', res);
+
                     if (res.errors) {
+                        console.error('3️⃣ [Epic] GraphQL errors:', res.errors);
                         return fetchActiveNotesFailure(res.errors[0].message);
                     }
-                    return fetchActiveNotesSuccess(res.data?.getActiveNotes ?? []);
 
+                    const notes = res.data?.getActiveNotes ?? [];
+                    console.log('4️⃣ [Epic] Returning success with notes:', notes);
+                    return fetchActiveNotesSuccess(notes);
                 }),
-                catchError((err) => of(fetchActiveNotesFailure(err.message)))
-            )
-        )
+                catchError((err) => {
+                    console.error('5️⃣ [Epic] Catch error:', err);
+                    return of(fetchActiveNotesFailure(err.message || 'Unknown error'));
+                })
+            );
+        })
     );
 // Epic 2: Fetch completed notes
 export const fetchCompletedNotesEpic = (action$: any) =>
@@ -184,7 +196,7 @@ export const addNoteEpic = (action$: any) =>
 // Epic 4: Complete note
 export const completeNoteEpic = (action$: any) =>
     action$.pipe(
-        ofType(completeNoteRequest.type),
+        ofType(completeNoteRequestStarted.type),
         mergeMap((action: CompleteNoteAction) =>{
             const noteId = action.payload;
             return from(

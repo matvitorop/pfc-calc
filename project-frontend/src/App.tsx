@@ -41,9 +41,7 @@ function App() {
         return <div>User`s data not accessable.</div>;
     } */
     return (
-        <>
-            <ProfilePage {...user} />
-            <MainPage />
+        <> <RegisterForm/>
             <NotesPage/>
         </>
     );

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import {
-    completeNoteRequest,
+    completeNoteRequestStarted,
     deleteNoteRequest,
 } from '../../store/reducers/notesSlice';
 
@@ -10,7 +10,8 @@ const ActiveNotes: React.FC = () => {
     const { activeNotes } = useAppSelector((state) => state.notesReducer);
 
     const handleComplete = (noteId: number) => {
-        dispatch(completeNoteRequest(noteId));
+        dispatch(completeNoteRequestStarted(noteId));
+        //require fetch
     };
 
     const handleDelete = (noteId: number) => {

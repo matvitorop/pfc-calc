@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../store/store";
+import type {AppDispatch } from "../../store/store";
+import type {RootState} from "../../store/reducers/rootReducer.ts";
 import { fetchStart as fetchCoefStart} from "../../store/coef/coefSlice";
 import { fetchStart as fetchDietsStart } from "../../store/diets/dietSlice";
 import { graphqlFetch } from "../../GraphQL/fetchRequest";
@@ -19,8 +20,8 @@ interface RegisterFormData {
 
 const RegisterForm: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { data: coefs } = useSelector((state: RootState) => state.coef);
-    const { data: diets } = useSelector((state: RootState) => state.diets);
+    const { data: coefs } = useSelector((state: RootState) => state.coefReducer);
+    const { data: diets } = useSelector((state: RootState) => state.dietReducer);
 
     const {
         register,

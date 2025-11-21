@@ -10,15 +10,27 @@ import AddNoteForm from './AddNoteForm';
 
 const NotesPage: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { loading, error } = useAppSelector((state) => state.notesReducer);
-    const [showCompleted, setShowCompleted] = useState(false);
+    // ✅ Деструктуризуємо state
+    const { activeNotes, completedNotes, loading, error } = useAppSelector(
+        (state) => state.notesReducer
+    );
 
-    // Завантажити нотатки при відкритті сторінки
+    const [newNoteTitle, setNewNoteTitle] = useState('');
+    const [showCompleted, setShowCompleted] = useState(false);
+    
     useEffect(() => {
+        console.log('🎨 [Component] Initial state:', { activeNotes, loading, error });
+    }, []);
+
+    useEffect(() => {
+        console.log('🎨 [Component] State updated:', { activeNotes, loading, error });
+    }, [activeNotes, loading, error]);
+
+    useEffect(() => {
+        console.log('🚀 [Component] Dispatching fetch...');
         dispatch(fetchActiveNotesRequest());
         dispatch(fetchCompletedNotesRequest());
     }, [dispatch]);
-
     if (loading) {
         return <div className="loading">Loading notes...</div>;
     }
