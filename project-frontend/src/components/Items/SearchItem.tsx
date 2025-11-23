@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of, catchError } from "rxjs";
+import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of} from "rxjs";
 import { graphqlFetch } from "../../GraphQL/fetchRequest";
 import ItemDetailsModal from "./ItemDetailsModal";
 import "../../../css/searchItem.css";
@@ -80,7 +80,7 @@ const SearchItem: React.FC = () => {
                     return graphqlFetch<{ searchItems: ItemShort[] }>(
                         searchQuery,
                         { query },
-                        true // include credentials
+                        true
                     ).then((res) => {
                         setLoading(false);
                         if (res.errors) {

@@ -598,7 +598,7 @@ namespace project_server.Schemas
             });
 
             //ITEMS
-            Field<ItemsResponseType>("addCustomItem")
+            Field<ItemResponseType>("addCustomItem")
                   .Authorize()
                   .Arguments(new QueryArguments(
                           new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
@@ -611,8 +611,8 @@ namespace project_server.Schemas
                   {
                       var input = context.GetArgument<ItemsInput>("customItem");
                       var calories = context.GetArgument<double?>("calories");
-                      var userContext = context.UserContext as GraphQLUserContext;
-                      var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                      var userId = context.GetUserId(_jwtHelper);
         
                       if (string.IsNullOrEmpty(input.Name))
                       {
@@ -620,7 +620,7 @@ namespace project_server.Schemas
                           {
                               Success = false,
                               Item = null,
-                              Message = "Назва продукту обов'язкова"
+                              Message = "Product name is required"
                           };
                       }
                       double finalCalories;
@@ -637,7 +637,7 @@ namespace project_server.Schemas
                               {
                                   Success = false,
                                   Item = null,
-                                  Message = "Вкажіть калорії або хоча б один з показників: білки, жири або вуглеводи"
+                                  Message = "Not enough data to create item"
                               };
                           }
         
@@ -667,7 +667,7 @@ namespace project_server.Schemas
                           {
                               Success = false,
                               Item = null,
-                              Message = "Не вдалося створити продукт"
+                              Message = "Error during adding item"
                           };
                       }
         
@@ -683,14 +683,14 @@ namespace project_server.Schemas
                           {
                               Success = false,
                               Item = createdItem,
-                              Message = "Продукт створено, але не вдалося додати калорії"
+                              Message = "Item created, but item calories aren`t"
                           };
                       }
                       return new ItemsResponse
                       {
                           Success = true,
                           Item = createdItem,
-                          Message = "Продукт успішно додано"
+                          Message = "Item added successfully"
                       };
                   }
                   catch (Exception ex)
@@ -699,7 +699,7 @@ namespace project_server.Schemas
                       {
                           Success = false,
                           Item = null,
-                          Message = "Помилка: " + ex.Message
+                          Message = "Error: " + ex.Message
                       };
                   }
               });
