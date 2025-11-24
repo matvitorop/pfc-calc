@@ -3,6 +3,7 @@ import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of} from
 import { graphqlFetch } from "../../GraphQL/fetchRequest";
 import ItemDetailsModal from "./ItemDetailsModal";
 import "../../../css/searchItem.css";
+import CreateItemModal from "./CreateItemModal";
 
 interface ItemFull {
     id: number;
@@ -59,6 +60,7 @@ const SearchItem: React.FC = () => {
 
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [modalLoading, setModalLoading] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
         if (!inputRef.current) return;
@@ -121,13 +123,20 @@ const SearchItem: React.FC = () => {
 
     return (
         <div className="search-card">
-            <input
-                ref={inputRef}
-                type="text"
-                className="search-input"
-                placeholder="Search items..."
-                onFocus={() => results.length > 0 && setOpen(true)}
-            />
+
+            <div className="search-input-row">
+                <input
+                    ref={inputRef}
+                    type="text"
+                    className="search-input"
+                    placeholder="Search items..."
+                    onFocus={() => results.length > 0 && setOpen(true)}
+                />
+
+                <button className="add-item-btn" onClick={() => setShowCreateModal(true)}>
+                    +
+                </button>
+            </div>
 
             {loading && <div className="search-loading">Loading...</div>}
             {error && <div className="search-error">Error: {error}</div>}
@@ -155,9 +164,13 @@ const SearchItem: React.FC = () => {
                 <ItemDetailsModal
                     item={selectedItem}
                     onClose={() => setSelectedItem(null)}
-                    onAdd={() => { }} 
+                    onAdd={() => { }}
                     onDelete={() => { }}
                 />
+            )}
+
+            {showCreateModal && (
+                <CreateItemModal onClose={() => setShowCreateModal(false)} />
             )}
         </div>
     );
