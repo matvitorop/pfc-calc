@@ -35,7 +35,6 @@ const CreateItemModal = ({ onClose }: Props) => {
     const [isSuccess, setIsSuccess] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(false);
 
-    // Auto-calc calories when user edits macros
     useEffect(() => {
         const p = Number(proteins);
         const f = Number(fats);

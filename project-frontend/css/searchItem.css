@@ -109,12 +109,12 @@
 .search-input-row {
     display: flex;
     align-items: center;
-    gap: 8px; /* Відступ між полем і кнопкою */
+    gap: 8px;
 }
 
 .search-input {
     flex: 1;
-    height: 44px; /* спільна висота */
+    height: 44px;
     padding: 0 14px;
     border-radius: 12px;
     border: 1px solid #d4d4d4;
