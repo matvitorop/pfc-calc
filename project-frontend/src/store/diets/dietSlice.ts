@@ -17,7 +17,7 @@ interface dietState {
 
 const initialState: dietState = {
     data: [
-        { id: 1, name: 'usual diet', description: '', proteinPerc: 50, carbPerc: 25, fatPerc: 25 },
+        { id: 1, name: 'usual diet', description: '', proteinPerc: 50, carbPerc: 25, fatPerc: 25 }, // EMPTY DATA (DONT COME TO REAL STORAGE)
         { id: 2, name: 'gain weight', description: '', proteinPerc: 50, carbPerc: 25, fatPerc: 25 },
         { id: 3, name: 'loose diet', description: '', proteinPerc: 50, carbPerc: 25, fatPerc: 25 },
         { id: 4, name: 'more carbs', description: '', proteinPerc: 50, carbPerc: 25, fatPerc: 25 },
