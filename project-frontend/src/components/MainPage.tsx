@@ -1,10 +1,17 @@
 import React, { type FC, useEffect, useRef, useState } from 'react';
 import { Calendar, Plus, TrendingUp, BarChart3, Edit2, Trash2 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { fetchSummary } from '../store/reducers/summarySlice';
-import { createMeal, deleteMeal, fetchMeals, updateMeal } from '../store/reducers/mealTypeSlice';
+import { createMeal, deleteMeal, updateMeal } from '../store/reducers/mealTypeSlice';
 import UpdateMealModal from './UpdateMealModal';
+import AddMealTypeForm from './AddMealTypeForm';
+import { useFetchMealTypes } from '../hooks/fetchMealTypes';
+import { useFetchSummary } from '../hooks/fetchSummary';
+import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
+import { useFetchUserData } from '../hooks/fetchUserData';
+import LoadingPage from './LoadingPage';
+import ErrorPage from './ErrorPage';
 import SearchItem  from './Items/SearchItem';
+
 interface MacroData {
     current: number;
     goal: number;
@@ -18,29 +25,32 @@ interface CalorieData {
     carbs: MacroData;
 }
 
-interface Meal {
+/* interface Meal {
     id: number;
     name: string;
     calories: number;
     icon: string;
-}
+} */
 
 const MainPage: FC = () => {
+    const mealIcons = [{ icon: '🥐' }, { icon: '🍜' }, { icon: '🍝' }]; //^ change on func or just del
     const [modalField, setModalField] = useState<{ id: number; label: string; value: string } | null>(null);
     const dispatch = useAppDispatch();
-    useEffect(() => {
-        dispatch(fetchMeals());
-        dispatch(fetchSummary());
-    }, []);
-    const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
-    const user = useAppSelector(state => state.userReducer);
-    const { days, loading, error } = useAppSelector(state => state.summaryReducer);
-    const { mealTypes, loading: mealTypesLoading, error: mealTypesError } = useAppSelector(state => state.mealReducer);
 
-    const mealIcons = [{ icon: '🥐' }, { icon: '🍜' }, { icon: '🍝' }]; //^ change on func
-
+    const mealsInfo = useFetchMealTypes();
+    const daysInfo = useFetchSummary();
+    const diets_coefs = useFetchDiets_ActCoefsData();
+    const userInfo = useFetchUserData();
+    const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme); // later think about it
+    const isLoading = mealsInfo.isLoading || daysInfo.isLoading || diets_coefs.isLoading || userInfo.isLoading;
+    const hasError = mealsInfo.hasError || daysInfo.hasError || diets_coefs.hasError || userInfo.hasError;
+    //*only for testing:  console.log(isLoading, hasError); */
     const calculateTotals = () => {
-        return days.reduce(
+        if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
+            return { calories: 0, proteins: 0, fats: 0, carbs: 0 };
+        }
+        console.log(daysInfo.days.data);
+        return daysInfo.days.data.reduce(
             (acc, item) => ({
                 calories: acc.calories + (item.calories || 0),
                 proteins: acc.proteins + (item.proteins || 0) * (item.measurement / 100),
@@ -51,7 +61,12 @@ const MainPage: FC = () => {
         );
     };
 
-    const calcMealCalories = (name: string) => {};
+    const calcMealCalories = (mealId: number) => {
+        if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
+            return 0;
+        }
+        return daysInfo.days.data.filter(item => item.mealTypeId === mealId).reduce((acc, item) => acc + (item.calories || 0), 0);
+    };
 
     const openUpdateMealModal = (id: number, label: string, value: string) => {
         setOpenMenuId(null);
@@ -69,17 +84,11 @@ const MainPage: FC = () => {
     //^ calc goal depence on diet info
     const [calorieData] = useState<CalorieData>({
         consumed: totals.calories,
-        goal: user.data?.caloriesStandard || 3400,
-        protein: { current: totals.proteins, goal: 225 },
-        fats: { current: totals.fats, goal: 118 },
-        carbs: { current: totals.carbs, goal: 340 },
+        goal: userInfo.user.data?.caloriesStandard || 3400,
+        protein: { current: parseFloat(totals.proteins.toFixed(2)), goal: 225 },
+        fats: { current: parseFloat(totals.fats.toFixed(2)), goal: 118 },
+        carbs: { current: parseFloat(totals.carbs.toFixed(2)), goal: 340 },
     });
-
-    const [meals] = useState<Meal[]>([
-        { id: 1, name: 'Breakfast', calories: 0, icon: '🥐' },
-        { id: 2, name: 'Lunch', calories: 0, icon: '🍜' },
-        { id: 3, name: 'Dinner', calories: 0, icon: '🍝' },
-    ]);
 
     const calculatePercentage = (current: number, goal: number): number => {
         return Math.min((current / goal) * 100, 100);
@@ -92,13 +101,16 @@ const MainPage: FC = () => {
         /*  navigate('/profile'); */
     };
 
-    const handleAddMeal = () => {
+    const handleAddMeal = (newMealName: string) => {
         if (newMealName !== null || newMealName !== '') {
             dispatch(createMeal(newMealName));
         }
     };
+    const onCloseAddingMealForm = () => {
+        setShowAddMeal(!showAddMeal);
+    };
     const [showAddMeal, setShowAddMeal] = useState(false);
-    const [newMealName, setNewMealName] = useState('');
+    // const [newMealName, setNewMealName] = useState('');
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
     const handleDeleteMeal = (id: number) => {
@@ -124,13 +136,22 @@ const MainPage: FC = () => {
         };
     }, [openMenuId]);
 
-    /* if (loading) {
-        return <div>Loading...</div>;
+    if (hasError) {
+        return <ErrorPage />;
     }
 
-    if (error) {
-        return <div>Error: {error}</div>;
-    } */
+    if (isLoading || !daysInfo.days.data || !mealsInfo.meals.mealTypes || !userInfo.user.data) {
+        return (
+            <LoadingPage />
+            /* <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
+                <div className="main-container">
+                    <div className="main-page__loading">
+                        <span>loading ...</span>
+                    </div>
+                </div>
+            </div> */
+        );
+    }
     return (
         <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
             <div className="main-container">
@@ -144,7 +165,7 @@ const MainPage: FC = () => {
                     </div>
                     <div className="streak-badge">
                         <span className="streak-icon">🔥</span>
-                        <span className="streak-count">{user.data?.VisitsStreak || 0}</span>
+                        <span className="streak-count">{userInfo.user.data?.VisitsStreak || 0}</span>
                     </div>
                 </div>
 
@@ -233,13 +254,17 @@ const MainPage: FC = () => {
                         </button>
                     </div>
                     <SearchItem />
-                    {showAddMeal && (
+                    {
+                        showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />
+                        /* (
                         <div className="add-meal-form">
                             <input
                                 type="text"
                                 placeholder="Meal type name..."
                                 value={newMealName}
-                                onChange={e => setNewMealName(e.target.value)}
+                                onChange={e => {
+                                    setNewMealName(e.target.value);
+                                }}
                                 onKeyDown={e => {
                                     if (e.key === 'Enter') handleAddMeal();
                                     if (e.key === 'Escape') {
@@ -249,7 +274,7 @@ const MainPage: FC = () => {
                                 }}
                                 autoFocus
                             />
-                            <button onClick={handleAddMeal} className="confirm-btn">
+                            <button onClick={() => handleAddMeal()} className="confirm-btn">
                                 Додати
                             </button>
                             <button
@@ -262,42 +287,45 @@ const MainPage: FC = () => {
                                 Скасувати
                             </button>
                         </div>
-                    )}
+                        ) */
+                    }
                     <div className="meals-list">
-                        {meals.map(meal => (
-                            <div key={meal.id} className="meal-card" ref={openMenuId === meal.id ? menuRef : null}>
-                                <div className="meal-info">
-                                    <button
-                                        className="meal-show-menu"
-                                        onClick={e => {
-                                            e.stopPropagation();
-                                            setOpenMenuId(openMenuId === meal.id ? null : meal.id);
-                                        }}
-                                    >
-                                        ⋮
-                                    </button>
-                                    <span className="meal-icon">{meal.icon}</span>
-                                    <div className="meal-details">
-                                        <div className="meal-name">{meal.name}</div>
-                                        <div className="meal-calories">{meal.calories} / 569 kcal</div>
+                        {mealsInfo.meals.mealTypes &&
+                            Array.isArray(mealsInfo.meals.mealTypes) &&
+                            mealsInfo.meals.mealTypes.map(meal => (
+                                <div key={meal.id} className="meal-card" ref={openMenuId === meal.id ? menuRef : null}>
+                                    <div className="meal-info">
+                                        <button
+                                            className="meal-show-menu"
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                setOpenMenuId(openMenuId === meal.id ? null : meal.id);
+                                            }}
+                                        >
+                                            ⋮
+                                        </button>
+                                        <span className="meal-icon">{/*meal.icon*/}</span>
+                                        <div className="meal-details">
+                                            <div className="meal-name">{meal.name}</div>
+                                            <div className="meal-calories">{calcMealCalories(meal.id)} kcal</div>
 
-                                        {openMenuId === meal.id && (
-                                            <div className="dropdown-menu">
-                                                <button onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)} className="menu-item">
-                                                    <Edit2 size={16} /> Edit
-                                                </button>
-                                                <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
-                                                    <Trash2 size={16} /> Delete
-                                                </button>
-                                            </div>
-                                        )}
+                                            {openMenuId === meal.id && (
+                                                <div className="dropdown-menu">
+                                                    <button onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)} className="menu-item">
+                                                        <Edit2 size={16} /> Edit
+                                                    </button>
+                                                    <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
+                                                        <Trash2 size={16} /> Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                    <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
+                                        <Plus size={24} />
+                                    </button>
                                 </div>
-                                <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
-                                    <Plus size={24} />
-                                </button>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
 

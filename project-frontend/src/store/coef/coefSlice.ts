@@ -12,30 +12,35 @@ interface CoefState {
 }
 
 const initialState: CoefState = {
-    data: [],
+    data: [
+        { id: 1, name: 'Coach potato', value: 0.5 },
+        { id: 2, name: 'moderate activity', value: 0.5 },
+        { id: 3, name: 'active', value: 0.5 },
+        { id: 4, name: 'too active', value: 0.5 },
+    ],
     loading: false,
-    error: null
-}
+    error: null,
+};
 
-const todoSlice = createSlice({
+const coefSlice = createSlice({
     name: 'coef',
     initialState,
     reducers: {
-        fetchStart: (state) => {
+        fetchCoefStart: state => {
             state.loading = true;
             state.error = null;
         },
-        fetchSuccess: (state, action: PayloadAction<ActivityCoefficient[]>) => {
+        fetchCoefSuccess: (state, action: PayloadAction<ActivityCoefficient[]>) => {
             state.data = action.payload;
             state.loading = false;
             state.error = null;
         },
-        fetchFailure: (state, action: PayloadAction<string>) => {
+        fetchCoefFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
     },
-})
+});
 
-export const { fetchStart, fetchSuccess, fetchFailure } = todoSlice.actions;
-export default todoSlice.reducer;
+export const { fetchCoefStart, fetchCoefSuccess, fetchCoefFailure } = coefSlice.actions;
+export default coefSlice.reducer;

@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState, AppDispatch } from "../../store/store";
-import { fetchStart as fetchCoefStart} from "../../store/coef/coefSlice";
-import { fetchStart as fetchDietsStart } from "../../store/diets/dietSlice";
-import { graphqlFetch } from "../../GraphQL/fetchRequest";
-import { useAppSelector } from '../../hooks/redux';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '../../store/reducers/rootReducer';
+import { fetchCoefStart } from '../../store/coef/coefSlice';
+import { fetchDietsStart } from '../../store/diets/dietSlice';
+import { graphqlFetch } from '../../GraphQL/fetchRequest';
+import type { AppDispatch } from '../../store/store';
 import "../../../css/regist-login.css";
+import { useAppSelector } from '../../hooks/redux';
+
 interface RegisterFormData {
     email: string;
     username: string;
@@ -67,20 +69,20 @@ const RegisterForm: React.FC = () => {
             const result = res.data?.registerUser;
 
             if (res.errors) {
-                console.error("GraphQL errors:", res.errors);
-                alert(res.errors[0].message || "Registration failed");
+                console.error('GraphQL errors:', res.errors);
+                alert(res.errors[0].message || 'Registration failed');
                 return;
             }
 
             if (result?.success) {
-                console.log("Registration successful!");
-                alert("Registered successfully!");
+                console.log('Registration successful!');
+                alert('Registered successfully!');
             } else {
-                alert(result?.message || "Registration failed");
+                alert(result?.message || 'Registration failed');
             }
         } catch (err) {
-            console.error("Network or server error:", err);
-            alert("Error during registration");
+            console.error('Network or server error:', err);
+            alert('Error during registration');
         }
     };
 

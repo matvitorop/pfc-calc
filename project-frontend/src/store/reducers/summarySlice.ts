@@ -1,14 +1,71 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Days } from '../../models/Days';
+import type { DaysState } from './daysSlice';
 
-interface SummaryState {
-    days: Days[];
-    loading: boolean;
-    error: string | null;
-}
-
-const initialState: SummaryState = {
-    days: [],
+//! del test-days from state after all testing
+const initialState: DaysState = {
+    data: [
+        {
+            id: 1,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-12',
+            mealTypeId: 1,
+            measurement: 200,
+            name: 'banana',
+            proteins: 1.3,
+            fats: 0.3,
+            carbs: 27,
+            description: 'tatsty medium banana',
+            apiId: null,
+            calories: 200,
+        },
+        {
+            id: 1,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-12',
+            mealTypeId: 1,
+            measurement: 100,
+            name: 'banana',
+            proteins: 5.3,
+            fats: 0.3,
+            carbs: 27,
+            description: 'tatsty medium banana',
+            apiId: null,
+            calories: 300,
+        },
+        {
+            id: 1,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-12',
+            mealTypeId: 1,
+            measurement: 100,
+            name: 'banana',
+            proteins: 8.3,
+            fats: 0.3,
+            carbs: 27,
+            description: 'tatsty medium banana',
+            apiId: null,
+            calories: 300,
+        },
+        {
+            id: 1,
+            userId: 1,
+            itemId: 1,
+            day: '2025-11-12',
+            mealTypeId: 1,
+            measurement: 300,
+            name: 'salo',
+            proteins: 3,
+            fats: 15,
+            carbs: 5,
+            description: 'tatsty medium banana',
+            apiId: null,
+            calories: 234,
+        },
+    ],
     loading: false,
     error: null,
 };
@@ -23,7 +80,7 @@ const summarySlice = createSlice({
         },
         fetchSummarySuccess: (state, action: PayloadAction<Days[]>) => {
             state.loading = false;
-            state.days = action.payload;
+            state.data = action.payload;
             state.error = null;
         },
         fetchSummaryFailure: (state, action: PayloadAction<string>) => {

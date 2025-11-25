@@ -22,3 +22,10 @@ export const UserFieldMap: Record<UserFieldKey, string> = {
     dietId: 'dietId',
     caloriesStandard: 'caloriesStandard',
 };
+
+export type timePeriodKey = 'DAILY' | 'WEEKLY' | 'MONTHLY';
+export const timePeriodFieldMap: Record<timePeriodKey, string> = {
+    DAILY: 'DAILY',
+    WEEKLY: 'WEEKLY',
+    MONTHLY: 'MONTHLY',
+};

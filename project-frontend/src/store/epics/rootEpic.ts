@@ -19,7 +19,7 @@ import {
 } from '../reducers/userSlice';
 import type { User } from '../../models/User';
 import type { Days } from '../../models/Days';
-import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
+import { fetchDays, fetchDaysFailure, fetchDaysSuccess } from '../reducers/daysSlice';
 import {
     createMeal,
     createMealFailure,
@@ -38,7 +38,6 @@ import {
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
 import { addItemToSummaryEpic } from './summaryEpic';
-
 
 interface GetUserResponse {
     getDetails: {
@@ -63,13 +62,13 @@ interface LogoutResponse {
     };
 }
 
-interface GetSummaryResponse {
-    getSummary: Days[];
+interface GetDaysResponse {
+    getDays: Days[];
 }
 
 const GET_SUMMARY = `
-  query {
-    getSummary {
+  query($day:DateTime) {
+    getSummary(day:$day) {
       id
       userId
       day
@@ -86,6 +85,17 @@ const GET_SUMMARY = `
     }
   }
 `;
+
+const GET_DAYS = `
+    query($day:DateTime,$limit:Int, $daysBack: Int){
+        getDays(day: $day, limit: $limit,daysBack:$daysBack){
+            userId
+            day
+            mealTypeId
+            itemId
+            measurement
+        }
+    }`;
 
 const GET_USER = `
   query {
@@ -179,28 +189,54 @@ type UpdateUserAction = ReturnType<typeof updateUserDetails>;
 type UpdateUserMeal = ReturnType<typeof updateMeal>;
 type createUserMeal = ReturnType<typeof createMeal>;
 type deleteUserMeal = ReturnType<typeof deleteMeal>;
+type getDays = ReturnType<typeof fetchDays>;
 type MyEpic = Epic<Action, Action, RootState, AppDispatch>;
 
 export const fetchSummaryEpic: MyEpic = action$ =>
     action$.pipe(
-        ofType(fetchSummary.type),
+        ofType(fetchDays.type),
         switchMap(() =>
-            from(graphqlFetch<GetSummaryResponse>(GET_SUMMARY)).pipe(
+            from(graphqlFetch<GetDaysResponse>(GET_SUMMARY, { day: new Date().toISOString() })).pipe(
                 map(res => {
                     if (res.errors) {
-                        return fetchSummaryFailure(res.errors[0].message);
+                        return fetchDaysFailure(res.errors[0].message);
                     }
 
-                    const result = res.data?.getSummary;
+                    const result = res.data?.getDays;
                     if (!result) {
-                        return fetchSummaryFailure('No data received');
+                        return fetchDaysFailure('No data received');
                     }
 
-                    return fetchSummarySuccess(result);
+                    return fetchDaysSuccess(result);
                 }),
-                catchError(err => of(fetchSummaryFailure(err.message || 'Unexpected error while fetching summary'))),
+                catchError(err => of(fetchDaysFailure(err.message || 'Unexpected error while fetching days'))),
             ),
         ),
+    );
+
+export const fetchDaysEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(fetchDays.type),
+        switchMap((action: getDays) => {
+            const day = action.payload?.day;
+            const limit = action.payload?.limit;
+            const daysBack = action.payload?.daysBack;
+            return from(graphqlFetch<GetDaysResponse>(GET_DAYS, { day: day ? new Date(day).toISOString() : null, limit, daysBack })).pipe(
+                map(res => {
+                    if (res.errors) {
+                        return fetchDaysFailure(res.errors[0].message);
+                    }
+
+                    const result = res.data?.getDays;
+                    if (!result) {
+                        return fetchDaysFailure('No data received');
+                    }
+
+                    return fetchDaysSuccess(result);
+                }),
+                catchError(err => of(fetchDaysFailure(err.message || 'Unexpected error while fetching days'))),
+            );
+        }),
     );
 
 export const fetchUser: MyEpic = action$ =>
@@ -365,4 +401,17 @@ export const updateMealEpic: MyEpic = action$ =>
         }),
     );
 
-export const rootEpic = combineEpics(fetchCoefEpic, fetchDietsEpic, fetchUser, updateUser, logout, fetchSummaryEpic, fetchMealsEpic, updateMealEpic, createMealEpic, deleteMealEpic, addItemToSummaryEpic);
+
+export const rootEpic = combineEpics(
+    fetchCoefEpic,
+    fetchDietsEpic,
+    fetchUser,
+    updateUser,
+    logout,
+    fetchSummaryEpic,
+    fetchMealsEpic,
+    updateMealEpic,
+    createMealEpic,
+    deleteMealEpic,
+    addItemToSummaryEpic
+);
