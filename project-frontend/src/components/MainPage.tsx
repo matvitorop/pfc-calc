@@ -5,7 +5,7 @@ import { createMeal, deleteMeal, updateMeal } from '../store/reducers/mealTypeSl
 import UpdateMealModal from './UpdateMealModal';
 import AddMealTypeForm from './AddMealTypeForm';
 import { useFetchMealTypes } from '../hooks/fetchMealTypes';
-import { useFetchDays } from '../hooks/fetchDays';
+import { useFetchSummary } from '../hooks/fetchSummary';
 import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 import { useFetchUserData } from '../hooks/fetchUserData';
 import LoadingPage from './LoadingPage';
@@ -37,7 +37,7 @@ const MainPage: FC = () => {
     const dispatch = useAppDispatch();
 
     const mealsInfo = useFetchMealTypes();
-    const daysInfo = useFetchDays();
+    const daysInfo = useFetchSummary();
     const diets_coefs = useFetchDiets_ActCoefsData();
     const userInfo = useFetchUserData();
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme); // later think about it
@@ -48,6 +48,7 @@ const MainPage: FC = () => {
         if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
             return { calories: 0, proteins: 0, fats: 0, carbs: 0 };
         }
+        console.log(daysInfo.days.data);
         return daysInfo.days.data.reduce(
             (acc, item) => ({
                 calories: acc.calories + (item.calories || 0),

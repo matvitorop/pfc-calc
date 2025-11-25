@@ -11,39 +11,15 @@ import LoginForm from './components/User/LoginForm';
 import SearchItem from './components/Items/SearchItem';
 import ErrorPage from './components/ErrorPage';
 import LoadingPage from './components/LoadingPage';
+import ReportsPage from './components/ReportsPage';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-    /* const user = {
-        id: 1,
-        email: 'test@example.com',
-        userName: 'John',
-        age: new Date(1990, 1, 1),
-        weight: 70,
-        height: 175,
-        activityCoefId: 2,
-        dietId: 1,
-        caloriesStandard: 2000,
-    }; */
-
-    const { user } = useFetchUserData();
-    //const { data, loading, error } = useAppSelector(state => state.userReducer);
-    if (user.loading) {
-        return <LoadingPage />;
-    }
-    if (user.error) {
-        return <ErrorPage />;
-    }
-    if (!user) {
-        return <div>User`s data not accessable.</div>;
-    }
-    /* if (!data) {
-        return <div>User`s data not accessable.</div>;
-    } */
     return (
         <>
-            <ProfilePage {...user.data} />
+            <ProfilePage />
             <MainPage />
+            <ReportsPage />
         </>
     );
 }

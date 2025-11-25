@@ -149,7 +149,8 @@ namespace project_server.Schemas
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<DateTimeGraphType> { Name = "day" },
-                    new QueryArgument<IntGraphType> { Name = "limit" }
+                    new QueryArgument<IntGraphType> { Name = "limit" },
+                     new QueryArgument<IntGraphType> { Name = "daysBack" }
                 ))
                 .ResolveAsync(async context =>
                 {
@@ -159,8 +160,9 @@ namespace project_server.Schemas
                     var userId = context.GetUserId(_jwtHelper);
                     var day = context.GetArgument<DateTime?>("day");
                     var limit = context.GetArgument<int?>("limit");
+                    var daysBack = context.GetArgument<int?>("daysBack");
 
-                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit);
+                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit,daysBack);
                 });
         }
 

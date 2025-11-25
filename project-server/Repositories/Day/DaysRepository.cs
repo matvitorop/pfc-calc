@@ -35,12 +35,23 @@ namespace project_server.Repositories.Day
                 Day = day
             };
         }
-        public async Task<IEnumerable<Days?>> GetDaysAsync(int userId, DateTime? day = null, int? limit = null)
+        public async Task<IEnumerable<Days?>> GetDaysAsync(int userId, DateTime? day = null, int? limit = null, int? daysBack = null)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
             string sql;
             object parameters;
+            if (daysBack.HasValue && daysBack.Value < 0)
+            {
+                return null;
+            }
+
+            if (daysBack.HasValue)
+            {
+                sql = @"SELECT * FROM Days WHERE user_id = @UserId AND day >= DATEADD(day, -@DaysBack, GETDATE())";
+
+                parameters = new { UserId = userId, DaysBack = daysBack.Value };
+            }
 
             if (day.HasValue)
             {

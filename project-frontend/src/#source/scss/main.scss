@@ -430,10 +430,12 @@ $dark-border: #4b5563;
 }
 
 .modal-input {
+    width: 100%;
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 8px;
     font-size: 16px;
+    margin-bottom: 15px;
 }
 
 .modal-actions {
@@ -1180,5 +1182,309 @@ $dark-text-secondary: #d1d5db;
 
     &:active {
         transform: translateY(0);
+    }
+}
+
+// Reports page
+
+.reports-page {
+    min-height: 100vh;
+    background-color: $bg-gray;
+    @include flex-center;
+    padding: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+    transition: background-color 0.3s ease;
+
+    &.dark-theme {
+        background-color: $dark-bg;
+
+        .main-container {
+            background-color: $dark-card-bg;
+        }
+
+        .header .title {
+            color: $dark-text;
+        }
+
+        .header .back-btn .icon {
+            color: $dark-text;
+        }
+
+        .tabs {
+            border-bottom-color: $dark-border;
+        }
+
+        .tab-btn {
+            color: $text-light;
+
+            &.active {
+                color: $primary-color;
+                border-bottom-color: $primary-color;
+            }
+        }
+
+        .section-title {
+            color: $dark-text;
+        }
+
+        .stat-label {
+            color: $dark-text-secondary;
+        }
+
+        .stat-value {
+            &.average {
+                color: $primary-color;
+            }
+            &.goal {
+                color: #71f082;
+            }
+        }
+
+        .history-item {
+            border-bottom-color: $dark-border;
+
+            .history-date {
+                color: $dark-text-secondary;
+            }
+        }
+
+        .chart-container canvas {
+            // Chart colors are handled in chartOptions
+        }
+
+        .bottom-nav {
+            background-color: $dark-card-bg;
+            border-top-color: $dark-border;
+        }
+
+        .nav-btn {
+            color: $text-light;
+        }
+
+        .nav-btn-active {
+            color: $primary-color;
+        }
+    }
+
+    .main-container {
+        width: 100%;
+        max-width: 24rem;
+        background-color: $bg-white;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        padding-bottom: 5rem;
+        transition: background-color 0.3s ease;
+        position: relative;
+    }
+
+    // Header
+    .header {
+        @include flex-between;
+        padding: 1.5rem 1.25rem 1rem;
+        position: relative;
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+
+            .icon {
+                width: 1.5rem;
+                height: 1.5rem;
+                color: $text-dark;
+                transition: color 0.3s ease;
+            }
+        }
+
+        .title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: $text-dark;
+            margin: 0;
+            transition: color 0.3s ease;
+        }
+    }
+
+    // Tabs
+    .tabs {
+        display: flex;
+        border-bottom: 1px solid $border-color;
+        margin: 0 1.25rem 1.5rem;
+        transition: border-color 0.3s ease;
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem 0.5rem;
+            background: none;
+            border: none;
+            color: $text-light;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            position: relative;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+
+            &.active {
+                color: $primary-color;
+                border-bottom-color: $primary-color;
+            }
+
+            &:hover {
+                opacity: 0.7;
+            }
+        }
+    }
+
+    // Statistics Section
+    .statistics-section {
+        padding: 0 1.25rem;
+        overflow-y: auto;
+        max-height: 500px;
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: $text-dark;
+            margin-bottom: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .stats-info {
+            margin-bottom: 1.5rem;
+
+            .stat-item {
+                margin-bottom: 0.5rem;
+                font-size: 0.875rem;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .stat-label {
+                    color: $text-gray;
+                    transition: color 0.3s ease;
+                }
+
+                .stat-value {
+                    font-weight: 600;
+
+                    &.average {
+                        color: $primary-color;
+                    }
+
+                    &.goal {
+                        color: #71f082;
+                    }
+                }
+            }
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-bottom: 2rem;
+            position: relative;
+            width: 100%;
+
+            canvas {
+                max-width: 100%;
+                height: auto !important;
+            }
+        }
+
+        .history-list {
+            margin-bottom: 2rem;
+
+            .history-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.875rem 0;
+                border-bottom: 1px solid $border-color;
+                font-size: 0.875rem;
+                transition: border-color 0.3s ease;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                .history-date {
+                    color: $text-gray;
+                    transition: color 0.3s ease;
+                }
+
+                .history-calories {
+                    color: $primary-color;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    // Bottom Navigation
+    .bottom-nav {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: $bg-white;
+        border-top: 1px solid $border-color;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+
+        .nav-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: $text-light;
+            font-size: 0.75rem;
+            transition: color 0.3s ease;
+
+            &:hover {
+                opacity: 0.7;
+            }
+
+            &.nav-btn-active {
+                color: $primary-color;
+            }
+
+            span {
+                font-weight: 500;
+            }
+
+            svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+        }
+
+        .diary-btn-circle {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background-color: $primary-color;
+            @include flex-center;
+            color: $bg-white;
+            margin-bottom: 0.25rem;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+
+            svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+        }
     }
 }
