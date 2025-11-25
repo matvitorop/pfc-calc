@@ -108,6 +108,19 @@ namespace project_server.Schemas
                 return await _itemsRepository.GetItemAsync(query, userId.Value);
             });
 
+            Field<SearchedItemResponseType>("getUserSearchedItemById")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var query = context.GetArgument<int>("id");
+                var userId = context.GetUserId(_jwtHelper);
+
+                return await _itemsRepository.GetUserItemByIdAsync(query, userId.Value);
+            });
+
             Field<ListGraphType<UserDayItemType>>("getSummary")
             .Authorize()
             .Arguments(new QueryArguments(

@@ -1,0 +1,153 @@
+/* MODAL OVERLAY */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+/* MODAL CARD */
+.modal-card {
+    width: 100%;
+    max-width: 24rem;
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    position: relative;
+    box-shadow: rgba(0,0,0,0.2) 0px 4px 16px;
+    transition: all 0.3s ease;
+}
+
+.dark-theme .modal-card {
+    background: #1f2937;
+    color: #fff;
+}
+
+/* TITLE */
+.modal-title {
+    font-size: 22px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+/* ROWS */
+.modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.modal-label {
+    opacity: 0.7;
+}
+
+.modal-description {
+    margin-top: 14px;
+    font-size: 14px;
+    opacity: 0.75;
+}
+
+/* ACTION BUTTONS */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 22px;
+}
+
+.btn-add {
+    background: #10b981;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+    .btn-add:hover {
+        background-color: #059669;
+    }
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+}
+
+/* CLOSE BUTTON */
+.modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    font-size: 22px;
+    font-weight: 300;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #aaa;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+    .modal-close:hover {
+        color: #fff;
+    }
+
+.dark-theme .modal-close {
+    color: #999;
+}
+
+    .dark-theme .modal-close:hover {
+        color: #fff;
+    }
+
+/* EXPANDED SECTION */
+.expanded-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* INPUT WEIGHT */
+.input-weight {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #d4d4d4;
+    font-size: 1rem;
+    background: #ffffff;
+}
+
+.dark-theme .input-weight {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #fff;
+}
+
+/* CONFIRM BUTTON */
+.btn-confirm {
+    background-color: #10b981;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1rem;
+    border: none;
+    transition: background 0.2s ease;
+}
+
+    .btn-confirm:hover {
+        background-color: #059669;
+    }
+
+    .btn-confirm:active {
+        transform: scale(0.96);
+    }

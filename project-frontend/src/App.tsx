@@ -1,4 +1,3 @@
-//import { useState } from 'react'
 import ProfilePage from './components/ProfilePage';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { fetchUserDetails } from './store/reducers/userSlice';
@@ -17,6 +16,8 @@ import ReportsPage from './components/ReportsPage';
 function App() {
     return (
         <>
+            <RegisterForm />
+            <LoginForm />
             <ProfilePage />
             <MainPage />
             <ReportsPage />

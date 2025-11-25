@@ -25,7 +25,6 @@ namespace project_server.Schemas
             INotesRepository _notesRepository,
             IItemsRepository _itemsRepository,
             IItemService _itemService,
-
             IItemCaloriesRepository _caloriesRepository,
             IDaysService _daysService)
 
@@ -56,7 +55,7 @@ namespace project_server.Schemas
                             HttpOnly = true,
                             Secure = false,
                             SameSite = SameSiteMode.Strict,
-                            Expires = DateTimeOffset.UtcNow.AddHours(1)
+                            Expires = DateTimeOffset.UtcNow.AddHours(10)
                         });
                     }
 
@@ -92,7 +91,7 @@ namespace project_server.Schemas
                                 HttpOnly = true,
                                 Secure = false,
                                 SameSite = SameSiteMode.Strict,
-                                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                                Expires = DateTimeOffset.UtcNow.AddHours(10)
                             });
                         }
 
@@ -265,7 +264,7 @@ namespace project_server.Schemas
                 }
                 );
 
-            Field<DaysResponseType>("addItemForDay")
+            Field<DaysItemResponseType>("addItemForDay")
             .Arguments(new QueryArguments(
                 new QueryArgument<NonNullGraphType<DaysInputType>> { Name = "item" }
             ))
@@ -274,33 +273,53 @@ namespace project_server.Schemas
             {
                 try
                 {
-
                     var input = context.GetArgument<DaysInput>("item");
 
-                    var userContext = context.UserContext as GraphQLUserContext;
-                    var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
-                    var userEmail = _jwtHelper.GetEmailFromToken(userContext.User);
+                    var userId = context.GetUserId(_jwtHelper);
+                    var userEmail = context.GetUserEmail(_jwtHelper);
 
                     var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
                     var streakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
                     if (streakChangeresult == null)
-                        return new DaysResponse { Success = false, Message = "Changing counter failed", Data = null };
+                        return new DaysItemResponse { Success = false, Message = "Changing counter failed", Data = null };
 
                     var result = await _daysService.AddItemForDayAsync(userId.Value, input.Day, input.MealTypeId, input.Item, input.Measurement);
                     if (result == null)
-                        return new DaysResponse { Success = false, Message = "User not found", Data = null };
+                        return new DaysItemResponse { Success = false, Message = "User not found", Data = null };
+
+                    var item = await _itemsRepository.GetItemByIdAsync(result.ItemId);
+                    var calories = await _caloriesRepository.GetItemAsync(result.ItemId);
+
+                    var dto = new UserDayItemDTO
+                    {
+                        Id = result.Id,
+                        UserId = result.UserId,
+                        Day = result.Day,
+                        MealTypeId = result.MealTypeId,
+                        ItemId = result.ItemId,
+                        Measurement = result.Measurement,
+
+                        Name = item?.Name,
+                        Proteins = item?.Proteins,
+                        Fats = item?.Fats,
+                        Carbs = item?.Carbs,
+                        Description = item?.Description,
+                        ApiId = item?.ApiId,
+
+                        Calories = calories?.Calories
+                    };
 
 
-                    return new DaysResponse
+                    return new DaysItemResponse
                     {
                         Success = true,
                         Message = "Item added to day successfully",
-                        Data = result
+                        Data = dto
                     };
                 }
                 catch (Exception ex)
                 {
-                    return new DaysResponse
+                    return new DaysItemResponse
                     {
                         Success = false,
                         Message = $"Adding item to day failed: {ex.Message}",
@@ -579,7 +598,7 @@ namespace project_server.Schemas
             });
 
             //ITEMS
-            Field<ItemsResponseType>("addCustomItem")
+            Field<ItemResponseType>("addCustomItem")
                   .Authorize()
                   .Arguments(new QueryArguments(
                           new QueryArgument<NonNullGraphType<ItemsInputType>> { Name = "customItem" },
@@ -592,8 +611,8 @@ namespace project_server.Schemas
                   {
                       var input = context.GetArgument<ItemsInput>("customItem");
                       var calories = context.GetArgument<double?>("calories");
-                      var userContext = context.UserContext as GraphQLUserContext;
-                      var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+
+                      var userId = context.GetUserId(_jwtHelper);
         
                       if (string.IsNullOrEmpty(input.Name))
                       {
@@ -601,7 +620,7 @@ namespace project_server.Schemas
                           {
                               Success = false,
                               Item = null,
-                              Message = "Назва продукту обов'язкова"
+                              Message = "Product name is required"
                           };
                       }
                       double finalCalories;
@@ -618,7 +637,7 @@ namespace project_server.Schemas
                               {
                                   Success = false,
                                   Item = null,
-                                  Message = "Вкажіть калорії або хоча б один з показників: білки, жири або вуглеводи"
+                                  Message = "Not enough data to create item"
                               };
                           }
         
@@ -648,7 +667,7 @@ namespace project_server.Schemas
                           {
                               Success = false,
                               Item = null,
-                              Message = "Не вдалося створити продукт"
+                              Message = "Error during adding item"
                           };
                       }
         
@@ -664,14 +683,14 @@ namespace project_server.Schemas
                           {
                               Success = false,
                               Item = createdItem,
-                              Message = "Продукт створено, але не вдалося додати калорії"
+                              Message = "Item created, but item calories aren`t"
                           };
                       }
                       return new ItemsResponse
                       {
                           Success = true,
                           Item = createdItem,
-                          Message = "Продукт успішно додано"
+                          Message = "Item added successfully"
                       };
                   }
                   catch (Exception ex)
@@ -680,7 +699,7 @@ namespace project_server.Schemas
                       {
                           Success = false,
                           Item = null,
-                          Message = "Помилка: " + ex.Message
+                          Message = "Error: " + ex.Message
                       };
                   }
               });

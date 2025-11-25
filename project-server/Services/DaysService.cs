@@ -1,12 +1,13 @@
+using Microsoft.Extensions.Logging;
+using project_server.Models;
 using project_server.Models;
 using project_server.Repositories.Day;
-using System.Diagnostics.Metrics;
-using project_server.Models;
 using project_server.Repositories.Day;
 using project_server.Repositories.Item;
+using project_server.Repositories.ItemCalorie;
 using project_server.Repositories_part;
 using project_server.Schemas;
-using project_server.Repositories.ItemCalorie;
+using System.Diagnostics.Metrics;
 
 namespace project_server.Services
 {
@@ -17,21 +18,24 @@ namespace project_server.Services
         private readonly IDaysRepository _daysRepo;
         private readonly IItemService _itemService;
         private readonly IItemCaloriesRepository _itemCaloriesRepository;
+        private readonly ILogger<DaysService> _logger;
 
-        public DaysService(IUserRepository userRepository, IItemsRepository itemRepository, IDaysRepository daysRepository, IItemService itemService, IItemCaloriesRepository itemCaloriesRepository)
+
+        public DaysService(IUserRepository userRepository, IItemsRepository itemRepository, IDaysRepository daysRepository, IItemService itemService, IItemCaloriesRepository itemCaloriesRepository, ILogger<DaysService> logger)
         {
             _userRepo = userRepository;
             _itemRepo = itemRepository;
             _daysRepo = daysRepository;
             _itemService = itemService;
             _itemCaloriesRepository = itemCaloriesRepository;
+            _logger = logger;
         }
 
         public async Task<Days?> AddItemForDayAsync(int userId, DateTime day, int? mealTypeId, Items item, double measuremant)
         {
             try
             {
-                if (day.Date != DateTime.UtcNow.Date  || measuremant < 1)
+                if (day.Date != DateTime.Now.Date  || measuremant < 1)
                 {
                     return null;
                 }
@@ -41,7 +45,7 @@ namespace project_server.Services
                     var isItemInDB = await _itemRepo.GetItemByApiIdAsync(item.ApiId);
                     if (isItemInDB == null)
                     {
-                         await _itemRepo.AddItemAsync(item);
+                         //await _itemRepo.AddItemAsync(item);
                          await _itemService.AddItemAsync(item);
                     }
                 }

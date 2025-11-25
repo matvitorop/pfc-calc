@@ -1,7 +1,25 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of, catchError } from "rxjs";
+import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of} from "rxjs";
 import { graphqlFetch } from "../../GraphQL/fetchRequest";
+import ItemDetailsModal from "./ItemDetailsModal";
+import "../../../css/searchItem.css";
+import CreateItemModal from "./CreateItemModal";
 
+interface ItemFull {
+    id: number;
+    userId: number;
+    name: string;
+    proteins: number;
+    fats: number;
+    carbs: number;
+    description: string;
+    apiId: number;
+    calories: number;
+}
+
+interface GetItemByIdResponse {
+    getUserSearchedItemById: ItemFull;
+}
 
 interface ItemShort {
     id: number;
@@ -17,11 +35,32 @@ const searchQuery = `
   }
 `;
 
+const getItemByIdQuery = `
+  query GetItem($id: Int!) {
+    getUserSearchedItemById(id: $id) {
+      id
+      userId
+      name
+      proteins
+      fats
+      carbs
+      description
+      apiId
+      calories
+    }
+  }
+`;
+
 const SearchItem: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [results, setResults] = useState<ItemShort[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
+
+    const [selectedItem, setSelectedItem] = useState<any | null>(null);
+    const [modalLoading, setModalLoading] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
         if (!inputRef.current) return;
@@ -43,7 +82,7 @@ const SearchItem: React.FC = () => {
                     return graphqlFetch<{ searchItems: ItemShort[] }>(
                         searchQuery,
                         { query },
-                        true // include credentials
+                        true
                     ).then((res) => {
                         setLoading(false);
                         if (res.errors) {
@@ -60,31 +99,79 @@ const SearchItem: React.FC = () => {
             )
             .subscribe((data) => {
                 if (data) setResults(data);
+                setOpen(true);
             });
 
         return () => subscription.unsubscribe();
     }, []);
 
+    const openItemModal = async (id: number) => {
+        setModalLoading(true);
+
+        const res = await graphqlFetch<GetItemByIdResponse>(
+            getItemByIdQuery,
+            { id },
+            true
+        );
+
+        setModalLoading(false);
+
+        if (res.data?.getUserSearchedItemById) {
+            setSelectedItem(res.data.getUserSearchedItemById);
+        }
+    };
+
     return (
-        <div className="container py-4">
-            <h3 className="mb-3">Search Items</h3>
-            <input
-                ref={inputRef}
-                type="text"
-                className="form-control mb-3"
-                placeholder="Type to search..."
-            />
+        <div className="search-card">
 
-            {loading && <div>Loading...</div>}
-            {error && <div className="text-danger">Error: {error}</div>}
+            <div className="search-input-row">
+                <input
+                    ref={inputRef}
+                    type="text"
+                    className="search-input"
+                    placeholder="Search items..."
+                    onFocus={() => results.length > 0 && setOpen(true)}
+                />
 
-            <ul className="list-group">
-                {results.map((item) => (
-                    <li key={item.id} className="list-group-item">
-                        {item.name}
-                    </li>
-                ))}
-            </ul>
+                <button className="add-item-btn" onClick={() => setShowCreateModal(true)}>
+                    +
+                </button>
+            </div>
+
+            {loading && <div className="search-loading">Loading...</div>}
+            {error && <div className="search-error">Error: {error}</div>}
+
+            {open && results.length > 0 && (
+                <ul className="search-results">
+                    {results.map((item) => (
+                        <li
+                            key={item.id}
+                            className="search-result-item"
+                            onClick={() => {
+                                setOpen(false);
+                                openItemModal(item.id);
+                            }}
+                        >
+                            {item.name}
+                        </li>
+                    ))}
+                </ul>
+            )}
+
+            {modalLoading && <div className="search-loading">Loading item...</div>}
+
+            {selectedItem && (
+                <ItemDetailsModal
+                    item={selectedItem}
+                    onClose={() => setSelectedItem(null)}
+                    onAdd={() => { }}
+                    onDelete={() => { }}
+                />
+            )}
+
+            {showCreateModal && (
+                <CreateItemModal onClose={() => setShowCreateModal(false)} />
+            )}
         </div>
     );
 };

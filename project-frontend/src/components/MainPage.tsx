@@ -10,6 +10,7 @@ import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 import { useFetchUserData } from '../hooks/fetchUserData';
 import LoadingPage from './LoadingPage';
 import ErrorPage from './ErrorPage';
+import SearchItem  from './Items/SearchItem';
 
 interface MacroData {
     current: number;
@@ -252,6 +253,7 @@ const MainPage: FC = () => {
                             <Plus size={20} />
                         </button>
                     </div>
+                    <SearchItem />
                     {
                         showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />
                         /* (

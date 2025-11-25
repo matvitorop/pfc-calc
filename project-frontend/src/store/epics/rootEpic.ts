@@ -37,6 +37,7 @@ import {
 } from '../reducers/mealTypeSlice';
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
+import { addItemToSummaryEpic } from './summaryEpic';
 
 interface GetUserResponse {
     getDetails: {
@@ -400,6 +401,7 @@ export const updateMealEpic: MyEpic = action$ =>
         }),
     );
 
+
 export const rootEpic = combineEpics(
     fetchCoefEpic,
     fetchDietsEpic,
@@ -411,4 +413,5 @@ export const rootEpic = combineEpics(
     updateMealEpic,
     createMealEpic,
     deleteMealEpic,
+    addItemToSummaryEpic
 );

@@ -1,0 +1,93 @@
+/* LOGIN-REGISTER PAGE */
+.login-container {
+    padding: 2rem 1.25rem;
+}
+
+.login-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1.75rem;
+    transition: color 0.3s ease;
+}
+
+.dark-theme .login-title {
+    color: #f9fafb;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label-custom {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.dark-theme .form-label-custom {
+    color: #d1d5db;
+}
+
+.form-input-custom {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #d4d4d4;
+    font-size: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+    .form-input-custom:focus {
+        border-color: #10b981;
+    }
+
+.dark-theme .form-input-custom {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #fff;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: -0.25rem;
+}
+
+.invalid-input {
+    border-color: #ef4444 !important;
+}
+
+.submit-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* REGISTER PAGE */
+
+.form-select-custom {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #d4d4d4;
+    font-size: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+.dark-theme .form-select-custom {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #fff;
+}
+
+.form-select-custom:focus {
+    border-color: #10b981;
+}
