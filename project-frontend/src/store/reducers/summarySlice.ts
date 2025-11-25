@@ -88,7 +88,7 @@ const summarySlice = createSlice({
             state.error = action.payload;
         },
         clearSummary: state => {
-            state.days = [];
+            state.data = [];
             state.error = null;
         },
         addItemToSummary: (state, action: PayloadAction<any>) => {
@@ -97,9 +97,9 @@ const summarySlice = createSlice({
         },
         addItemToSummarySuccess: (state, action: PayloadAction<Days>) => {
             state.loading = false;
-            state.days.push(action.payload);
+            state.data.push(action.payload);
             state.error = null;
-            console.log("Stored Days:", JSON.stringify(state.days, null, 2));
+            console.log("Stored Days:", JSON.stringify(state.data, null, 2));
         },
         addItemToSummaryFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
