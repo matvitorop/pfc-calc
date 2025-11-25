@@ -11,7 +11,7 @@ namespace project_server.Schemas;
     public class ItemsType : ObjectGraphType<Items>    
     {
         public ItemsType(IItemCaloriesRepository itemCaloriesRepository)
-        {   Name = "customItemResponse";
+        {   Name = "ItemFull";
             Field(x => x.Id);
             Field(x => x.UserId, nullable: true);
             Field(x => x.Name);

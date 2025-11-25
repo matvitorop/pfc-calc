@@ -79,13 +79,31 @@ namespace project_server.Repositories.Item
             return items;
         }
 
-        public Task<Items?> GetItemByIdAsync(int itemId)
+        public async Task<Items?> GetItemByIdAsync(int itemId)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
             var sql = "SELECT * FROM Items WHERE id = @ItemId";
 
-            return db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
+            return await db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
+        }
+
+        public async Task<ExtendedItemDTO?> GetUserItemByIdAsync(int itemId, int userId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = @"
+                SELECT 
+                    i.*, 
+                    ic.calories AS Calories
+                FROM 
+                    Items i
+                LEFT JOIN 
+                    ItemCalories ic ON i.id = ic.item_id
+                WHERE 
+                    i.id = @ItemId AND i.user_id = @UserId";
+
+            return await db.QuerySingleOrDefaultAsync<ExtendedItemDTO>(sql, new { ItemId = itemId, UserId = userId });
         }
     }
 

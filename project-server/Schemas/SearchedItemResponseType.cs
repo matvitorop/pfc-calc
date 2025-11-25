@@ -1,13 +1,12 @@
-﻿using GraphQL.Types;
-using project_server.Models;
+﻿using project_server.Models;
+using GraphQL.Types;
 
 namespace project_server.Schemas
 {
-    public class ItemsResponseType : ObjectGraphType<Items>
+    public class SearchedItemResponseType : ObjectGraphType<ExtendedItemDTO>
     {
-        public ItemsResponseType()
-        {
-            Name = "customItemResponse";
+        public SearchedItemResponseType() {
+            Name = "searchedItemResponse";
             Field(x => x.Id);
             Field(x => x.UserId, nullable: true);
             Field(x => x.Name);
@@ -16,7 +15,7 @@ namespace project_server.Schemas
             Field(x => x.Carbs, nullable: true);
             Field(x => x.Description, nullable: true);
             Field(x => x.ApiId, nullable: true);
+            Field(x => x.Calories, nullable: true);
         }
-
     }
 }

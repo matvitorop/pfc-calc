@@ -34,9 +34,23 @@ const summarySlice = createSlice({
             state.days = [];
             state.error = null;
         },
+        addItemToSummary: (state, action: PayloadAction<any>) => {
+            state.loading = true;
+            state.error = null;
+        },
+        addItemToSummarySuccess: (state, action: PayloadAction<Days>) => {
+            state.loading = false;
+            state.days.push(action.payload);
+            state.error = null;
+            console.log("Stored Days:", JSON.stringify(state.days, null, 2));
+        },
+        addItemToSummaryFailure: (state, action: PayloadAction<string>) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
     },
 });
 
-export const { fetchSummary, fetchSummarySuccess, fetchSummaryFailure, clearSummary } = summarySlice.actions;
+export const { fetchSummary, fetchSummarySuccess, fetchSummaryFailure, clearSummary, addItemToSummary, addItemToSummarySuccess, addItemToSummaryFailure } = summarySlice.actions;
 
 export default summarySlice.reducer;

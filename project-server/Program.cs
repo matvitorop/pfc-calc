@@ -141,6 +141,7 @@ builder.Services.AddScoped<ItemCaloriesType>();
 builder.Services.AddScoped<RegisterInputType>();
 builder.Services.AddScoped<ItemShortType>();
 
+builder.Services.AddScoped<DaysItemResponseType>();
 // Register GraphQL Schema 
 builder.Services.AddScoped<ISchema, AppSchema>(); 
 
