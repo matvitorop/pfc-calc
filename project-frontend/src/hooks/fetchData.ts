@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from './redux';
 import { type RootState } from '../store/reducers/rootReducer';
 

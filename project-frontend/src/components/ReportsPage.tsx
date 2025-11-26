@@ -23,11 +23,11 @@ const ReportsPage = () => {
     const [activeTab, setActiveTab] = useState<string>(timePeriodFieldMap.DAILY);
     const mealsInfo = useFetchMealTypes();
     const daysInfo = useFetchDays({ day: null, daysBack: 30, limit: null }); // ^ in process  make work with data(add arg by default force + ) + add more fetch to grab more data
-    const diets_coefs = useFetchDiets_ActCoefsData();
+    //const diets_coefs = useFetchDiets_ActCoefsData();
     const userInfo = useFetchUserData();
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme); // later think about it
-    const isLoading = mealsInfo.isLoading || daysInfo.isLoading || diets_coefs.isLoading || userInfo.isLoading;
-    const hasError = mealsInfo.hasError || daysInfo.hasError || diets_coefs.hasError || userInfo.hasError;
+    const isLoading = mealsInfo.isLoading || daysInfo.isLoading || userInfo.isLoading;
+    const hasError = mealsInfo.hasError || daysInfo.hasError || userInfo.hasError;
 
     const processedData = useMemo(() => {
         if (!daysInfo.days.data) return { dates: [], calories: [], dailyCalories: {} };

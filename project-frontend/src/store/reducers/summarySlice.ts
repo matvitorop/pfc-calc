@@ -91,6 +91,8 @@ const summarySlice = createSlice({
             state.data = [];
             state.error = null;
         },
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         addItemToSummary: (state, action: PayloadAction<any>) => {
             state.loading = true;
             state.error = null;
@@ -99,7 +101,7 @@ const summarySlice = createSlice({
             state.loading = false;
             state.data.push(action.payload);
             state.error = null;
-            console.log("Stored Days:", JSON.stringify(state.data, null, 2));
+            console.log('Stored Days:', JSON.stringify(state.data, null, 2));
         },
         addItemToSummaryFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
@@ -108,6 +110,14 @@ const summarySlice = createSlice({
     },
 });
 
-export const { fetchSummary, fetchSummarySuccess, fetchSummaryFailure, clearSummary, addItemToSummary, addItemToSummarySuccess, addItemToSummaryFailure } = summarySlice.actions;
+export const {
+    fetchSummary,
+    fetchSummarySuccess,
+    fetchSummaryFailure,
+    clearSummary,
+    addItemToSummary,
+    addItemToSummarySuccess,
+    addItemToSummaryFailure,
+} = summarySlice.actions;
 
 export default summarySlice.reducer;

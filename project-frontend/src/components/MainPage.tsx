@@ -10,7 +10,7 @@ import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 import { useFetchUserData } from '../hooks/fetchUserData';
 import LoadingPage from './LoadingPage';
 import ErrorPage from './ErrorPage';
-import SearchItem  from './Items/SearchItem';
+import SearchItem from './Items/SearchItem';
 
 interface MacroData {
     current: number;
@@ -49,7 +49,7 @@ const MainPage: FC = () => {
         if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
             return { calories: 0, proteins: 0, fats: 0, carbs: 0 };
         }
-        console.log(daysInfo.days.data);
+        /*  console.log(daysInfo.days.data); */
         return daysInfo.days.data.reduce(
             (acc, item) => ({
                 calories: acc.calories + (item.calories || 0),
