@@ -99,7 +99,6 @@ const summarySlice = createSlice({
             state.loading = false;
             state.data.push(action.payload);
             state.error = null;
-            console.log("Stored Days:", JSON.stringify(state.data, null, 2));
         },
         addItemToSummaryFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;

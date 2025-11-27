@@ -53,8 +53,8 @@ namespace project_server.Schemas
                         userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
                         {
                             HttpOnly = true,
-                            Secure = false,
-                            SameSite = SameSiteMode.Strict,
+                            Secure = true,
+                            SameSite = SameSiteMode.None,
                             Expires = DateTimeOffset.UtcNow.AddHours(10)
                         });
                     }
@@ -89,8 +89,8 @@ namespace project_server.Schemas
                             userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
                             {
                                 HttpOnly = true,
-                                Secure = false,
-                                SameSite = SameSiteMode.Strict,
+                                Secure = true,
+                                SameSite = SameSiteMode.None,
                                 Expires = DateTimeOffset.UtcNow.AddHours(10)
                             });
                         }
