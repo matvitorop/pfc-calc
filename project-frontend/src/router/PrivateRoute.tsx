@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuthCheck } from "./useAuthCheck";
+import LoadingPage from "../components/LoadingPage";
 
 interface PrivateRouteProps {
     element: JSX.Element;
@@ -8,9 +9,8 @@ interface PrivateRouteProps {
 const PrivateRoute = ({ element }: PrivateRouteProps) => {
     const authorized = useAuthCheck();
 
-    // authorized === null означає, що триває перевірка токена
     if (authorized === null) {
-        return <div>Loading...</div>;
+        return <LoadingPage/>;
     }
 
     return authorized ? element : <Navigate to="/login" replace />;
