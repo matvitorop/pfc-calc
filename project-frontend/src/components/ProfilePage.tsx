@@ -14,9 +14,12 @@ import { toggleTheme } from '../store/reducers/themeSlice';
 import { useFetchUserData } from '../hooks/fetchUserData';
 import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
+import { useNavigate } from "react-router-dom";
 import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 
 const ProfilePage: FC = () => {
+    const navigate = useNavigate();
+
     // const [darkTheme, setDarkTheme] = useState(false);
     const userInfo = useFetchUserData();
     const diet_CoefInfo = useFetchDiets_ActCoefsData();
@@ -41,7 +44,7 @@ const ProfilePage: FC = () => {
 
     const logOut = () => {
         dispatch(logoutUser());
-        //^ add logic for navigate to login page
+        navigate("/login");
     };
 
     if (hasError) {

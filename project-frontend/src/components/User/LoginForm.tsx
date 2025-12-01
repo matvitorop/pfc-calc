@@ -2,9 +2,11 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import { useAppSelector } from '../../hooks/redux';
-import '../../../css/regist-login.css';
+import "../../../css/regist-login.css";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { fetchUserDetails } from '../../store/reducers/userSlice';
+
 interface LoginFormData {
     email: string;
     password: string;
@@ -18,6 +20,8 @@ const LoginForm: React.FC = () => {
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm<LoginFormData>();
+
+    const navigate = useNavigate();
 
     const onSubmit = async (data: LoginFormData) => {
         const loginMutation = `
@@ -44,10 +48,11 @@ const LoginForm: React.FC = () => {
             const result = res.data?.loginUser;
 
             if (result?.success) {
-                console.log('Login successful!');
-                console.log('Token:', result.data?.token);
-                alert('Logged in successfully!');
+                console.log("Login successful!");
+                alert("Logged in successfully!");
                 dispatch(fetchUserDetails());
+                navigate("/");
+
             } else {
                 alert(result?.message || 'Invalid credentials');
             }

@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using project_server.Models;
+using project_server.Models_part;
 using System.Data;
 
 namespace project_server.Repositories.Item
@@ -73,9 +74,9 @@ namespace project_server.Repositories.Item
             var sql = @"
                 SELECT id, name
                 FROM Items
-                WHERE name LIKE '%' + @PartialName + '%'
+                WHERE name LIKE '%' + @PartialName + '%' AND user_id = @UserId
                 ";
-            var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName });
+            var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName, UserId = userId });
             return items;
         }
 

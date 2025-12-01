@@ -12,16 +12,11 @@ import ErrorPage from './components/ErrorPage';
 import LoadingPage from './components/LoadingPage';
 import ReportsPage from './components/ReportsPage';
 //import 'bootstrap/dist/css/bootstrap.min.css';
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router/router";
 
 function App() {
-    return (
-        <>
-            <LoginForm />
-            <ProfilePage />
-            <MainPage />
-            <ReportsPage />
-        </>
-    );
+    return <RouterProvider router={router} />;
 }
 
 export default App;

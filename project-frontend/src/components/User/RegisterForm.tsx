@@ -8,6 +8,7 @@ import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import type { AppDispatch } from '../../store/store';
 import '../../../css/regist-login.css';
 import { useAppSelector } from '../../hooks/redux';
+import { useNavigate } from "react-router-dom";
 import { useFetchDiets_ActCoefsData } from '../../hooks/fetchDiets&ActCoefs';
 import { fetchUserDetails } from '../../store/reducers/userSlice';
 
@@ -32,6 +33,13 @@ const RegisterForm: React.FC = () => {
         handleSubmit,
         formState: { errors },
     } = useForm<RegisterFormData>();
+
+    //useEffect(() => {
+    //    dispatch(fetchCoefStart());
+    //    dispatch(fetchDietsStart());
+    //}, [dispatch]);
+
+    //const navigate = useNavigate();
 
     const onSubmit = async (data: RegisterFormData) => {
         const registerMutation = `
@@ -71,8 +79,9 @@ const RegisterForm: React.FC = () => {
             }
 
             if (result?.success) {
-                console.log('Registration successful!');
-                alert('Registered successfully!');
+                console.log("Registration successful!");
+                alert("Registered successfully!");
+                navigate("/");
             } else {
                 alert(result?.message || 'Registration failed');
             }
