@@ -70,12 +70,13 @@ export const mealSlice = createSlice({
 
         updateMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.data) {
-                state.data = {
-                    ...state.data,
-                    ...action.payload,
-                };
-            }
+            if (!state.data) return;
+
+            const { id, name } = action.payload;
+
+            const index = state.data.findIndex(m => m.id === id);
+            if (index === -1) return;
+            state.data[index].name = name;
         },
 
         updateMealFailure(state, action: PayloadAction<string>) {

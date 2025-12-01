@@ -793,6 +793,9 @@ $dark-border: #4b5563;
         color: #fff;
     }
 }
+//============ food for mealType ================
+
+// =============================
 .meal-show-menu {
     background: transparent;
     font-size: 20px;
@@ -1009,6 +1012,123 @@ $dark-border: #4b5563;
     font-size: 0.875rem;
     margin-top: 0.25rem;
     display: block;
+}
+
+// Meal Foods List
+.meal-foods {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid $border-color;
+    transition: border-color 0.3s ease;
+}
+
+.item-meal-foods {
+    background-color: $bg-gray;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: darken($bg-gray, 3%);
+    }
+}
+
+.item-meal-foods__title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $text-dark;
+    margin: 0 0 0.5rem 0;
+    transition: color 0.3s ease;
+}
+
+.item-meal-foods__body {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.item-meal-foods__el {
+    font-size: 0.75rem;
+    color: $text-gray;
+    background-color: $bg-white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:nth-child(1) {
+        // Proteins
+        color: #10b981;
+        background-color: rgba(16, 185, 129, 0.1);
+    }
+
+    &:nth-child(2) {
+        // Fats
+        color: #f59e0b;
+        background-color: rgba(245, 158, 11, 0.1);
+    }
+
+    &:nth-child(3) {
+        // Carbs
+        color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    &:nth-child(4) {
+        // Calories
+        color: #8b5cf6;
+        background-color: rgba(139, 92, 246, 0.1);
+    }
+}
+.item-meal-foods__del :hover {
+    color: #ef4444;
+}
+// Dark Theme Support
+.main-page.dark-theme {
+    .meal-foods {
+        border-top-color: $dark-border;
+    }
+
+    .item-meal-foods {
+        background-color: $dark-bg;
+
+        &:hover {
+            background-color: lighten($dark-bg, 3%);
+        }
+    }
+
+    .item-meal-foods__title {
+        color: $dark-text;
+    }
+
+    .item-meal-foods__el {
+        color: $dark-text-secondary;
+        background-color: $dark-card-bg;
+
+        &:nth-child(1) {
+            color: #34d399;
+            background-color: rgba(52, 211, 153, 0.15);
+        }
+
+        &:nth-child(2) {
+            color: #fbbf24;
+            background-color: rgba(251, 191, 36, 0.15);
+        }
+
+        &:nth-child(3) {
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.15);
+        }
+
+        &:nth-child(4) {
+            color: #a78bfa;
+            background-color: rgba(167, 139, 250, 0.15);
+        }
+    }
 }
 
 // Loading page

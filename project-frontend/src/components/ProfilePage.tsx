@@ -15,12 +15,14 @@ import { useFetchUserData } from '../hooks/fetchUserData';
 import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
 import { useNavigate } from "react-router-dom";
+import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 
 const ProfilePage: FC = () => {
     const navigate = useNavigate();
 
     // const [darkTheme, setDarkTheme] = useState(false);
     const userInfo = useFetchUserData();
+    const diet_CoefInfo = useFetchDiets_ActCoefsData();
     const isLoading = userInfo.isLoading;
     const hasError = userInfo.hasError;
     const [modalField, setModalField] = useState<{ fieldName: string; label: string; value: string | number } | null>(null);
@@ -69,8 +71,8 @@ const ProfilePage: FC = () => {
                     {/*  <div className="avatar">
                         <img src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200&h=200&fit=crop" alt="Profile" />
                     </div> */}
-                    <h2 className="name" onClick={() => openUpdateUserModal(UserFieldMap.userName, 'User name', userInfo.user.data.userName)}>
-                        {userInfo.user.data.userName}
+                    <h2 className="name" onClick={() => openUpdateUserModal(UserFieldMap.userName, 'User name', userInfo.user.data.username)}>
+                        {userInfo.user.data.username}
                     </h2>
                     <p className="email" onClick={() => openUpdateUserModal(UserFieldMap.email, 'Email', userInfo.user.data.email)}>
                         {userInfo.user.data.email}
@@ -88,7 +90,7 @@ const ProfilePage: FC = () => {
                 <div className="info-list">
                     <div className="info-item clickable" onClick={() => openUpdateUserModal(UserFieldMap.dietId, 'Diet', userInfo.user.data.dietId)}>
                         <span className="info-label">Diet</span>
-                        <span className="info-value">Gain weight</span>
+                        <span className="info-value">{diet_CoefInfo.diets.data.find(el => el.id === userInfo.user.data.dietId)?.name}</span>
                     </div>
 
                     <div className="info-item clickable" onClick={() => openUpdateUserModal(UserFieldMap.age, 'Age', userInfo.user.data.age)}>
@@ -117,7 +119,9 @@ const ProfilePage: FC = () => {
                         onClick={() => openUpdateUserModal(UserFieldMap.activityCoefId, 'LifeStyle', userInfo.user.data.activityCoefId)}
                     >
                         <span className="info-label">Lifestyle</span>
-                        <span className="info-value">Active</span>
+                        <span className="info-value">
+                            {diet_CoefInfo.activityCoefs.data.find(el => el.id === userInfo.user.data.activityCoefId)?.name}
+                        </span>
                     </div>
                 </div>
 
