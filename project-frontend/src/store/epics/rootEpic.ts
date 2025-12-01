@@ -289,7 +289,7 @@ export const logout: MyEpic = action$ =>
     action$.pipe(
         ofType(logoutUser.type),
         switchMap(() =>
-            from(graphqlFetch<LogoutResponse>(LOGOUT_USER)).pipe(
+            from(graphqlFetch<LogoutResponse>(LOGOUT_USER, {}, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return logoutUserFailure(res.errors[0].message);

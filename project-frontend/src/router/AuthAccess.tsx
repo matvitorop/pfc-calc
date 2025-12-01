@@ -9,7 +9,7 @@ interface Props {
 const AuthAccess = ({ element }: Props) => {
     const authorized = useAuthCheck();
 
-    if (authorized === null) return <LoadingPage />;;
+    if (authorized === null) return <LoadingPage />;
 
     return authorized ? <Navigate to="/" replace /> : element;
 };
