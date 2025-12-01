@@ -4,10 +4,10 @@ import type { Days } from '../models/Days';
 import { fetchDays } from '../store/reducers/daysSlice';
 import { type RootState } from '../store/reducers/rootReducer';
 import { type FetchDaysArgTypes } from '../store/reducers/daysSlice';
-//^think about rename on Days all that in summary
+
 export interface UseFetchDaysReturn {
     days: {
-        data: Days[];
+        data: Days[] | null;
         loading: boolean;
         error: string | null;
     };
@@ -16,25 +16,26 @@ export interface UseFetchDaysReturn {
 }
 
 export const useFetchDays = ({ day = null, daysBack = null, limit = null }: FetchDaysArgTypes): UseFetchDaysReturn => {
-    const days = useFetchData(
-        (state: RootState) => state.daysReducer,
+    const fetchAction = useCallback(
         () =>
             fetchDays({
-                day: day,
-                limit: limit,
-                daysBack: daysBack,
+                day,
+                limit,
+                daysBack,
             }),
+        [day, limit, daysBack],
     );
 
-    const isLoading = days.loading;
-    const hasError = Boolean(days.error);
+    const daysState = useFetchData((state: RootState) => state.daysReducer, fetchAction);
+    const isLoading = daysState.loading;
+    const hasError = Boolean(daysState.error);
 
     return useMemo(
         () => ({
-            days: { data: days.data, loading: days.loading, error: days.error },
+            days: { data: daysState.data, loading: daysState.loading, error: daysState.error },
             isLoading,
             hasError,
         }),
-        [days, isLoading, hasError],
+        [daysState, isLoading, hasError],
     );
 };

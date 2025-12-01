@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
-import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of} from "rxjs";
-import { graphqlFetch } from "../../GraphQL/fetchRequest";
-import ItemDetailsModal from "./ItemDetailsModal";
-import "../../../css/searchItem.css";
-import CreateItemModal from "./CreateItemModal";
+import React, { useEffect, useState, useRef } from 'react';
+import { fromEvent, debounceTime, distinctUntilChanged, map, switchMap, of } from 'rxjs';
+import { graphqlFetch } from '../../GraphQL/fetchRequest';
+import ItemDetailsModal from './ItemDetailsModal';
+import '../../../css/searchItem.css';
+import CreateItemModal from './CreateItemModal';
 
 interface ItemFull {
     id: number;
@@ -58,6 +58,7 @@ const SearchItem: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
     const [modalLoading, setModalLoading] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -65,12 +66,12 @@ const SearchItem: React.FC = () => {
     useEffect(() => {
         if (!inputRef.current) return;
 
-        const subscription = fromEvent<InputEvent>(inputRef.current, "input")
+        const subscription = fromEvent<InputEvent>(inputRef.current, 'input')
             .pipe(
-                map((e) => (e.target as HTMLInputElement).value.trim()),
+                map(e => (e.target as HTMLInputElement).value.trim()),
                 debounceTime(300),
                 distinctUntilChanged(),
-                switchMap((query) => {
+                switchMap(query => {
                     if (!query) {
                         setResults([]);
                         return of(null);
@@ -79,25 +80,23 @@ const SearchItem: React.FC = () => {
                     setLoading(true);
                     setError(null);
 
-                    return graphqlFetch<{ searchItems: ItemShort[] }>(
-                        searchQuery,
-                        { query },
-                        true
-                    ).then((res) => {
-                        setLoading(false);
-                        if (res.errors) {
-                            setError(res.errors[0].message);
+                    return graphqlFetch<{ searchItems: ItemShort[] }>(searchQuery, { query }, true)
+                        .then(res => {
+                            setLoading(false);
+                            if (res.errors) {
+                                setError(res.errors[0].message);
+                                return [];
+                            }
+                            return res.data?.searchItems ?? [];
+                        })
+                        .catch(err => {
+                            setLoading(false);
+                            setError(err.message);
                             return [];
-                        }
-                        return res.data?.searchItems ?? [];
-                    }).catch((err) => {
-                        setLoading(false);
-                        setError(err.message);
-                        return [];
-                    });
-                })
+                        });
+                }),
             )
-            .subscribe((data) => {
+            .subscribe(data => {
                 if (data) setResults(data);
                 setOpen(true);
             });
@@ -108,11 +107,7 @@ const SearchItem: React.FC = () => {
     const openItemModal = async (id: number) => {
         setModalLoading(true);
 
-        const res = await graphqlFetch<GetItemByIdResponse>(
-            getItemByIdQuery,
-            { id },
-            true
-        );
+        const res = await graphqlFetch<GetItemByIdResponse>(getItemByIdQuery, { id }, true);
 
         setModalLoading(false);
 
@@ -123,7 +118,6 @@ const SearchItem: React.FC = () => {
 
     return (
         <div className="search-card">
-
             <div className="search-input-row">
                 <input
                     ref={inputRef}
@@ -143,7 +137,7 @@ const SearchItem: React.FC = () => {
 
             {open && results.length > 0 && (
                 <ul className="search-results">
-                    {results.map((item) => (
+                    {results.map(item => (
                         <li
                             key={item.id}
                             className="search-result-item"
@@ -160,18 +154,9 @@ const SearchItem: React.FC = () => {
 
             {modalLoading && <div className="search-loading">Loading item...</div>}
 
-            {selectedItem && (
-                <ItemDetailsModal
-                    item={selectedItem}
-                    onClose={() => setSelectedItem(null)}
-                    onAdd={() => { }}
-                    onDelete={() => { }}
-                />
-            )}
+            {selectedItem && <ItemDetailsModal item={selectedItem} onClose={() => setSelectedItem(null)} onAdd={() => {}} onDelete={() => {}} />}
 
-            {showCreateModal && (
-                <CreateItemModal onClose={() => setShowCreateModal(false)} />
-            )}
+            {showCreateModal && <CreateItemModal onClose={() => setShowCreateModal(false)} />}
         </div>
     );
 };

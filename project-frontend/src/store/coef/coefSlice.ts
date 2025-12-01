@@ -12,12 +12,7 @@ interface CoefState {
 }
 
 const initialState: CoefState = {
-    data: [
-        { id: 1, name: 'Coach potato', value: 0.5 }, // EMPTY DATA (DONT COME TO REAL STORAGE)
-        { id: 2, name: 'moderate activity', value: 0.5 },
-        { id: 3, name: 'active', value: 0.5 },
-        { id: 4, name: 'too active', value: 0.5 },
-    ],
+    data: [],
     loading: false,
     error: null,
 };

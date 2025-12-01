@@ -1,17 +1,18 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { graphqlFetch } from "../../GraphQL/fetchRequest";
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import { useAppSelector } from '../../hooks/redux';
-import "../../../css/regist-login.css";
+import '../../../css/regist-login.css';
+import { useDispatch } from 'react-redux';
+import { fetchUserDetails } from '../../store/reducers/userSlice';
 interface LoginFormData {
     email: string;
     password: string;
 }
 
 const LoginForm: React.FC = () => {
-
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
-
+    const dispatch = useDispatch();
     const {
         register,
         handleSubmit,
@@ -32,35 +33,32 @@ const LoginForm: React.FC = () => {
         try {
             const res = await graphqlFetch<{
                 loginUser: { success: boolean; data?: { token: string }; message?: string };
-            }>(
-                loginMutation,
-                { email: data.email, password: data.password },
-                true
-            );
+            }>(loginMutation, { email: data.email, password: data.password }, true);
 
             if (res.errors) {
-                console.error("GraphQL errors:", res.errors);
-                alert(res.errors[0].message || "Login failed");
+                console.error('GraphQL errors:', res.errors);
+                alert(res.errors[0].message || 'Login failed');
                 return;
             }
 
             const result = res.data?.loginUser;
 
             if (result?.success) {
-                console.log("Login successful!");
-                console.log("Token:", result.data?.token);
-                alert("Logged in successfully!");
+                console.log('Login successful!');
+                console.log('Token:', result.data?.token);
+                alert('Logged in successfully!');
+                dispatch(fetchUserDetails());
             } else {
-                alert(result?.message || "Invalid credentials");
+                alert(result?.message || 'Invalid credentials');
             }
         } catch (err) {
-            console.error("Network or server error:", err);
-            alert("Error during login");
+            console.error('Network or server error:', err);
+            alert('Error during login');
         }
     };
 
     return (
-        <div className={`main-page ${darkTheme ? "dark-theme" : ""}`}>
+        <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
             <div className="main-container login-container">
                 <h1 className="login-title">Login</h1>
 
@@ -69,8 +67,8 @@ const LoginForm: React.FC = () => {
                         <label className="form-label-custom">Email</label>
                         <input
                             type="email"
-                            className={`form-input-custom ${errors.email ? "invalid-input" : ""}`}
-                            {...register("email", { required: "Email is required" })}
+                            className={`form-input-custom ${errors.email ? 'invalid-input' : ''}`}
+                            {...register('email', { required: 'Email is required' })}
                         />
                         {errors.email && <p className="error-text">{errors.email.message}</p>}
                     </div>
@@ -79,23 +77,22 @@ const LoginForm: React.FC = () => {
                         <label className="form-label-custom">Password</label>
                         <input
                             type="password"
-                            className={`form-input-custom ${errors.password ? "invalid-input" : ""}`}
-                            {...register("password", {
-                                required: "Password is required",
-                                minLength: { value: 6, message: "Password must be at least 6 characters" }
+                            className={`form-input-custom ${errors.password ? 'invalid-input' : ''}`}
+                            {...register('password', {
+                                required: 'Password is required',
+                                minLength: { value: 6, message: 'Password must be at least 6 characters' },
                             })}
                         />
                         {errors.password && <p className="error-text">{errors.password.message}</p>}
                     </div>
 
                     <button type="submit" className="confirm-btn submit-btn" disabled={isSubmitting}>
-                        {isSubmitting ? "Logging in..." : "Login"}
+                        {isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
             </div>
         </div>
     );
-
 };
 
 export default LoginForm;

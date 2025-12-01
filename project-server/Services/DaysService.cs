@@ -7,6 +7,7 @@ using project_server.Repositories.Item;
 using project_server.Repositories.ItemCalorie;
 using project_server.Repositories_part;
 using project_server.Schemas;
+using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 
 namespace project_server.Services
@@ -93,14 +94,20 @@ namespace project_server.Services
                 throw;
             }
         }
-
-        public async Task<IEnumerable<UserDayItemDTO>> GetUserSummaryAsync(int userId, DateTime day)
+        // rewrite to use in days for statictscs
+        public async Task<IEnumerable<UserDayItemDTO>> GetUserDaysInfoAsync(int userId, DateTime? day,int? limit = null,int? daysBack = null)
         {
-            var days = await _daysRepo.GetDaysAsync(userId, day);
+            var days = daysBack > 0 ? await _daysRepo.GetDaysAsync(userId, null, limit, daysBack) :  await _daysRepo.GetDaysAsync(userId, day,limit);
             var userDayItems = new List<UserDayItemDTO>();
+
+            if (days == null || !days.Any())
+            {
+                return userDayItems;
+            }
 
             foreach (var d in days)
             {
+                if (d == null) continue;
                 var item = await _itemRepo.GetItemByIdAsync(d!.ItemId);
                 var calories = await _itemCaloriesRepository.GetItemAsync(d.ItemId);
 

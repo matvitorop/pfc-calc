@@ -16,7 +16,6 @@ import ReportsPage from './components/ReportsPage';
 function App() {
     return (
         <>
-            <RegisterForm />
             <LoginForm />
             <ProfilePage />
             <MainPage />

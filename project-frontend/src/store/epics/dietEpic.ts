@@ -7,15 +7,15 @@ import type { Diet } from '../../store/diets/dietSlice';
 
 const getDiets = `
         query{
-            getDiets{
-                id
-                name
-                description
-                proteinPerc
-                carbsPerc
-                fatsPerc
-            }
-        }`;
+  getDiets{
+    id
+    name
+    description
+    proteinPerc
+    fatsPerc
+    carbsPerc
+  }
+}`;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchDietsEpic = (action$: any) =>

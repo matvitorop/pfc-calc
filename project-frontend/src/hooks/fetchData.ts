@@ -1,19 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from './redux';
 import { type RootState } from '../store/reducers/rootReducer';
 
 const useFetchData = (selector: (state: RootState) => { data: any; loading: boolean; error: string | null }, fetchAction: () => any) => {
     const dispatch = useAppDispatch();
     const state = useAppSelector(selector);
-
-    const shouldFetch = !state.data && !state.loading && !state.error;
+    const isDataEmpty = state.data == null;
+    const shouldFetch = isDataEmpty && !state.loading && !state.error;
 
     useEffect(() => {
-        if (shouldFetch) {
-            dispatch(fetchAction());
-        }
-    }, [dispatch, shouldFetch, fetchAction]);
+        dispatch(fetchAction());
+    }, [dispatch, fetchAction]);
 
     return state;
 };
