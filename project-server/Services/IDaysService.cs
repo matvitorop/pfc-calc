@@ -10,6 +10,6 @@ namespace project_server.Services
         public Task<Days?> AddItemForDayAsync(int userId, DateTime day, int? mealTypeId, Items item, double measuremant);
         public Task<Days?> ChangeMeasurementAsync(int id, double measurement);
         public Task<Days?> DeleteItemFromDayAsync(int id);
-        public Task<IEnumerable<UserDayItemDTO>> GetUserSummaryAsync(int userId, DateTime day);
+        public Task<IEnumerable<UserDayItemDTO>> GetUserDaysInfoAsync(int userId, DateTime? day,int? limit ,int? daysBack);
     }
 }

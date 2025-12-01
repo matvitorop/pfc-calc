@@ -7,20 +7,19 @@ export interface UserState {
     data: User | null;
 }
 
+/*
+test data
+
+email: 'joe@schmoe.com',
+password: 'WERTYUu3546!'
+
+
+
+*/
+
 //! del test-data from state after all testing
 const intialState: UserState = {
-    data: {
-        id: 1,
-        email: 'test@example.com',
-        userName: 'John',
-        age: '1991-12-12',
-        weight: 70,
-        height: 175,
-        activityCoefId: 2,
-        dietId: 1,
-        caloriesStandard: 3500,
-        VisitsStreak: 5,
-    },
+    data: null,
     loading: false,
     error: null,
 };

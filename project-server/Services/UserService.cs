@@ -90,12 +90,19 @@ namespace project_server.Services_part
         {
             try
             {
+                
+                
                 string fieldNamePascalCase = SnakeToPascalCase(fieldName);
+
+               
                 var property = typeof(Users).GetProperty(fieldNamePascalCase);
                 if (property == null)
+                {
                     throw new ArgumentException($"Field '{fieldNamePascalCase}' not found in Users model");
+                }
+                
 
-                var targetType = property.PropertyType;
+                var targetType = property?.PropertyType;
                 object? convertedValue;
                 try
                 {

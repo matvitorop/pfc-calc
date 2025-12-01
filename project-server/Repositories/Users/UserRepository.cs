@@ -118,13 +118,14 @@ namespace project_server.Repositories_part
         }
         public async Task<Users?> UpdateUserDetailsAsync(int id, string fieldName, object value)
         {
+            //Console.WriteLine($"\nrepo fieldame {fieldName} value {value.GetType()} \n");
             var allowedFields = new HashSet<string>{
-                "age", "weight", "height", "visits_streak", "activity_coef_id", "diet_id" ,"calories_standard"
+               "username", "age", "weight", "height", "visits_streak", "activity_coef_id", "diet_id" ,"calories_standard"
             };
 
             if (!allowedFields.Contains(fieldName.ToLower()))
             {
-                Debug.WriteLine($" {fieldName} isn`t allowed to update");
+                Console.WriteLine($" {fieldName} isn`t allowed to update");
                 return null;
             }
 

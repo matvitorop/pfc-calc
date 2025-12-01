@@ -21,19 +21,32 @@ import { Chart } from 'react-chartjs-2';
 
 const ReportsPage = () => {
     const [activeTab, setActiveTab] = useState<string>(timePeriodFieldMap.DAILY);
+    const amountOfDays = useMemo(() => {
+        switch (activeTab) {
+            case timePeriodFieldMap.WEEKLY:
+                return 90;
+            case timePeriodFieldMap.MONTHLY:
+                return 365;
+            case timePeriodFieldMap.DAILY:
+            default:
+                return 30;
+        }
+    }, [activeTab]);
+    //^ only for test force = false
+    const daysInfo = useFetchDays({ day: null, daysBack: amountOfDays, limit: null });
     const mealsInfo = useFetchMealTypes();
-    const daysInfo = useFetchDays({ day: null, daysBack: 30, limit: null }); // ^ in process  make work with data(add arg by default force + ) + add more fetch to grab more data
-    //const diets_coefs = useFetchDiets_ActCoefsData();
+
+    // ^ in process  make work with data(add arg by default force + ) + add more fetch to grab more data
+    const diets_coefs = useFetchDiets_ActCoefsData();
     const userInfo = useFetchUserData();
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme); // later think about it
-    const isLoading = mealsInfo.isLoading || daysInfo.isLoading || userInfo.isLoading;
-    const hasError = mealsInfo.hasError || daysInfo.hasError || userInfo.hasError;
+    const isLoading = mealsInfo.isLoading || daysInfo.isLoading || diets_coefs.isLoading || userInfo.isLoading;
+    const hasError = mealsInfo.hasError || daysInfo.hasError || diets_coefs.hasError || userInfo.hasError;
 
     const processedData = useMemo(() => {
         if (!daysInfo.days.data) return { dates: [], calories: [], dailyCalories: {} };
 
         const dailyCalories: { [key: string]: number } = {};
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         daysInfo.days.data.forEach((item: any) => {
             const date = item.day;
@@ -46,13 +59,72 @@ const ReportsPage = () => {
         });
 
         const sortedDates = Object.keys(dailyCalories).sort();
-        const last30Days = sortedDates.slice(-30);
 
-        return {
-            dates: last30Days,
-            calories: last30Days.map(date => Math.round(dailyCalories[date])),
+        /* return {
+            dates: sortedDates,
+            calories: sortedDates.map(date => Math.round(dailyCalories[date])),
             dailyCalories,
-        };
+        }; */
+
+        switch (activeTab) {
+            case timePeriodFieldMap.WEEKLY: {
+                const weeklyData: { [key: string]: { total: number; count: number } } = {};
+
+                sortedDates.forEach(date => {
+                    const dateObj = new Date(date);
+
+                    const dayOfWeek = dateObj.getDay();
+                    const diff = dateObj.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                    const monday = new Date(dateObj.setDate(diff));
+                    const weekKey = monday.toISOString().split('T')[0];
+
+                    if (!weeklyData[weekKey]) {
+                        weeklyData[weekKey] = { total: 0, count: 0 };
+                    }
+                    weeklyData[weekKey].total += dailyCalories[date];
+                    weeklyData[weekKey].count += 1;
+                });
+
+                const weekKeys = Object.keys(weeklyData).sort();
+
+                return {
+                    dates: weekKeys,
+                    calories: weekKeys.map(week => Math.round(weeklyData[week].total)),
+                    dailyCalories: Object.fromEntries(weekKeys.map(week => [week, weeklyData[week].total])),
+                };
+            }
+            case timePeriodFieldMap.MONTHLY: {
+                const monthlyData: { [key: string]: { total: number; count: number } } = {};
+
+                sortedDates.forEach(date => {
+                    const dateObj = new Date(date);
+                    const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = { total: 0, count: 0 };
+                    }
+                    monthlyData[monthKey].total += dailyCalories[date];
+                    monthlyData[monthKey].count += 1;
+                });
+
+                const monthKeys = Object.keys(monthlyData).sort();
+
+                return {
+                    dates: monthKeys,
+                    calories: monthKeys.map(month => Math.round(monthlyData[month].total)), // Середнє за місяць
+                    dailyCalories: Object.fromEntries(monthKeys.map(month => [month, monthlyData[month].total])),
+                };
+            }
+
+            case timePeriodFieldMap.DAILY:
+            default: {
+                return {
+                    dates: sortedDates,
+                    calories: sortedDates.map(date => Math.round(dailyCalories[date])),
+                    dailyCalories,
+                };
+            }
+        }
     }, [daysInfo.days.data]);
 
     const averageCalories = useMemo(() => {
@@ -65,22 +137,68 @@ const ReportsPage = () => {
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        return `${day}.${month}`;
+
+        switch (activeTab) {
+            case timePeriodFieldMap.DAILY: {
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                return `${day}.${month}`;
+            }
+
+            case timePeriodFieldMap.WEEKLY: {
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                return `Week ${day}.${month}`;
+            }
+
+            case timePeriodFieldMap.MONTHLY: {
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+                if (dateString.length === 7) {
+                    const [year, month] = dateString.split('-');
+                    return `${months[parseInt(month) - 1]} ${year}`;
+                }
+                return months[date.getMonth()];
+            }
+
+            default:
+                return dateString;
+        }
     };
 
     const formatHistoryDate = (dateString: string) => {
         const date = new Date(dateString);
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const day = date.getDate();
-        const month = months[date.getMonth()];
-        return `${day} ${month}`;
+
+        switch (activeTab) {
+            case timePeriodFieldMap.DAILY: {
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                return `${day} ${month}`;
+            }
+
+            case timePeriodFieldMap.WEEKLY: {
+                const day = date.getDate();
+                const month = months[date.getMonth()];
+                return `Week of ${day} ${month}`;
+            }
+
+            case timePeriodFieldMap.MONTHLY: {
+                if (dateString.length === 7) {
+                    const [year, month] = dateString.split('-');
+                    return `${months[parseInt(month) - 1]} ${year}`;
+                }
+                return `${months[date.getMonth()]} ${date.getFullYear()}`;
+            }
+
+            default:
+                return dateString;
+        }
     };
 
     // data for chart
-    const chartLabels = processedData.dates.slice(-30).map(formatDate);
-    const chartCalories = processedData.calories.slice(-30);
+    const chartLabels = processedData.dates.map(formatDate);
+    const chartCalories = processedData.calories;
 
     const chartData = {
         labels: chartLabels,
@@ -161,6 +279,11 @@ const ReportsPage = () => {
             date,
             calories: processedData.dailyCalories[date],
         }));
+
+    function ChangeTab(tab: string) {
+        setActiveTab(tab);
+    }
+
     if (hasError) {
         return <ErrorPage />;
     }
@@ -179,18 +302,18 @@ const ReportsPage = () => {
                 {/* Tabs */}
                 <div className="tabs">
                     {[timePeriodFieldMap.DAILY, timePeriodFieldMap.WEEKLY, timePeriodFieldMap.MONTHLY].map(tab => (
-                        <button key={tab} onClick={() => setActiveTab(tab)} className={`tab-btn ${activeTab === tab ? 'active' : ''}`}>
+                        <button key={tab} onClick={() => ChangeTab(tab)} className={`tab-btn ${activeTab === tab ? 'active' : ''}`}>
                             {tab}
                         </button>
                     ))}
                 </div>
                 {/* Statistics Section */}
                 <div className="statistics-section">
-                    <h2 className="section-title">Last 30 Days</h2>
+                    <h2 className="section-title">Last {amountOfDays} days</h2>
 
                     <div className="stats-info">
                         <div className="stat-item">
-                            <span className="stat-label">Daily Average: </span>
+                            <span className="stat-label">{activeTab} Average: </span>
                             <span className="stat-value average">{averageCalories} kcal</span>
                         </div>
                         <div className="stat-item">

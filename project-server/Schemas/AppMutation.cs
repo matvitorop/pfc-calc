@@ -53,8 +53,8 @@ namespace project_server.Schemas
                         userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
                         {
                             HttpOnly = true,
-                            Secure = false,
-                            SameSite = SameSiteMode.Strict,
+                            Secure = true,
+                            SameSite = SameSiteMode.None,
                             Expires = DateTimeOffset.UtcNow.AddHours(10)
                         });
                     }
@@ -89,8 +89,8 @@ namespace project_server.Schemas
                             userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
                             {
                                 HttpOnly = true,
-                                Secure = false,
-                                SameSite = SameSiteMode.Strict,
+                                Secure = true,
+                                SameSite = SameSiteMode.None,
                                 Expires = DateTimeOffset.UtcNow.AddHours(10)
                             });
                         }
@@ -137,26 +137,28 @@ namespace project_server.Schemas
 
                 try
                 {
+                    //check correct of work this method  UpdateUserDetailsAsync
                     var input = context.GetArgument<DetailsInput>("details");
                     var userContext = context.UserContext as GraphQLUserContext;
                     var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
+                    
                     var user = await userService.UpdateUserDetailsAsync(userId.Value, input.FieldName, input.Value);
 
                     if (user == null)
                         return ApiResponse<DetailsResponse>.Fail("User not found");
                     //return new DetailsResponse { Success = false, Message = "User not found", Data = null };
 
-                    var property = typeof(Users).GetProperty(input.FieldName);
-                    if (property == null)
-                        return ApiResponse<DetailsResponse>.Fail($"Field '{input.FieldName}' not found");
-                        //return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
+                    //var property = typeof(Users).GetProperty(input.FieldName);
+                    //if (property == null)
+                    //    return ApiResponse<DetailsResponse>.Fail($"Field '{input.FieldName}' not found");
+                    //return new DetailsResponse { Success = false, Message = $"Field '{input.FieldName}' not found", Data = null };
 
-                    var dataUser = new Users { Id = user.Id };
-                    property.SetValue(dataUser, property.GetValue(user));
+                    //var dataUser = new Users { Id = user.Id };
+                    //property.SetValue(dataUser, property.GetValue(user));
 
                     return ApiResponse<DetailsResponse>.Ok(new DetailsResponse
                     {
-                        UserDatails = dataUser
+                        UserDatails = user
                     }, $"{input.FieldName} changed successfully");
 
                 }catch(Exception ex)

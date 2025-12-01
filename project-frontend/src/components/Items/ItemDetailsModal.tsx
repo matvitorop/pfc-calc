@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addItemToSummary } from "../../store/reducers/summarySlice";
-import "../../../css/modalWindow.css";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addItemToSummary } from '../../store/reducers/summarySlice';
+import '../../../css/modalWindow.css';
 interface ItemDetailsProps {
     item: {
         id: number;
@@ -30,7 +30,7 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
         dispatch(
             addItemToSummary({
                 day: new Date().toISOString(),
-                mealTypeId: 1011,
+                mealTypeId: 1,
                 measurement: weight,
                 item: {
                     id: item.id,
@@ -42,13 +42,13 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
                     description: item.description,
                     apiId: item.apiId,
                 },
-            })
+            }),
         );
 
-        console.log("Dispatch addItemToSummary:", {
+        console.log('Dispatch addItemToSummary:', {
             id: item.id,
             weight,
-            mealTypeId: 1011,
+            mealTypeId: 1,
         });
 
         onClose();
@@ -56,15 +56,13 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
 
     return (
         <div className="modal-overlay">
-            <div className={`modal-card ${expanded ? "modal-expanded" : ""}`}>
+            <div className={`modal-card ${expanded ? 'modal-expanded' : ''}`}>
                 <h2 className="modal-title">{item.name}</h2>
 
                 <div className="modal-section">
                     <div className="modal-row">
                         <span className="modal-label">Calories:</span>
-                        <span className="modal-value">
-                            {item.calories ? `${item.calories} ccal/100g` : "N/A"}
-                        </span>
+                        <span className="modal-value">{item.calories ? `${item.calories} ccal/100g` : 'N/A'}</span>
                     </div>
                     <div className="modal-row">
                         <span className="modal-label">Proteins:</span>
@@ -79,14 +77,14 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
                         <span className="modal-value">{item.carbs} g</span>
                     </div>
 
-                    {item.description && (
-                        <p className="modal-description">{item.description}</p>
-                    )}
+                    {item.description && <p className="modal-description">{item.description}</p>}
                 </div>
 
                 {!expanded ? (
                     <div className="modal-buttons">
-                        <button className="btn-add" onClick={handleExpand}>Add</button>
+                        <button className="btn-add" onClick={handleExpand}>
+                            Add
+                        </button>
                         <button className="btn-delete">Delete</button>
                     </div>
                 ) : (
@@ -96,7 +94,7 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
                             className="input-weight"
                             placeholder="Enter weight in grams"
                             value={weight}
-                            onChange={(e) => setWeight(Number(e.target.value))}
+                            onChange={e => setWeight(Number(e.target.value))}
                         />
 
                         <button className="btn-confirm" onClick={handleConfirmAdd}>
@@ -105,7 +103,9 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
                     </div>
                 )}
 
-                <button className="modal-close" onClick={onClose}>x</button>
+                <button className="modal-close" onClick={onClose}>
+                    x
+                </button>
             </div>
         </div>
     );

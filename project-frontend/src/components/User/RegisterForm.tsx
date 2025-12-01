@@ -6,8 +6,10 @@ import { fetchCoefStart } from '../../store/coef/coefSlice';
 import { fetchDietsStart } from '../../store/diets/dietSlice';
 import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import type { AppDispatch } from '../../store/store';
-import "../../../css/regist-login.css";
+import '../../../css/regist-login.css';
 import { useAppSelector } from '../../hooks/redux';
+import { useFetchDiets_ActCoefsData } from '../../hooks/fetchDiets&ActCoefs';
+import { fetchUserDetails } from '../../store/reducers/userSlice';
 
 interface RegisterFormData {
     email: string;
@@ -21,21 +23,15 @@ interface RegisterFormData {
 }
 
 const RegisterForm: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
-    const { data: coefs } = useSelector((state: RootState) => state.coefReducer);
-    const { data: diets } = useSelector((state: RootState) => state.dietReducer);
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
-
+    const diets_coefs = useFetchDiets_ActCoefsData();
+    const coefs = diets_coefs.activityCoefs.data;
+    const diets = diets_coefs.diets.data;
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<RegisterFormData>();
-
-    useEffect(() => {
-        dispatch(fetchCoefStart());
-        dispatch(fetchDietsStart());
-    }, [dispatch]);
 
     const onSubmit = async (data: RegisterFormData) => {
         const registerMutation = `
@@ -87,23 +83,21 @@ const RegisterForm: React.FC = () => {
     };
 
     return (
-        <div className={`main-page ${darkTheme ? "dark-theme" : ""}`}>
+        <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
             <div className="main-container login-container">
-
                 <h1 className="login-title">User Registration</h1>
 
                 <form onSubmit={handleSubmit(onSubmit)} noValidate className="login-form">
-
                     <div className="form-row">
                         <label className="form-label-custom">Email</label>
                         <input
                             type="email"
-                            className={`form-input-custom ${errors.email ? "invalid-input" : ""}`}
-                            {...register("email", {
-                                required: "Email is required",
+                            className={`form-input-custom ${errors.email ? 'invalid-input' : ''}`}
+                            {...register('email', {
+                                required: 'Email is required',
                                 pattern: {
                                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                    message: "Invalid email format",
+                                    message: 'Invalid email format',
                                 },
                             })}
                         />
@@ -114,8 +108,8 @@ const RegisterForm: React.FC = () => {
                         <label className="form-label-custom">Username</label>
                         <input
                             type="text"
-                            className={`form-input-custom ${errors.username ? "invalid-input" : ""}`}
-                            {...register("username", { required: "Username is required" })}
+                            className={`form-input-custom ${errors.username ? 'invalid-input' : ''}`}
+                            {...register('username', { required: 'Username is required' })}
                         />
                         {errors.username && <p className="error-text">{errors.username.message}</p>}
                     </div>
@@ -124,10 +118,10 @@ const RegisterForm: React.FC = () => {
                         <label className="form-label-custom">Password</label>
                         <input
                             type="password"
-                            className={`form-input-custom ${errors.password ? "invalid-input" : ""}`}
-                            {...register("password", {
-                                required: "Password is required",
-                                minLength: { value: 6, message: "Password must be at least 6 characters" },
+                            className={`form-input-custom ${errors.password ? 'invalid-input' : ''}`}
+                            {...register('password', {
+                                required: 'Password is required',
+                                minLength: { value: 6, message: 'Password must be at least 6 characters' },
                             })}
                         />
                         {errors.password && <p className="error-text">{errors.password.message}</p>}
@@ -137,8 +131,8 @@ const RegisterForm: React.FC = () => {
                         <label className="form-label-custom">Birthdate</label>
                         <input
                             type="date"
-                            className={`form-input-custom ${errors.age ? "invalid-input" : ""}`}
-                            {...register("age", { required: "Birthdate is required" })}
+                            className={`form-input-custom ${errors.age ? 'invalid-input' : ''}`}
+                            {...register('age', { required: 'Birthdate is required' })}
                         />
                         {errors.age && <p className="error-text">{errors.age.message}</p>}
                     </div>
@@ -148,10 +142,10 @@ const RegisterForm: React.FC = () => {
                         <input
                             type="number"
                             step="0.1"
-                            className={`form-input-custom ${errors.weight ? "invalid-input" : ""}`}
-                            {...register("weight", {
-                                required: "Weight is required",
-                                min: { value: 1, message: "Weight must be positive" },
+                            className={`form-input-custom ${errors.weight ? 'invalid-input' : ''}`}
+                            {...register('weight', {
+                                required: 'Weight is required',
+                                min: { value: 1, message: 'Weight must be positive' },
                             })}
                         />
                         {errors.weight && <p className="error-text">{errors.weight.message}</p>}
@@ -162,10 +156,10 @@ const RegisterForm: React.FC = () => {
                         <input
                             type="number"
                             step="0.1"
-                            className={`form-input-custom ${errors.height ? "invalid-input" : ""}`}
-                            {...register("height", {
-                                required: "Height is required",
-                                min: { value: 1, message: "Height must be positive" },
+                            className={`form-input-custom ${errors.height ? 'invalid-input' : ''}`}
+                            {...register('height', {
+                                required: 'Height is required',
+                                min: { value: 1, message: 'Height must be positive' },
                             })}
                         />
                         {errors.height && <p className="error-text">{errors.height.message}</p>}
@@ -174,11 +168,11 @@ const RegisterForm: React.FC = () => {
                     <div className="form-row">
                         <label className="form-label-custom">Activity Coefficient</label>
                         <select
-                            className={`form-select-custom ${errors.activityCoefId ? "invalid-input" : ""}`}
-                            {...register("activityCoefId", { required: "Please select activity" })}
+                            className={`form-select-custom ${errors.activityCoefId ? 'invalid-input' : ''}`}
+                            {...register('activityCoefId', { required: 'Please select activity' })}
                         >
                             <option value="">Select...</option>
-                            {coefs.map((c) => (
+                            {coefs.map(c => (
                                 <option key={c.id} value={c.id}>
                                     {c.name} ({c.value})
                                 </option>
@@ -190,11 +184,11 @@ const RegisterForm: React.FC = () => {
                     <div className="form-row">
                         <label className="form-label-custom">Diet Type</label>
                         <select
-                            className={`form-select-custom ${errors.dietId ? "invalid-input" : ""}`}
-                            {...register("dietId", { required: "Please select diet" })}
+                            className={`form-select-custom ${errors.dietId ? 'invalid-input' : ''}`}
+                            {...register('dietId', { required: 'Please select diet' })}
                         >
                             <option value="">Select...</option>
-                            {diets.map((d) => (
+                            {diets.map(d => (
                                 <option key={d.id} value={d.id}>
                                     {d.name}
                                 </option>
@@ -203,12 +197,13 @@ const RegisterForm: React.FC = () => {
                         {errors.dietId && <p className="error-text">{errors.dietId.message}</p>}
                     </div>
 
-                    <button type="submit" className="confirm-btn submit-btn">Register</button>
+                    <button type="submit" className="confirm-btn submit-btn">
+                        Register
+                    </button>
                 </form>
             </div>
         </div>
     );
-
 };
 
 export default RegisterForm;
