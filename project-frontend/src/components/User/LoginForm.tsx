@@ -94,6 +94,12 @@ const LoginForm: React.FC = () => {
                     <button type="submit" className="confirm-btn submit-btn" disabled={isSubmitting}>
                         {isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
+
+                    <div className="login-redirect">
+                        <a href="/register" className="login-link">
+                            Don't have an account?
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>

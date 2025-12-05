@@ -40,7 +40,7 @@ import { fetchDietsEpic } from './dietEpic';
 import { addItemToSummaryEpic } from './summaryEpic';
 import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import toCamelCase from '../../hooks/toCamelCase';
+//import toCamelCase from '../../hooks/toCamelCase';
 
 interface GetUserResponse {
     getDetails: {
