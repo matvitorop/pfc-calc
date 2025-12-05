@@ -4,7 +4,7 @@ import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import ItemDetailsModal from './ItemDetailsModal';
 import '../../../css/searchItem.css';
 import CreateItemModal from './CreateItemModal';
-
+import { type MealType } from '../../store/reducers/mealTypeSlice';
 interface ItemFull {
     id: number;
     userId: number;
@@ -50,8 +50,11 @@ const getItemByIdQuery = `
     }
   }
 `;
+interface SearchItemProps {
+    mealTypes: MealType[];
+}
 
-const SearchItem: React.FC = () => {
+const SearchItem: React.FC<SearchItemProps> = ({ mealTypes }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [results, setResults] = useState<ItemShort[]>([]);
     const [loading, setLoading] = useState(false);
@@ -154,7 +157,15 @@ const SearchItem: React.FC = () => {
 
             {modalLoading && <div className="search-loading">Loading item...</div>}
 
-            {selectedItem && <ItemDetailsModal item={selectedItem} onClose={() => setSelectedItem(null)} onAdd={() => {}} onDelete={() => {}} />}
+            {selectedItem && (
+                <ItemDetailsModal
+                    item={selectedItem}
+                    mealTypes={mealTypes}
+                    onClose={() => setSelectedItem(null)}
+                    onAdd={() => { }}
+                    onDelete={() => { }}
+                />
+            )}
 
             {showCreateModal && <CreateItemModal onClose={() => setShowCreateModal(false)} />}
         </div>

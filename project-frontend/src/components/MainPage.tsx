@@ -162,14 +162,18 @@ const MainPage: FC = () => {
     const [showAddMeal, setShowAddMeal] = useState(false);
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     // ===================    food lists ===============================
-    const [openFoodList, setOpenFoodList] = useState<FoodList[] | null>(
-        mealsInfo.meals.mealTypes.map(el => {
-            return {
+    const [openFoodList, setOpenFoodList] = useState<FoodList[] | null>(null);
+
+    useEffect(() => {
+    if (mealsInfo.meals.mealTypes.length > 0) {
+        setOpenFoodList(
+            mealsInfo.meals.mealTypes.map(el => ({
                 id: el.id,
                 isShown: false,
-            };
-        }),
-    );
+            }))
+        );
+    }
+    }, [mealsInfo.meals.mealTypes]);
 
     const handleShowFoodList = (id: number) => {
         setOpenFoodList(prev => prev && prev.map(item => (item.id === id ? { ...item, isShown: !item.isShown } : item)));
@@ -316,7 +320,7 @@ const MainPage: FC = () => {
                             <Plus size={20} />
                         </button>
                     </div>
-                    <SearchItem />
+                    <SearchItem mealTypes={mealsInfo.meals.mealTypes} />
                     {showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />}
                     <div className="meals-list">
                         {mealsInfo.meals.mealTypes &&
