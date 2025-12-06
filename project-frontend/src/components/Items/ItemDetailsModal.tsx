@@ -16,17 +16,23 @@ interface ItemDetailsProps {
         calories: number;
     };
     mealTypes: MealType[];
+    /*QUICK MODAL CHENGES*/
+    defaultMealTypeId?: number;
     onClose: () => void;
     onAdd: (id: number) => void;
     onDelete: (id: number) => void;
 }
 
-const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, onClose }) => {
+const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, defaultMealTypeId, onClose }) => {
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState(false);
     const [weightRaw, setWeightRaw] = useState<string>("");
     const [weight, setWeight] = useState<number>(0);
-    const [mealTypeId, setMealTypeId] = useState<number>(mealTypes[0]?.id ?? 1);
+    /*QUICK MODAL CHENGES*/
+    const [mealTypeId, setMealTypeId] = useState<number>(
+        defaultMealTypeId ?? mealTypes[0]?.id ?? 1
+    );
+
 
     const handleExpand = () => setExpanded(true);
 
@@ -97,6 +103,8 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, onClose
                             <select
                                 className="meal-select"
                                 value={mealTypeId}
+                                /*QUICK MODAL CHENGES*/
+                                disabled={!!defaultMealTypeId}
                                 onChange={e => setMealTypeId(Number(e.target.value))}
                             >
                                 {mealTypes.map(mt => (

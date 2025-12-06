@@ -52,9 +52,13 @@ const getItemByIdQuery = `
 `;
 interface SearchItemProps {
     mealTypes: MealType[];
+    /*QUICK MODAL CHENGES*/
+    defaultMealTypeId?: number;
+    disableCreate?: boolean;
+    onClose?: () => void;
 }
-
-const SearchItem: React.FC<SearchItemProps> = ({ mealTypes }) => {
+/*QUICK MODAL CHENGES*/
+const SearchItem: React.FC<SearchItemProps> = ({ mealTypes, defaultMealTypeId, disableCreate, onClose }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [results, setResults] = useState<ItemShort[]>([]);
     const [loading, setLoading] = useState(false);
@@ -130,9 +134,11 @@ const SearchItem: React.FC<SearchItemProps> = ({ mealTypes }) => {
                     onFocus={() => results.length > 0 && setOpen(true)}
                 />
 
-                <button className="add-item-btn" onClick={() => setShowCreateModal(true)}>
-                    +
-                </button>
+                {!disableCreate && (
+                    <button className="add-item-btn" onClick={() => setShowCreateModal(true)}>
+                        +
+                    </button>
+                )}
             </div>
 
             {loading && <div className="search-loading">Loading...</div>}
@@ -156,12 +162,16 @@ const SearchItem: React.FC<SearchItemProps> = ({ mealTypes }) => {
             )}
 
             {modalLoading && <div className="search-loading">Loading item...</div>}
-
+            { /*QUICK MODAL CHENGES*/ }
             {selectedItem && (
                 <ItemDetailsModal
                     item={selectedItem}
                     mealTypes={mealTypes}
-                    onClose={() => setSelectedItem(null)}
+                    defaultMealTypeId={defaultMealTypeId} 
+                    onClose={() => {
+                        setSelectedItem(null);
+                        if (onClose) onClose();
+                    }}
                     onAdd={() => { }}
                     onDelete={() => { }}
                 />

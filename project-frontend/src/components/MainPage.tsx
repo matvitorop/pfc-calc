@@ -164,6 +164,7 @@ const MainPage: FC = () => {
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     // ===================    food lists ===============================
     const [openFoodList, setOpenFoodList] = useState<FoodList[] | null>(null);
+    const [quickAddMealId, setQuickAddMealId] = useState<number | null>(null);
 
     useEffect(() => {
     if (mealsInfo.meals.mealTypes.length > 0) {
@@ -364,7 +365,15 @@ const MainPage: FC = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
+                                        {/*QUICK MODAL CHENGES*/}
+                                        <button
+                                            className="meal-add-btn"
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                setQuickAddMealId(meal.id);
+                                            }}
+                                            aria-label={`Add ${meal.name}`}
+                                        >
                                             <Plus size={24} />
                                         </button>
                                     </div>
@@ -390,6 +399,22 @@ const MainPage: FC = () => {
                                                   ))
                                             : ''}
                                     </div>
+                                    {/*QUICK MODAL CHENGES*/}
+                                    {quickAddMealId !== null && (
+                                        <div className="modal-overlay" onClick={() => setQuickAddMealId(null)}>
+                                            <div
+                                                className="modal-card"
+                                                onClick={e => e.stopPropagation()}
+                                            >
+                                                <SearchItem
+                                                    mealTypes={mealsInfo.meals.mealTypes}
+                                                    defaultMealTypeId={quickAddMealId}
+                                                    disableCreate={true}
+                                                    onClose={() => setQuickAddMealId(null)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                     </div>
