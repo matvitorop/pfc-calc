@@ -45,17 +45,42 @@ const summarySlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         },
+
+        deleteItemFromSummary: (state, action: PayloadAction<number>) => {
+            //state.loading = true;
+            state.error = null;
+        },
+        deleteItemFromSummarySuccess: (state, action: PayloadAction<number>) => {
+            //state.loading = false;
+            if (state.data) {
+                state.data = state.data.filter(item => item.id !== action.payload);
+            }
+        },
+        deleteItemFromSummaryFailure: (state, action: PayloadAction<string>) => {
+            //state.loading = false;
+            state.error = action.payload;
+        },
     },
 });
 
 export const {
+    // fetching
     fetchSummary,
     fetchSummarySuccess,
     fetchSummaryFailure,
+
+    // clearing
     clearSummary,
+
+    // adding
     addItemToSummary,
     addItemToSummarySuccess,
     addItemToSummaryFailure,
+
+    // deleting
+    deleteItemFromSummary,
+    deleteItemFromSummarySuccess,
+    deleteItemFromSummaryFailure,
 } = summarySlice.actions;
 
 export default summarySlice.reducer;

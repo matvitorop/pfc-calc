@@ -13,6 +13,7 @@ import ErrorPage from './ErrorPage';
 import SearchItem from './Items/SearchItem';
 import type { Diet } from '../store/diets/dietSlice';
 import { DefaultValues } from '../store/types';
+import { deleteItemFromSummary } from '../store/reducers/summarySlice';
 import type { Days } from '../models/Days';
 
 interface MacroData {
@@ -380,7 +381,8 @@ const MainPage: FC = () => {
                                                               <span className="item-meal-foods__el">Carbs:{el.carbs}</span>
                                                               <span className="item-meal-foods__el">Cal:{el.calories}</span>
                                                               <span className="item-meal-foods__el">Measurement: {el.measurement}g</span>
-                                                              <button onClick={() => {}} className="item-meal-foods__del">
+                                                              <button onClick={() => dispatch(deleteItemFromSummary(el.id))}
+                                                                  className="item-meal-foods__del">
                                                                   <Trash2 size={16} />
                                                               </button>
                                                           </div>

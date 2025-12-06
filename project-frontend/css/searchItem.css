@@ -137,6 +137,9 @@
     justify-content: center;
     font-weight: 600;
     transition: background 0.2s ease;
+    /* TEST STYLES*/
+    padding-bottom: 4px;
+    padding-left: 1px;
 }
 
     .add-item-btn:hover {
