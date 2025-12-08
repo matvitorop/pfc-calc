@@ -122,30 +122,29 @@ const DELETE_NOTE = `
         }
     }
 `;
-console.log('✅✅✅ notesEpic.ts FILE LOADED ✅✅✅');
 //Epics
 // Epic 1: Fetch active notes
 export const fetchActiveNotesEpic: MyEpic = (action$) =>
     action$.pipe(
         ofType(fetchActiveNotesRequest.type),
         mergeMap(() => {
-            console.log('1️⃣ [Epic] Action received, starting fetch...');
+            console.log('1️[Epic] Action received, starting fetch...');
 
             return from(graphqlFetch<{ getActiveNotes: Note[] }>(GET_ACTIVE_NOTES)).pipe(
                 map((res) => {
-                    console.log('2️⃣ [Epic] Response received:', res);
+                    console.log('2️[Epic] Response received:', res);
 
                     if (res.errors) {
-                        console.error('3️⃣ [Epic] GraphQL errors:', res.errors);
+                        console.error('3️[Epic] GraphQL errors:', res.errors);
                         return fetchActiveNotesFailure(res.errors[0].message);
                     }
 
                     const notes = res.data?.getActiveNotes ?? [];
-                    console.log('4️⃣ [Epic] Returning success with notes:', notes);
+                    console.log('4️[Epic] Returning success with notes:', notes);
                     return fetchActiveNotesSuccess(notes);
                 }),
                 catchError((err) => {
-                    console.error('5️⃣ [Epic] Catch error:', err);
+                    console.error('5️[Epic] Catch error:', err);
                     return of(fetchActiveNotesFailure(err.message || 'Unknown error'));
                 })
             );

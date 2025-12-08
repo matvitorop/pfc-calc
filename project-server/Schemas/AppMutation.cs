@@ -54,9 +54,9 @@ namespace project_server.Schemas
                         userContext.HttpContext.Response.Cookies.Append("jwt", jwt, new CookieOptions
                         {
                             HttpOnly = true,
-                            Secure = false,
-                            SameSite = SameSiteMode.Strict,
-                            Expires = DateTimeOffset.UtcNow.AddHours(1)
+                            Secure = true,
+                            SameSite = SameSiteMode.None,
+                            Expires = DateTimeOffset.UtcNow.AddHours(10)
                         });
                     }
 
@@ -91,8 +91,8 @@ namespace project_server.Schemas
                             {
                                 HttpOnly = true,
                                 Secure = false,
-                                SameSite = SameSiteMode.Strict,
-                                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                                SameSite = SameSiteMode.None,
+                                Expires = DateTimeOffset.UtcNow.AddHours(10)
                             });
                         }
 
@@ -490,7 +490,7 @@ namespace project_server.Schemas
                 }
             });
 
-            Field<NotesType>("completeNote")
+            Field<NoteResponseType>("completeNote")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })

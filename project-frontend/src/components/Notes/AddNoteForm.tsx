@@ -12,10 +12,11 @@ const AddNoteForm: React.FC = () => {
         e.preventDefault();
 
         if (title.trim()) {
+            const dueDateISO = dueDate ? new Date(dueDate).toISOString() : undefined;
             dispatch(
                 addNoteRequest({
                     title: title.trim(),
-                    dueDate: dueDate || undefined,
+                    dueDate: dueDateISO
                 })
             );
 

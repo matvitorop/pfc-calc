@@ -7,6 +7,7 @@ import {
 import ActiveNotes from './ActiveNotes';
 import CompletedNotes from './CompletedNotes';
 import AddNoteForm from './AddNoteForm';
+import NotifNote from "./NotifNote"; //need connect
 
 const NotesPage: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -14,9 +15,19 @@ const NotesPage: React.FC = () => {
     const { activeNotes, completedNotes, loading, error } = useAppSelector(
         (state) => state.notesReducer
     );
+    const isDarkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
 
     const [newNoteTitle, setNewNoteTitle] = useState('');
     const [showCompleted, setShowCompleted] = useState(false);
+    const [notif, setNotif] = useState({ //NEED THINK 06.12.25
+        show: false,
+        message: "",
+        type: "success" as "success" | "error"
+    });
+
+    const showNotif = (message: string, type: "success" | "error") => {
+        setNotif({ show: true, message, type });
+    };
     
     useEffect(() => {
         console.log('🎨 [Component] Initial state:', { activeNotes, loading, error });

@@ -32,7 +32,7 @@ const LoginForm: React.FC = () => {
             }>(
                 loginMutation,
                 { email: data.email, password: data.password },
-                true
+                true//maybe false for test (coockies off)
             );
 
             if (res.errors) {

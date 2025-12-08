@@ -8,7 +8,7 @@ const GRAPHQL_API_URL = 'https://localhost:7049/graphql';
 export const graphqlFetch = async <T>(
     query: string,
     variables: Record<string, unknown> = {},
-    allowCredentials: boolean = false,
+    allowCredentials: boolean = true, //were false
 ): Promise<fetchResponse<T>> => {
     const response = await fetch(GRAPHQL_API_URL, {
         method: 'POST',

@@ -26,10 +26,10 @@ const CompletedNotes: React.FC = () => {
         const today = new Date();
 
         if (date.toDateString() === today.toDateString()) {
-            return 'Completed today';
+            return '  Completed today';
         }
 
-        return `Completed on ${date.toLocaleDateString('en-US', {
+        return `  Completed on ${date.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
         })}`;
