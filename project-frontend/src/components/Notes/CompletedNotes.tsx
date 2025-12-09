@@ -4,22 +4,27 @@ import {
     restoreNoteRequest,
     deleteNoteRequest,
 } from '../../store/reducers/notesSlice';
+interface CompletedNotesProps {
+    showNotif: (message: string, type: "success" | "error") => void;
+}
 
-const CompletedNotes: React.FC = () => {
+const CompletedNotes: React.FC<CompletedNotesProps> = ({showNotif}) => {
     const dispatch = useAppDispatch();
     const { completedNotes } = useAppSelector((state) => state.notesReducer);
 
     const handleRestore = (noteId: number) => {
         dispatch(restoreNoteRequest(noteId));
+        showNotif('Task restored!', 'success');
     };
 
     const handleDelete = (noteId: number) => {
         if (window.confirm('Are you sure you want to delete this note?')) {
             dispatch(deleteNoteRequest(noteId));
+            showNotif('Task deleted', 'success');
         }
     };
 
-    // Форматування дати завершення
+    // formatting completed date
     const formatCompletedDate = (dateString: string | null) => {
         if (!dateString) return null;
         const date = new Date(dateString);
@@ -57,7 +62,6 @@ const CompletedNotes: React.FC = () => {
             <div className="notes-list">
                 {completedNotes.map((note) => (
                     <div key={note.id} className="note-item completed">
-                        {/* Checkbox (завершений) */}
                         <button
                             className="complete-btn"
                             onClick={() => handleRestore(note.id)}
@@ -67,8 +71,7 @@ const CompletedNotes: React.FC = () => {
                                 <span className="checkmark">✓</span>
                             </div>
                         </button>
-
-                        {/* Контент нотатки */}
+                        
                         <div className="note-content">
                             <span className="note-title completed-text">
                                 {note.title}
@@ -81,7 +84,6 @@ const CompletedNotes: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Кнопка видалення */}
                         <button
                             className="delete-btn"
                             onClick={() => handleDelete(note.id)}

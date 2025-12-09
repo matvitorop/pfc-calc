@@ -4,23 +4,28 @@ import {
     completeNoteRequestStarted,
     deleteNoteRequest,
 } from '../../store/reducers/notesSlice';
-
-const ActiveNotes: React.FC = () => {
+interface ActiveNotesProps {
+    showNotif: (message: string, type: "success" | "error") => void;
+}
+const ActiveNotes: React.FC<ActiveNotesProps> = ({showNotif}) => {
     const dispatch = useAppDispatch();
     const { activeNotes } = useAppSelector((state) => state.notesReducer);
 
     const handleComplete = (noteId: number) => {
         dispatch(completeNoteRequestStarted(noteId));
+        showNotif('Task completed!', 'success');
         //require fetch
     };
 
     const handleDelete = (noteId: number) => {
         if (window.confirm('Are you sure you want to delete this note?')) {
             dispatch(deleteNoteRequest(noteId));
+            showNotif('Task deleted', 'success');
+
         }
     };
 
-    // Форматування дати
+    // formatting data
     const formatDate = (dateString: string | null) => {
         if (!dateString) return null;
         const date = new Date(dateString);
@@ -40,7 +45,7 @@ const ActiveNotes: React.FC = () => {
         });
     };
 
-    // Перевірка чи прострочена нотатка
+    // check overdue notes
     const isOverdue = (dateString: string | null) => {
         if (!dateString) return false;
         return new Date(dateString) < new Date();
@@ -66,7 +71,6 @@ const ActiveNotes: React.FC = () => {
                         key={note.id}
                         className={`note-item ${isOverdue(note.dueDate) ? 'overdue' : ''}`}
                     >
-                        {/* Checkbox для завершення */}
                         <button
                             className="complete-btn"
                             onClick={() => handleComplete(note.id)}
@@ -77,7 +81,6 @@ const ActiveNotes: React.FC = () => {
                             </div>
                         </button>
 
-                        {/* Контент нотатки */}
                         <div className="note-content">
                             <span className="note-title">{note.title}</span>
 
@@ -92,7 +95,6 @@ const ActiveNotes: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Кнопка видалення */}
                         <button
                             className="delete-btn"
                             onClick={() => handleDelete(note.id)}

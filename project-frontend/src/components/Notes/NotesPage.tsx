@@ -1,17 +1,23 @@
 ﻿import React, { useEffect, useState } from 'react';
+import { ChevronLeft, ListTodo } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import {
     fetchActiveNotesRequest,
     fetchCompletedNotesRequest,
+    addNoteRequest,
+    completeNoteRequestStarted,
+    restoreNoteRequest,
+    deleteNoteRequest,
 } from '../../store/reducers/notesSlice';
 import ActiveNotes from './ActiveNotes';
 import CompletedNotes from './CompletedNotes';
 import AddNoteForm from './AddNoteForm';
-import NotifNote from "./NotifNote"; //need connect
+import NotifNote from "./NotifNote";
+
 
 const NotesPage: React.FC = () => {
     const dispatch = useAppDispatch();
-    // ✅ Деструктуризуємо state
+    //state
     const { activeNotes, completedNotes, loading, error } = useAppSelector(
         (state) => state.notesReducer
     );
@@ -19,7 +25,8 @@ const NotesPage: React.FC = () => {
 
     const [newNoteTitle, setNewNoteTitle] = useState('');
     const [showCompleted, setShowCompleted] = useState(false);
-    const [notif, setNotif] = useState({ //NEED THINK 06.12.25
+    const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
+    const [notif, setNotif] = useState({
         show: false,
         message: "",
         type: "success" as "success" | "error"
@@ -30,15 +37,15 @@ const NotesPage: React.FC = () => {
     };
     
     useEffect(() => {
-        console.log('🎨 [Component] Initial state:', { activeNotes, loading, error });
+        console.log(' [Component] Initial state:', { activeNotes, loading, error });
     }, []);
 
     useEffect(() => {
-        console.log('🎨 [Component] State updated:', { activeNotes, loading, error });
+        console.log(' [Component] State updated:', { activeNotes, loading, error });
     }, [activeNotes, loading, error]);
 
     useEffect(() => {
-        console.log('🚀 [Component] Dispatching fetch...');
+        console.log('[Component] Dispatching fetch...');
         dispatch(fetchActiveNotesRequest());
         dispatch(fetchCompletedNotesRequest());
     }, [dispatch]);
@@ -47,36 +54,58 @@ const NotesPage: React.FC = () => {
     }
 
     return (
-        <div className="notes-page">
-        <div className="notes-container">
-        <h1 className="notes-title">My Notes</h1>
+        <div className={`notes-page ${isDarkTheme ? 'dark-theme' : ''}`}>
+            <div className="notes-container">
+                <div className="notes-header">
+                    <button className="notes-back-btn" aria-label="Go back">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <h1 className="notes-header-title">
+                        <ListTodo size={24} />
+                        Tasks
+                    </h1>
+                </div>
 
-    {/* Форма додавання */}
-    <AddNoteForm />
+                <div className="notes-add-section">
+                    <AddNoteForm showNotif={showNotif} />
+                </div>
 
-    {/* Повідомлення про помилку */}
-    {error && (
-        <div className="error-message">
-            <span>❌ {error}</span>
-    </div>
-    )}
+                <div className="notes-tabs">
+                    <button
+                        className={`notes-tab ${activeTab === 'active' ? 'notes-tab-active' : ''}`}
+                        onClick={() => setActiveTab('active')}
+                    >
+                        Active ({activeNotes.length})
+                    </button>
+                    <button
+                        className={`notes-tab ${activeTab === 'completed' ? 'notes-tab-active' : ''}`}
+                        onClick={() => setActiveTab('completed')}
+                    >
+                        Completed ({completedNotes.length})
+                    </button>
+                </div>
 
-    {/* Активні нотатки */}
-    <ActiveNotes />
-
-    {/* Кнопка показати/сховати завершені */}
-    <button
-    className="toggle-completed-btn"
-    onClick={() => setShowCompleted(!showCompleted)}
->
-    {showCompleted ? '🔼 Hide Completed' : '🔽 Show Completed'}
-    </button>
-
-    {/* Завершені нотатки */}
-    {showCompleted && <CompletedNotes />}
-    </div>
-    </div>
-);
+                <div className="notes-content">
+                    {activeTab === 'active' ? (
+                        <ActiveNotes
+                            showNotif={showNotif}
+                        />
+                    ) : (
+                        <CompletedNotes
+                            showNotif={showNotif}
+                        />
+                    )}
+                </div>
+                
+                {notif.show && (
+                    <NotifNote
+                        message={notif.message}
+                        type={notif.type}
+                        onClose={() => setNotif({ ...notif, show: false })}
+                    />
+                )}
+            </div>
+        </div>
+    );
 };
-
 export default NotesPage;

@@ -1,8 +1,13 @@
 ﻿import React, { useState } from 'react';
+import { Plus, Calendar, X } from 'lucide-react';
 import { useAppDispatch } from '../../hooks/redux';
 import { addNoteRequest } from '../../store/reducers/notesSlice';
 
-const AddNoteForm: React.FC = () => {
+interface AddNoteFormProps {
+    showNotif: (message: string, type: 'success' | 'error') => void;
+}
+
+const AddNoteForm: React.FC<AddNoteFormProps> = ({ showNotif }) => {
     const dispatch = useAppDispatch();
     const [title, setTitle] = useState('');
     const [dueDate, setDueDate] = useState('');
@@ -11,68 +16,80 @@ const AddNoteForm: React.FC = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (title.trim()) {
-            const dueDateISO = dueDate ? new Date(dueDate).toISOString() : undefined;
-            dispatch(
-                addNoteRequest({
-                    title: title.trim(),
-                    dueDate: dueDateISO
-                })
-            );
+        if (!title.trim()) return;
 
-            // Очистити форму
-            setTitle('');
-            setDueDate('');
-            setShowDatePicker(false);
-        }
+        const dueDateISO = dueDate ? new Date(dueDate).toISOString() : undefined;
+
+        dispatch(
+            addNoteRequest({
+                title: title.trim(),
+                dueDate: dueDateISO
+            })
+        );
+
+        showNotif('Task added successfully!', 'success');
+
+        setTitle('');
+        setDueDate('');
+        setShowDatePicker(false);
     };
 
+    const clearDate = () => {
+        setDueDate('');
+        setShowDatePicker(false);
+    };
+
+    const today = new Date().toISOString().split('T')[0];
+
     return (
-        <form className="add-note-form" onSubmit={handleSubmit}>
-            <div className="input-group">
+        <form onSubmit={handleSubmit} className="note-add-form">
+            <div className="note-add-wrapper">
                 <input
                     type="text"
-                    className="note-input"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Add a new note..."
-                    maxLength={100}
+                    placeholder="Add a new task..."
+                    className="note-add-input"
+                    autoFocus
                 />
 
-                <button
-                    type="button"
-                    className="date-toggle-btn"
-                    onClick={() => setShowDatePicker(!showDatePicker)}
-                    title="Add due date"
-                >
-                    📅
-                </button>
-
-                <button type="submit" className="add-btn" disabled={!title.trim()}>
-                    ➕ Add
-                </button>
-            </div>
-
-            {showDatePicker && (
-                <div className="date-picker">
-                    <input
-                        type="date"
-                        className="date-input"
-                        value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]} // Мінімум сьогодні
-                    />
-                    {dueDate && (
+                <div className="note-add-actions">
+                    {!showDatePicker ? (
                         <button
                             type="button"
-                            className="clear-date-btn"
-                            onClick={() => setDueDate('')}
+                            className="note-add-btn-icon"
+                            onClick={() => setShowDatePicker(true)}
                         >
-                            Clear
+                            <Calendar size={20} />
                         </button>
+                    ) : (
+                        <div className="note-add-date-wrapper">
+                            <input
+                                type="date"
+                                className="note-add-date-input"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                min={today}
+                            />
+                            <button
+                                type="button"
+                                className="note-add-btn-clear"
+                                onClick={clearDate}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
                     )}
+
+                    <button
+                        type="submit"
+                        className="note-add-btn-submit"
+                        disabled={!title.trim()}
+                    >
+                        <Plus size={20} />
+                    </button>
                 </div>
-            )}
+            </div>
         </form>
     );
 };

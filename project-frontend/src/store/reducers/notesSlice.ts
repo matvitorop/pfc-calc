@@ -6,48 +6,10 @@ export interface NotesState {
     loading: boolean;
     error: string | null;
 }
-/* id: number;
-    userId: number;
-    title: string;
-    dueDate: string | null;
-    isCompleted: boolean;
-    completedDate: string | null;*/
 
 const initialState: NotesState = {
-    activeNotes: [
-        /*{
-            id: 3,
-            userId: 1,
-            title: "Buy groceriesTest",
-            dueDate: new Date('2024-12-20').toISOString(),  // ✅ ISO string
-            isCompleted: false,
-            completedDate: null,
-        },
-        {
-            id: 4,
-            userId: 1,
-            title: "Finish homeworkTest",
-            dueDate: new Date('2024-12-22').toISOString(),
-            isCompleted: false,
-            completedDate: null,
-        },
-        {
-            id: 5,
-            userId: 1,
-            title: "Call dentistTest",
-            dueDate: null,  // ✅ Може бути null
-            isCompleted: false,
-            completedDate: null,
-        },*/
-    ],
-    completedNotes: [/*{
-        id: 6,
-        userId: 1,
-        title: "Submit assignmentTest",
-        dueDate: new Date('2024-12-15').toISOString(),
-        isCompleted: true,
-        completedDate: new Date('2024-12-15T14:30:00').toISOString(),  // ✅ Коли виконано
-    },*/],
+    activeNotes: [],
+    completedNotes: [],
     loading: false,
     error: null,
 };
