@@ -62,7 +62,7 @@
 }
 
 .notes-back-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f3f4f6;
 }
 
 .notes-page.dark-theme .notes-back-btn {
@@ -70,7 +70,7 @@
 }
 
 .notes-page.dark-theme .notes-back-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .notes-header-title {
@@ -198,7 +198,7 @@
 
 .note-add-btn-icon:hover,
 .note-add-btn-clear:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f3f4f6;
     color: #374151;
 }
 
@@ -209,7 +209,7 @@
 
 .notes-page.dark-theme .note-add-btn-icon:hover,
 .notes-page.dark-theme .note-add-btn-clear:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
     color: #f9fafb;
 }
 
@@ -365,7 +365,7 @@
 }
 
 .note-item-overdue {
-    border-color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.05);
     background-color: #fef2f2;
 }
 
@@ -455,7 +455,7 @@
 }
 
 .note-delete:hover {
-    background-color: #fef2f2;
+    background-color: rgba(239, 68, 68, 0.05);
     color: #ef4444;
 }
 
