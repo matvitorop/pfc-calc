@@ -1,6 +1,7 @@
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { FormData } from './UpdateUserModal';
+import { useAppSelector } from '../hooks/redux';
 interface UpdateMealModalProps {
     id: number;
     label: string;
@@ -10,6 +11,7 @@ interface UpdateMealModalProps {
 }
 
 const UpdateMealModal: FC<UpdateMealModalProps> = ({ id, label, initialValue, onClose, onSave }) => {
+    const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
     // const [value, setValue] = useState(initialValue.toString());
     const {
         register,
@@ -30,8 +32,8 @@ const UpdateMealModal: FC<UpdateMealModalProps> = ({ id, label, initialValue, on
         setValue('value', initialValue.toString());
     }, [initialValue, setValue]);
     return (
-        <div className="modal-overlay">
-            <div className="modal">
+        <div className={`modal-overlay ${darkTheme ? 'dark-theme' : ''}`}>
+            <div className={`modal ${darkTheme ? 'dark-theme' : ''}`}>
                 <h2>Edit {label}</h2>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <input

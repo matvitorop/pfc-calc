@@ -8,5 +8,5 @@ export interface User {
     activityCoefId: number;
     dietId: number;
     caloriesStandard: number;
-    VisitsStreak: number;
+    visitsStreak: number;
 }

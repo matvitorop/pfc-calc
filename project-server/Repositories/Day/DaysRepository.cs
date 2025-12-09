@@ -62,7 +62,7 @@ namespace project_server.Repositories.Day
             {
                 if (limit.HasValue && limit.Value > 0)
                 {
-                    sql = "SELECT TOP (@Limit) * FROM Days WHERE user_id = @UserId";
+                    sql = "SELECT TOP (@Limit) * FROM Days WHERE user_id = @UserId ORDER BY day DESC";
                     parameters = new { UserId = userId, Limit = limit.Value };
                 }
                 else
@@ -73,6 +73,24 @@ namespace project_server.Repositories.Day
             }
 
             return await db.QueryAsync<Days>(sql, parameters);
+        }
+
+        public async Task<IEnumerable<Days?>> GetUniqueDaysAsync(int userId, int limit)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = @"SELECT * FROM (
+                SELECT *, 
+                       ROW_NUMBER() OVER (PARTITION BY CAST(day AS DATE) ORDER BY day DESC) as rn
+                FROM Days
+                WHERE user_id = 2
+            ) as numbered
+            WHERE rn = 1
+            ORDER BY day DESC
+            OFFSET 0 ROWS FETCH NEXT 2 ROWS ONLY";
+
+            return await db.QueryAsync<Days>(sql, new { UserId = userId, Limit = limit });
+            
         }
 
         public async Task<Days?> ChangeMeasurementDayAsync(int id, double measurement)
