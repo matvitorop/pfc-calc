@@ -86,9 +86,11 @@ const MainPage: FC = () => {
         if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
             return 0;
         }
-        return daysInfo.days.data
+        const result = daysInfo.days.data
             .filter(item => item.mealTypeId === mealId)
             .reduce((acc, item) => acc + (item.calories || 0) * (item.measurement / 100), 0);
+
+        return parseFloat(result.toFixed(1));
     };
 
     const openUpdateMealModal = (id: number, label: string, value: string) => {
@@ -120,7 +122,7 @@ const MainPage: FC = () => {
 
     const calorieData = useMemo<CalorieData>(
         () => ({
-            consumed: totals.calories,
+            consumed: parseFloat(totals.calories.toFixed(1)),
             goal: userInfo.user.data?.caloriesStandard || DefaultValues.CaloriesStandard,
             protein: {
                 current: parseFloat(totals.proteins.toFixed(2)),
