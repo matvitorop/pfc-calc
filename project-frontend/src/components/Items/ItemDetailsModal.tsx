@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addItemToSummary } from '../../store/reducers/summarySlice';
 import '../../../css/modalWindow.css';
+import { type MealType } from '../../store/reducers/mealTypeSlice';
 interface ItemDetailsProps {
     item: {
         id: number;
@@ -14,15 +15,24 @@ interface ItemDetailsProps {
         apiId: number;
         calories: number;
     };
+    mealTypes: MealType[];
+    /*QUICK MODAL CHENGES*/
+    defaultMealTypeId?: number;
     onClose: () => void;
     onAdd: (id: number) => void;
     onDelete: (id: number) => void;
 }
 
-const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
+const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, defaultMealTypeId, onClose }) => {
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState(false);
+    const [weightRaw, setWeightRaw] = useState<string>("");
     const [weight, setWeight] = useState<number>(0);
+    /*QUICK MODAL CHENGES*/
+    const [mealTypeId, setMealTypeId] = useState<number>(
+        defaultMealTypeId ?? mealTypes[0]?.id ?? 1
+    );
+
 
     const handleExpand = () => setExpanded(true);
 
@@ -30,7 +40,7 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
         dispatch(
             addItemToSummary({
                 day: new Date().toISOString(),
-                mealTypeId: 1,
+                mealTypeId: mealTypeId,
                 measurement: weight,
                 item: {
                     id: item.id,
@@ -48,7 +58,7 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
         console.log('Dispatch addItemToSummary:', {
             id: item.id,
             weight,
-            mealTypeId: 1,
+            mealTypeId: mealTypeId,
         });
 
         onClose();
@@ -88,14 +98,52 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, onClose }) => {
                         <button className="btn-delete">Delete</button>
                     </div>
                 ) : (
-                    <div className="expanded-section">
-                        <input
-                            type="number"
-                            className="input-weight"
-                            placeholder="Enter weight in grams"
-                            value={weight}
-                            onChange={e => setWeight(Number(e.target.value))}
-                        />
+                        <div className="expanded-section">
+
+                            <select
+                                className="meal-select"
+                                value={mealTypeId}
+                                /*QUICK MODAL CHENGES*/
+                                disabled={!!defaultMealTypeId}
+                                onChange={e => setMealTypeId(Number(e.target.value))}
+                            >
+                                {mealTypes.map(mt => (
+                                    <option key={mt.id} value={mt.id}>
+                                        {mt.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                className="input-weight"
+                                placeholder="Enter weight in grams"
+                                value={weightRaw}
+                                onChange={(e) => {
+                                    let raw = e.target.value;
+
+                                    if (raw === "") {
+                                        setWeightRaw("");
+                                        setWeight(0);
+                                        return;
+                                    }
+
+                                    raw = raw.replace(",", ".");
+
+                                    if (/^\d*\.?\d*$/.test(raw)) {
+                                        setWeightRaw(raw);
+
+                                        if (raw !== "." && raw !== ".0" && raw !== "0.") {
+                                            const num = Number(raw);
+                                            if (!isNaN(num)) {
+                                                setWeight(num);
+                                            }
+                                        }
+                                    }
+                                }}
+                            />
+
 
                         <button className="btn-confirm" onClick={handleConfirmAdd}>
                             Confirm Add

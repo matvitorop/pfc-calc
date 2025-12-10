@@ -37,9 +37,10 @@ import {
 } from '../reducers/mealTypeSlice';
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
-import { addItemToSummaryEpic } from './summaryEpic';
+import { addItemToSummaryEpic, deleteItemFromSummaryEpic } from './summaryEpic';
 import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
 import type { PayloadAction } from '@reduxjs/toolkit';
+//import toCamelCase from '../../hooks/toCamelCase';
 
 interface GetUserResponse {
     getDetails: {
@@ -466,4 +467,5 @@ export const rootEpic = combineEpics(
     createMealEpic,
     deleteMealEpic,
     addItemToSummaryEpic,
+    deleteItemFromSummaryEpic
 );

@@ -4,7 +4,7 @@ import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import ItemDetailsModal from './ItemDetailsModal';
 import '../../../css/searchItem.css';
 import CreateItemModal from './CreateItemModal';
-
+import { type MealType } from '../../store/reducers/mealTypeSlice';
 interface ItemFull {
     id: number;
     userId: number;
@@ -50,8 +50,15 @@ const getItemByIdQuery = `
     }
   }
 `;
-
-const SearchItem: React.FC = () => {
+interface SearchItemProps {
+    mealTypes: MealType[];
+    /*QUICK MODAL CHENGES*/
+    defaultMealTypeId?: number;
+    disableCreate?: boolean;
+    onClose?: () => void;
+}
+/*QUICK MODAL CHENGES*/
+const SearchItem: React.FC<SearchItemProps> = ({ mealTypes, defaultMealTypeId, disableCreate, onClose }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [results, setResults] = useState<ItemShort[]>([]);
     const [loading, setLoading] = useState(false);
@@ -127,9 +134,11 @@ const SearchItem: React.FC = () => {
                     onFocus={() => results.length > 0 && setOpen(true)}
                 />
 
-                <button className="add-item-btn" onClick={() => setShowCreateModal(true)}>
-                    +
-                </button>
+                {!disableCreate && (
+                    <button className="add-item-btn" onClick={() => setShowCreateModal(true)}>
+                        +
+                    </button>
+                )}
             </div>
 
             {loading && <div className="search-loading">Loading...</div>}
@@ -153,8 +162,20 @@ const SearchItem: React.FC = () => {
             )}
 
             {modalLoading && <div className="search-loading">Loading item...</div>}
-
-            {selectedItem && <ItemDetailsModal item={selectedItem} onClose={() => setSelectedItem(null)} onAdd={() => {}} onDelete={() => {}} />}
+            { /*QUICK MODAL CHENGES*/ }
+            {selectedItem && (
+                <ItemDetailsModal
+                    item={selectedItem}
+                    mealTypes={mealTypes}
+                    defaultMealTypeId={defaultMealTypeId} 
+                    onClose={() => {
+                        setSelectedItem(null);
+                        if (onClose) onClose();
+                    }}
+                    onAdd={() => { }}
+                    onDelete={() => { }}
+                />
+            )}
 
             {showCreateModal && <CreateItemModal onClose={() => setShowCreateModal(false)} />}
         </div>

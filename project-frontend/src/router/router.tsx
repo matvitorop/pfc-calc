@@ -15,8 +15,8 @@ export const router = createBrowserRouter([
         element: <PrivateRoute element={<MainPage />} />,
         errorElement: <ErrorPage />,
     },
-    { path: "/login", element: <AuthAccess element={<LoginForm />} /> },
     { path: "/register", element: <AuthAccess element={<RegisterForm />} /> },
+    { path: "/login", element: <AuthAccess element={<LoginForm />} /> },
     { path: "/profile", element: <PrivateRoute element={<ProfilePage />} /> },
     { path: "/reports", element: <PrivateRoute element={<ReportsPage />} /> },
 ]);

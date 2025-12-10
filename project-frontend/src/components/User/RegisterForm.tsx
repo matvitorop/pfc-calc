@@ -35,6 +35,8 @@ const RegisterForm: React.FC = () => {
         formState: { errors },
     } = useForm<RegisterFormData>();
 
+    const navigate = useNavigate();
+
     //useEffect(() => {
     //    dispatch(fetchCoefStart());
     //    dispatch(fetchDietsStart());
@@ -210,6 +212,12 @@ const RegisterForm: React.FC = () => {
                     <button type="submit" className="confirm-btn submit-btn">
                         Register
                     </button>
+
+                    <div className="login-redirect">
+                        <a href="/login" className="login-link">
+                            Have an account?
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
