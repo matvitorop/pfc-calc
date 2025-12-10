@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { createMeal, deleteMeal, updateMeal } from '../store/reducers/mealTypeSlice';
 import UpdateMealModal from './UpdateMealModal';
 import AddMealTypeForm from './AddMealTypeForm';
+import { deleteItemFromSummary } from '../store/reducers/summarySlice';
 import { useFetchMealTypes } from '../hooks/fetchMealTypes';
 import { useFetchSummary } from '../hooks/fetchSummary';
 import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
@@ -13,7 +14,6 @@ import ErrorPage from './ErrorPage';
 import SearchItem from './Items/SearchItem';
 import type { Diet } from '../store/diets/dietSlice';
 import { DefaultValues } from '../store/types';
-import { deleteItemFromSummary } from '../store/reducers/summarySlice';
 import type { Days } from '../models/Days';
 import { useNavigate } from 'react-router-dom';
 
@@ -176,14 +176,14 @@ const MainPage: FC = () => {
     const [quickAddMealId, setQuickAddMealId] = useState<number | null>(null);
 
     useEffect(() => {
-    if (mealsInfo.meals.mealTypes.length > 0) {
-        setOpenFoodList(
-            mealsInfo.meals.mealTypes.map(el => ({
-                id: el.id,
-                isShown: false,
-            }))
-        );
-    }
+        if (mealsInfo.meals.mealTypes.length > 0) {
+            setOpenFoodList(
+                mealsInfo.meals.mealTypes.map(el => ({
+                    id: el.id,
+                    isShown: false,
+                }))
+            );
+        }
     }, [mealsInfo.meals.mealTypes]);
 
     const handleShowFoodList = (id: number) => {
@@ -332,7 +332,7 @@ const MainPage: FC = () => {
                                 <Plus size={20} />
                             </button>
                         </div>
-                        <SearchItem mealTypes={mealsInfo.meals.mealTypes} />
+                        <SearchItem mealTypes={mealsInfo.meals.mealTypes} />    
                         {showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />}
                         <div className="meals-list">
                             {mealsInfo.meals.mealTypes &&
@@ -378,62 +378,54 @@ const MainPage: FC = () => {
                                                     )}
                                                 </div>
                                             </div>
-                                            <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
+                                            <button
+                                                className="meal-add-btn"
+                                                onClick={e => {
+                                                    e.stopPropagation();
+                                                    setQuickAddMealId(meal.id);
+                                                }}
+                                                aria-label={`Add ${meal.name}`}
+                                            >
                                                 <Plus size={24} />
                                             </button>
                                         </div>
-                                        {/*QUICK MODAL CHENGES*/}
-                                        <button
-                                            className="meal-add-btn"
-                                            onClick={e => {
-                                                e.stopPropagation();
-                                                setQuickAddMealId(meal.id);
-                                            }}
-                                            aria-label={`Add ${meal.name}`}
-                                        >
-                                            <Plus size={24} />
-                                        </button>
-                                    </div>
-                                    <div className="meal-foods">
-                                        {openFoodList?.find(el => el.id === meal.id)?.isShown && daysInfo.days.data
-                                            ? daysInfo.days.data
-                                                  .filter(el => el.mealTypeId == meal.id)
-                                                  .map(el => (
-                                                      <div key={el.id} className="meal-foods__item item-meal-foods">
-                                                          <h3 className="item-meal-foods__title">{el.name}</h3>
-                                                          <div className="item-meal-foods__body">
-                                                              <span className="item-meal-foods__el">Proteins:{el.proteins}</span>
-                                                              <span className="item-meal-foods__el">Fats:{el.fats}</span>
-                                                              <span className="item-meal-foods__el">Carbs:{el.carbs}</span>
-                                                              <span className="item-meal-foods__el">Cal:{el.calories}</span>
-                                                              <span className="item-meal-foods__el">Measurement: {el.measurement}g</span>
-                                                              <button onClick={() => dispatch(deleteItemFromSummary(el.id))}
-                                                                  className="item-meal-foods__del">
-                                                                  <Trash2 size={16} />
-                                                              </button>
-                                                          </div>
-                                                      ))
+                                        <div className="meal-foods">
+                                            {openFoodList?.find(el => el.id === meal.id)?.isShown && daysInfo.days.data
+                                                ? daysInfo.days.data
+                                                    .filter(el => el.mealTypeId == meal.id)
+                                                    .map(el => (
+                                                        <div key={el.id} className="meal-foods__item item-meal-foods">
+                                                            <h3 className="item-meal-foods__title">{el.name}</h3>
+                                                            <div className="item-meal-foods__body">
+                                                                <span className="item-meal-foods__el">Proteins:{el.proteins}</span>
+                                                                <span className="item-meal-foods__el">Fats:{el.fats}</span>
+                                                                <span className="item-meal-foods__el">Carbs:{el.carbs}</span>
+                                                                <span className="item-meal-foods__el">Cal:{el.calories}</span>
+                                                                <span className="item-meal-foods__el">Measurement: {el.measurement}g</span>
+                                                                <button onClick={() => dispatch(deleteItemFromSummary(el.id))}
+                                                                    className="item-meal-foods__del">
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))
                                                 : ''}
                                         </div>
                                     </div>
-                                    {/*QUICK MODAL CHENGES*/}
-                                    {quickAddMealId !== null && (
-                                        <div className="modal-overlay" onClick={() => setQuickAddMealId(null)}>
-                                            <div
-                                                className="modal-card"
-                                                onClick={e => e.stopPropagation()}
-                                            >
-                                                <SearchItem
-                                                    mealTypes={mealsInfo.meals.mealTypes}
-                                                    defaultMealTypeId={quickAddMealId}
-                                                    disableCreate={true}
-                                                    onClose={() => setQuickAddMealId(null)}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
+                                ))}
+                        </div>
+                        {quickAddMealId !== null && (
+                            <div className="modal-overlay" onClick={() => setQuickAddMealId(null)}>
+                                <div className="modal-card" onClick={e => e.stopPropagation()}>
+                                    <SearchItem
+                                        mealTypes={mealsInfo.meals.mealTypes}
+                                        defaultMealTypeId={quickAddMealId}
+                                        disableCreate={true}
+                                        onClose={() => setQuickAddMealId(null)}
+                                    />
                                 </div>
-                            ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 

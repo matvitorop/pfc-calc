@@ -24,7 +24,6 @@ interface RegisterFormData {
 }
 
 const RegisterForm: React.FC = () => {
-    const navigate = useNavigate();
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
     const diets_coefs = useFetchDiets_ActCoefsData();
     const coefs = diets_coefs.activityCoefs.data;
