@@ -416,6 +416,9 @@ $dark-border: #4b5563;
     align-items: center;
     justify-content: center;
     z-index: 20;
+    &.dark-theme {
+        background: rgba(0, 0, 0, 0.7);
+    }
 }
 
 .modal {
@@ -427,6 +430,73 @@ $dark-border: #4b5563;
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    &.dark-theme {
+        background: $dark-card-bg;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+        h2 {
+            color: $dark-text;
+        }
+
+        .modal-input {
+            background-color: $dark-bg;
+            color: $dark-text;
+            border-color: $dark-border;
+
+            &:focus {
+                border-color: $primary-color;
+            }
+
+            &::placeholder {
+                color: $text-light;
+            }
+
+            &.error {
+                border-color: #ef4444;
+                background-color: rgba(239, 68, 68, 0.1);
+            }
+        }
+
+        .error-message {
+            color: #f87171;
+        }
+
+        .btn-cancel {
+            background: $dark-bg;
+            color: $dark-text-secondary;
+            border: 1px solid $dark-border;
+
+            &:hover {
+                background: lighten($dark-bg, 5%);
+            }
+        }
+
+        .btn-save {
+            background: $primary-color;
+            color: $bg-white;
+
+            &:hover {
+                background: darken($primary-color, 10%);
+            }
+        }
+
+        // Для select в UpdateUserModal
+        select.modal-input {
+            background-color: $dark-bg;
+            color: $dark-text;
+            border-color: $dark-border;
+
+            option {
+                background-color: $dark-bg;
+                color: $dark-text;
+            }
+
+            &:focus {
+                border-color: $primary-color;
+            }
+        }
+    }
 }
 
 .modal-input {
@@ -481,6 +551,7 @@ $border-color: #e5e7eb;
 // Dark Theme Variables
 $dark-bg: #1f2937;
 $dark-card-bg: #374151;
+$dark-hover-color-bg: #374151;
 $dark-text: #f9fafb;
 $dark-text-secondary: #d1d5db;
 $dark-border: #4b5563;
@@ -506,14 +577,21 @@ $dark-border: #4b5563;
     padding: 1rem;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
     transition: background-color 0.3s ease;
-
+    //^ make it work
+    &__scroll-container {
+        scrollbar-width: thin;
+        max-height: 600px;
+        overflow: auto;
+    }
     &.dark-theme {
         background-color: $dark-bg;
 
         .main-container {
             background-color: $dark-card-bg;
         }
-
+        .main-page__scroll-container {
+            scrollbar-color: $primary-color $dark-bg;
+        }
         .header-title,
         .section-title,
         .meal-name,
@@ -890,7 +968,7 @@ $dark-border: #4b5563;
     }
 }
 
-.diary-btn-circle {
+.active-btn-circle {
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
@@ -900,6 +978,18 @@ $dark-border: #4b5563;
     margin-bottom: 0.25rem;
     box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
 }
+/* .diary-btn-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background-color: $primary-color;
+    @include flex-center;
+    color: $bg-white;
+    margin-bottom: 0.25rem;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+} */
+// ============= add meal form  =====================
+
 .add-meal-form {
     display: flex;
     flex-direction: column;
@@ -1084,11 +1174,70 @@ $dark-border: #4b5563;
         background-color: rgba(139, 92, 246, 0.1);
     }
 }
+.item-meal-foods__del {
+    background-color: transparent;
+}
 .item-meal-foods__del :hover {
     color: #ef4444;
 }
 // Dark Theme Support
 .main-page.dark-theme {
+    .add-meal-form {
+        background: $dark-bg;
+
+        input {
+            background-color: $dark-card-bg;
+            color: $dark-text;
+            border-color: $dark-border;
+
+            &:focus {
+                border-color: $primary-color;
+            }
+
+            &::placeholder {
+                color: $text-light;
+            }
+        }
+
+        .modal-input {
+            background-color: $dark-card-bg;
+            color: $dark-text;
+            border-color: $dark-border;
+
+            &:focus {
+                border-color: $primary-color;
+            }
+
+            &.error {
+                border-color: #ef4444;
+                background-color: rgba(239, 68, 68, 0.1);
+            }
+        }
+
+        .error-message {
+            color: #f87171;
+        }
+
+        .confirm-btn {
+            background: $primary-color;
+            color: $bg-white;
+
+            &:hover {
+                background: darken($primary-color, 10%);
+            }
+        }
+
+        .cancel-add-btn {
+            background: $dark-card-bg;
+            color: $dark-text-secondary;
+            border: 1px solid $dark-border;
+
+            &:hover {
+                background: lighten($dark-card-bg, 5%);
+            }
+        }
+    }
+
     .meal-foods {
         border-top-color: $dark-border;
     }
@@ -1127,6 +1276,19 @@ $dark-border: #4b5563;
         &:nth-child(4) {
             color: #a78bfa;
             background-color: rgba(167, 139, 250, 0.15);
+        }
+    }
+    .item-meal-foods__del {
+        color: #f2f2f2;
+    }
+    .dropdown-menu {
+        background-color: $dark-bg;
+        border-color: $dark-border;
+        button:first-child {
+            color: $dark-text;
+        }
+        button:hover {
+            background-color: $dark-hover-color-bg;
         }
     }
 }
@@ -1216,7 +1378,9 @@ $dark-text-secondary: #d1d5db;
 
     &.dark-theme {
         background-color: $dark-bg;
-
+        .error-container {
+            background-color: $dark-card-bg;
+        }
         .error-title {
             color: $dark-text;
         }
@@ -1359,6 +1523,9 @@ $dark-text-secondary: #d1d5db;
                 color: #71f082;
             }
         }
+        .statistics-section {
+            scrollbar-color: $primary-color $dark-bg;
+        }
 
         .history-item {
             border-bottom-color: $dark-border;
@@ -1373,7 +1540,7 @@ $dark-text-secondary: #d1d5db;
         }
 
         .bottom-nav {
-            background-color: $dark-card-bg;
+            background-color: $dark-bg;
             border-top-color: $dark-border;
         }
 
@@ -1381,7 +1548,7 @@ $dark-text-secondary: #d1d5db;
             color: $text-light;
         }
 
-        .nav-btn-active {
+        .nav-btn.active {
             color: $primary-color;
         }
     }
@@ -1467,7 +1634,8 @@ $dark-text-secondary: #d1d5db;
     .statistics-section {
         padding: 0 1.25rem;
         overflow-y: auto;
-        max-height: 500px;
+        max-height: 550px;
+        scrollbar-width: thin;
         .section-title {
             font-size: 1rem;
             font-weight: 600;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import '../../css/main.css';
+import { useAppSelector } from '../hooks/redux';
 
 interface ErrorPageProps {
     message?: string;
@@ -8,8 +9,9 @@ interface ErrorPageProps {
 }
 
 const ErrorPage: React.FC<ErrorPageProps> = ({ message = 'An error occurred while loading your data', onRetry }) => {
+    const darkMode = useAppSelector(state => state.themeReducer.isDarkTheme);
     return (
-        <div className="error-page">
+        <div className={`error-page ${darkMode ? 'dark-theme' : ''}`}>
             <div className="error-container">
                 <div className="error-icon">
                     <AlertCircle size={64} />

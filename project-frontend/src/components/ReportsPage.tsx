@@ -18,8 +18,10 @@ interface Props {
 }
 
 import { Chart } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
 
 const ReportsPage = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<string>(timePeriodFieldMap.DAILY);
     const amountOfDays = useMemo(() => {
         switch (activeTab) {
@@ -284,6 +286,13 @@ const ReportsPage = () => {
         setActiveTab(tab);
     }
 
+    const navigateToMain = () => {
+        navigate('/');
+    };
+    const navigateToProfile = () => {
+        navigate('/profile');
+    };
+
     if (hasError) {
         return <ErrorPage />;
     }
@@ -342,18 +351,32 @@ const ReportsPage = () => {
                 {/* Bottom Navigation */}
                 {/*//^add listeners on click for all nav btns for routing */}
                 <div className="bottom-nav">
-                    <button className="nav-btn" aria-label="Go to profile">
+                    <button
+                        className="nav-btn"
+                        aria-label="Go to profile"
+                        onClick={() => {
+                            navigateToProfile();
+                        }}
+                    >
                         <TrendingUp size={24} />
                         <span>Profile</span>
                     </button>
-                    <button className="nav-btn nav-btn-active" aria-label="Diary">
-                        <div className="diary-btn-circle">
+                    <button
+                        className="nav-btn "
+                        aria-label="Diary"
+                        onClick={() => {
+                            navigateToMain();
+                        }}
+                    >
+                        <div className="">
                             <Calendar size={24} />
                         </div>
                         <span>Diary</span>
                     </button>
                     <button className="nav-btn" aria-label="Go to reports">
-                        <BarChart3 size={24} />
+                        <div className="active-btn-circle">
+                            <BarChart3 size={24} />
+                        </div>
                         <span>Reports</span>
                     </button>
                 </div>
