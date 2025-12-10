@@ -15,6 +15,7 @@ import type { Diet } from '../store/diets/dietSlice';
 import { DefaultValues } from '../store/types';
 import { deleteItemFromSummary } from '../store/reducers/summarySlice';
 import type { Days } from '../models/Days';
+import { useNavigate } from 'react-router-dom';
 
 interface MacroData {
     current: number;
@@ -52,16 +53,19 @@ const MainPage: FC = () => {
 
     const mealsInfo = useFetchMealTypes();
     const daysInfo = useFetchSummary();
-    console.log(daysInfo);
+    /*  console.log(daysInfo); */
 
     const diets_coefs = useFetchDiets_ActCoefsData();
     const userInfo = useFetchUserData();
+
+    /*  console.log(userInfo); */
+
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme); // later think about it
     const isLoading = mealsInfo.isLoading || daysInfo.isLoading || diets_coefs.isLoading || userInfo.isLoading;
     const hasError = mealsInfo.hasError || daysInfo.hasError || diets_coefs.hasError || userInfo.hasError;
     //*only for testing:  console.log(isLoading, hasError); */
     const calculateTotals = () => {
-        console.log(!daysInfo.days.data, !Array.isArray(daysInfo.days.data));
+        // console.log(!daysInfo.days.data, !Array.isArray(daysInfo.days.data));
 
         if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
             return { calories: 0, proteins: 0, fats: 0, carbs: 0 };
@@ -69,7 +73,7 @@ const MainPage: FC = () => {
         /*  console.log(daysInfo.days.data); */
         return daysInfo.days.data.reduce(
             (acc, item) => ({
-                calories: acc.calories + (item.calories || 0),
+                calories: acc.calories + (item.calories || 0) * (item.measurement / 100),
                 proteins: acc.proteins + (item.proteins || 0) * (item.measurement / 100),
                 fats: acc.fats + (item.fats || 0) * (item.measurement / 100),
                 carbs: acc.carbs + (item.carbs || 0) * (item.measurement / 100),
@@ -82,7 +86,9 @@ const MainPage: FC = () => {
         if (!daysInfo.days.data || !Array.isArray(daysInfo.days.data)) {
             return 0;
         }
-        return daysInfo.days.data.filter(item => item.mealTypeId === mealId).reduce((acc, item) => acc + (item.calories || 0), 0);
+        return daysInfo.days.data
+            .filter(item => item.mealTypeId === mealId)
+            .reduce((acc, item) => acc + (item.calories || 0) * (item.measurement / 100), 0);
     };
 
     const openUpdateMealModal = (id: number, label: string, value: string) => {
@@ -147,9 +153,12 @@ const MainPage: FC = () => {
 
     const caloriePercentage = calculatePercentage(calorieData.consumed, calorieData.goal);
     const circumference = 2 * Math.PI * 70;
-
+    const navigate = useNavigate();
     const handleNavigateToProfile = () => {
-        /*  navigate('/profile'); */
+        navigate('/profile');
+    };
+    const navigateToReports = () => {
+        navigate('/reports');
     };
 
     const handleAddMeal = (newMealName: string) => {
@@ -221,6 +230,7 @@ const MainPage: FC = () => {
             </div> */
         );
     }
+
     return (
         <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
             <div className="main-container">
@@ -234,136 +244,143 @@ const MainPage: FC = () => {
                     </div>
                     <div className="streak-badge">
                         <span className="streak-icon">🔥</span>
-                        <span className="streak-count">{userInfo.user.data?.VisitsStreak || 0}</span>
+                        <span className="streak-count">{userInfo.user.data?.visitsStreak || 0}</span>
                     </div>
                 </div>
+                <div className="main-page__scroll-container">
+                    {/* Summary Section */}
+                    <div className="summary-section">
+                        <h2 className="section-title mg-1">Summary</h2>
 
-                {/* Summary Section */}
-                <div className="summary-section">
-                    <h2 className="section-title mg-1">Summary</h2>
-
-                    {/* Circular Progress */}
-                    <div className="calorie-progress-wrapper">
-                        <svg className="progress-ring" width="160" height="160">
-                            <circle className="progress-ring-bg" cx="80" cy="80" r="70" strokeWidth="12" />
-                            <circle
-                                className="progress-ring-fill"
-                                cx="80"
-                                cy="80"
-                                r="70"
-                                strokeWidth="12"
-                                strokeDasharray={circumference}
-                                strokeDashoffset={circumference * (1 - caloriePercentage / 100)}
-                                transform="rotate(-90 80 80)"
-                            />
-                        </svg>
-                        <div className="progress-text">
-                            <div className="progress-value">
-                                {calorieData.consumed} / {calorieData.goal}
-                            </div>
-                            <div className="progress-label">Calories</div>
-                        </div>
-                    </div>
-
-                    {/* Macros */}
-                    <div className="macros-grid">
-                        <div className="macro-item">
-                            <div className="macro-bar-wrapper">
-                                <div
-                                    className="macro-bar protein-bar"
-                                    style={{
-                                        width: `${calculatePercentage(calorieData.protein.current, calorieData.protein.goal)}%`,
-                                    }}
+                        {/* Circular Progress */}
+                        <div className="calorie-progress-wrapper">
+                            <svg className="progress-ring" width="160" height="160">
+                                <circle className="progress-ring-bg" cx="80" cy="80" r="70" strokeWidth="12" />
+                                <circle
+                                    className="progress-ring-fill"
+                                    cx="80"
+                                    cy="80"
+                                    r="70"
+                                    strokeWidth="12"
+                                    strokeDasharray={circumference}
+                                    strokeDashoffset={circumference * (1 - caloriePercentage / 100)}
+                                    transform="rotate(-90 80 80)"
                                 />
+                            </svg>
+                            <div className="progress-text">
+                                <div className="progress-value">
+                                    {calorieData.consumed} / {calorieData.goal}
+                                </div>
+                                <div className="progress-label">Calories</div>
                             </div>
-                            <div className="macro-values">
-                                {calorieData.protein.current} / {calorieData.protein.goal}
-                            </div>
-                            <div className="macro-label">Proteins</div>
                         </div>
 
-                        <div className="macro-item">
-                            <div className="macro-bar-wrapper">
-                                <div
-                                    className="macro-bar fats-bar"
-                                    style={{
-                                        width: `${calculatePercentage(calorieData.fats.current, calorieData.fats.goal)}%`,
-                                    }}
-                                />
-                            </div>
-                            <div className="macro-values">
-                                {calorieData.fats.current} / {calorieData.fats.goal}
-                            </div>
-                            <div className="macro-label">Fats</div>
-                        </div>
-
-                        <div className="macro-item">
-                            <div className="macro-bar-wrapper">
-                                <div
-                                    className="macro-bar carbs-bar"
-                                    style={{
-                                        width: `${calculatePercentage(calorieData.carbs.current, calorieData.carbs.goal)}%`,
-                                    }}
-                                />
-                            </div>
-                            <div className="macro-values">
-                                {calorieData.carbs.current} / {calorieData.carbs.goal}
-                            </div>
-                            <div className="macro-label">Carbs</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Meals Section */}
-                <div className="meals-section">
-                    <div className="meals-header">
-                        <h2 className="section-title">Meals</h2>
-                        <button className="add-meal-btn" aria-label="Add new meal" onClick={() => setShowAddMeal(!showAddMeal)}>
-                            <Plus size={20} />
-                        </button>
-                    </div>
-                    <SearchItem mealTypes={mealsInfo.meals.mealTypes} />
-                    {showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />}
-                    <div className="meals-list">
-                        {mealsInfo.meals.mealTypes &&
-                            Array.isArray(mealsInfo.meals.mealTypes) &&
-                            mealsInfo.meals.mealTypes.map(meal => (
-                                <div key={meal.id}>
+                        {/* Macros */}
+                        <div className="macros-grid">
+                            <div className="macro-item">
+                                <div className="macro-bar-wrapper">
                                     <div
-                                        className="meal-card"
-                                        ref={el => {
-                                            menuRefs.current[meal.id] = el;
+                                        className="macro-bar protein-bar"
+                                        style={{
+                                            width: `${calculatePercentage(calorieData.protein.current, calorieData.protein.goal)}%`,
                                         }}
-                                        onClick={e => {
-                                            handleShowFoodList(meal.id);
-                                        }}
-                                    >
-                                        <div className="meal-info">
-                                            <button
-                                                className="meal-show-menu"
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    setOpenMenuId(openMenuId === meal.id ? null : meal.id);
-                                                }}
-                                            >
-                                                ⋮
-                                            </button>
-                                            <span className="meal-icon">{/*meal.icon*/}</span>
-                                            <div className="meal-details">
-                                                <div className="meal-name">{meal.name}</div>
-                                                <div className="meal-calories">{calcMealCalories(meal.id)} kcal</div>
+                                    />
+                                </div>
+                                <div className="macro-values">
+                                    {calorieData.protein.current} / {calorieData.protein.goal}
+                                </div>
+                                <div className="macro-label">Proteins</div>
+                            </div>
 
-                                                {openMenuId === meal.id && (
-                                                    <div className="dropdown-menu">
-                                                        <button onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)} className="menu-item">
-                                                            <Edit2 size={16} /> Edit
-                                                        </button>
-                                                        <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
-                                                            <Trash2 size={16} /> Delete
-                                                        </button>
-                                                    </div>
-                                                )}
+                            <div className="macro-item">
+                                <div className="macro-bar-wrapper">
+                                    <div
+                                        className="macro-bar fats-bar"
+                                        style={{
+                                            width: `${calculatePercentage(calorieData.fats.current, calorieData.fats.goal)}%`,
+                                        }}
+                                    />
+                                </div>
+                                <div className="macro-values">
+                                    {calorieData.fats.current} / {calorieData.fats.goal}
+                                </div>
+                                <div className="macro-label">Fats</div>
+                            </div>
+
+                            <div className="macro-item">
+                                <div className="macro-bar-wrapper">
+                                    <div
+                                        className="macro-bar carbs-bar"
+                                        style={{
+                                            width: `${calculatePercentage(calorieData.carbs.current, calorieData.carbs.goal)}%`,
+                                        }}
+                                    />
+                                </div>
+                                <div className="macro-values">
+                                    {calorieData.carbs.current} / {calorieData.carbs.goal}
+                                </div>
+                                <div className="macro-label">Carbs</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Meals Section */}
+                    <div className="meals-section">
+                        <div className="meals-header">
+                            <h2 className="section-title">Meals</h2>
+                            <button className="add-meal-btn" aria-label="Add new meal" onClick={() => setShowAddMeal(!showAddMeal)}>
+                                <Plus size={20} />
+                            </button>
+                        </div>
+                        <SearchItem mealTypes={mealsInfo.meals.mealTypes} />
+                        {showAddMeal && <AddMealTypeForm initialValue="" onClose={onCloseAddingMealForm} onSave={handleAddMeal} />}
+                        <div className="meals-list">
+                            {mealsInfo.meals.mealTypes &&
+                                Array.isArray(mealsInfo.meals.mealTypes) &&
+                                mealsInfo.meals.mealTypes.map(meal => (
+                                    <div key={meal.id}>
+                                        <div
+                                            className="meal-card"
+                                            ref={el => {
+                                                menuRefs.current[meal.id] = el;
+                                            }}
+                                            onClick={e => {
+                                                handleShowFoodList(meal.id);
+                                            }}
+                                        >
+                                            <div className="meal-info">
+                                                <button
+                                                    className="meal-show-menu"
+                                                    onClick={e => {
+                                                        e.stopPropagation();
+                                                        setOpenMenuId(openMenuId === meal.id ? null : meal.id);
+                                                    }}
+                                                >
+                                                    ⋮
+                                                </button>
+                                                <span className="meal-icon">{/*meal.icon*/}</span>
+                                                <div className="meal-details">
+                                                    <div className="meal-name">{meal.name}</div>
+                                                    <div className="meal-calories">{calcMealCalories(meal.id)} kcal</div>
+
+                                                    {openMenuId === meal.id && (
+                                                        <div className="dropdown-menu">
+                                                            <button
+                                                                onClick={() => openUpdateMealModal(meal.id, 'meal', meal.name)}
+                                                                className="menu-item"
+                                                            >
+                                                                <Edit2 size={16} /> Edit
+                                                            </button>
+                                                            <button onClick={() => handleDeleteMeal(meal.id)} className="menu-item delete">
+                                                                <Trash2 size={16} /> Delete
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
+                                            <button className="meal-add-btn" onClick={() => {}} aria-label={`Add ${meal.name}`}>
+                                                <Plus size={24} />
+                                            </button>
                                         </div>
                                         {/*QUICK MODAL CHENGES*/}
                                         <button
@@ -395,9 +412,9 @@ const MainPage: FC = () => {
                                                                   <Trash2 size={16} />
                                                               </button>
                                                           </div>
-                                                      </div>
-                                                  ))
-                                            : ''}
+                                                      ))
+                                                : ''}
+                                        </div>
                                     </div>
                                     {/*QUICK MODAL CHENGES*/}
                                     {quickAddMealId !== null && (
@@ -426,17 +443,24 @@ const MainPage: FC = () => {
                         <TrendingUp size={24} />
                         <span>Profile</span>
                     </button>
-                    <button className="nav-btn nav-btn-active" aria-label="Diary">
-                        <div className="diary-btn-circle">
+                    <button className="nav-btn" aria-label="Diary">
+                        <div className="active-btn-circle">
                             <Calendar size={24} />
                         </div>
                         <span>Diary</span>
                     </button>
-                    <button className="nav-btn" aria-label="Go to reports">
+                    <button
+                        className="nav-btn"
+                        aria-label="Go to reports"
+                        onClick={() => {
+                            navigateToReports();
+                        }}
+                    >
                         <BarChart3 size={24} />
                         <span>Reports</span>
                     </button>
                 </div>
+
                 {/* Modal */}
                 {modalField && (
                     <UpdateMealModal

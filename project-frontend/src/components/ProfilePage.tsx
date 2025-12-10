@@ -14,7 +14,7 @@ import { toggleTheme } from '../store/reducers/themeSlice';
 import { useFetchUserData } from '../hooks/fetchUserData';
 import ErrorPage from './ErrorPage';
 import LoadingPage from './LoadingPage';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { useFetchDiets_ActCoefsData } from '../hooks/fetchDiets&ActCoefs';
 
 const ProfilePage: FC = () => {
@@ -41,10 +41,12 @@ const ProfilePage: FC = () => {
             setModalField(null);
         }
     };
-
+    const navigateToMain = () => {
+        navigate('/');
+    };
     const logOut = () => {
         dispatch(logoutUser());
-        navigate("/login");
+        navigate('/login');
     };
 
     if (hasError) {
@@ -60,7 +62,7 @@ const ProfilePage: FC = () => {
             <div className="me-container">
                 {/* Header */}
                 <div className="header">
-                    <button className="back-btn">
+                    <button className="back-btn" onClick={() => navigateToMain()}>
                         <ChevronLeft className="icon" />
                     </button>
                     <h1 className="title">Me</h1>

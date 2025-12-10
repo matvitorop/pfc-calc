@@ -5,6 +5,7 @@ import { addItemToSummary, addItemToSummarySuccess, addItemToSummaryFailure, del
 import { mergeMap, map, catchError, of } from 'rxjs';
 import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { fetchUserDetails } from '../reducers/userSlice';
 
 const addItemMutation = `
 mutation AddItemForDay($item: DaysInputType!) {
@@ -52,18 +53,21 @@ export const addItemToSummaryEpic = (action$: any) =>
             from(
                 graphqlFetch<{ addItemForDay: { success: boolean; message: string; data: Days } }>(addItemMutation, { item: action.payload }, true),
             ).pipe(
-                map(res => {
+                mergeMap(res => {
                     if (res.errors?.length) {
-                        return addItemToSummaryFailure(res.errors[0].message);
+                        return of(addItemToSummaryFailure(res.errors[0].message));
                     }
 
                     const response = res.data?.addItemForDay;
 
                     if (!response || !response.success) {
-                        return addItemToSummaryFailure(response?.message ?? 'Failed to add item');
+                        return of(addItemToSummaryFailure(response?.message ?? 'Failed to add item'));
                     }
 
-                    return addItemToSummarySuccess(response.data);
+                    const successAction = addItemToSummarySuccess(response.data);
+
+                    const refreshUserAction = fetchUserDetails();
+                    return from([successAction, refreshUserAction]);
                 }),
                 catchError(err => of(addItemToSummaryFailure(err.message))),
             ),

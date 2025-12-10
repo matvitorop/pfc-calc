@@ -8,7 +8,7 @@ import { graphqlFetch } from '../../GraphQL/fetchRequest';
 import type { AppDispatch } from '../../store/store';
 import '../../../css/regist-login.css';
 import { useAppSelector } from '../../hooks/redux';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { useFetchDiets_ActCoefsData } from '../../hooks/fetchDiets&ActCoefs';
 import { fetchUserDetails } from '../../store/reducers/userSlice';
 
@@ -24,6 +24,7 @@ interface RegisterFormData {
 }
 
 const RegisterForm: React.FC = () => {
+    const navigate = useNavigate();
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
     const diets_coefs = useFetchDiets_ActCoefsData();
     const coefs = diets_coefs.activityCoefs.data;
@@ -81,9 +82,9 @@ const RegisterForm: React.FC = () => {
             }
 
             if (result?.success) {
-                console.log("Registration successful!");
-                alert("Registered successfully!");
-                navigate("/");
+                console.log('Registration successful!');
+                alert('Registered successfully!');
+                navigate('/');
             } else {
                 alert(result?.message || 'Registration failed');
             }

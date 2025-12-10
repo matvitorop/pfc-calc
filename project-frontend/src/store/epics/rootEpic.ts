@@ -146,6 +146,7 @@ const GET_USER = `
       dietId
       caloriesStandard
       email
+      visitsStreak
     }
   }
 }

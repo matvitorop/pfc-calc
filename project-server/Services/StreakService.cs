@@ -23,6 +23,7 @@ namespace project_server.Services
                     return null;
 
                 int currentStreak = user.VisitsStreak ?? 0;
+                
 
                 if (recentDays == null || !recentDays.Any())
                 {
@@ -33,6 +34,7 @@ namespace project_server.Services
                     var orderedDays = recentDays
                         .OrderByDescending(d => d.Day)
                         .Select(d => d.Day.Date)
+                        .Distinct()
                         .ToList();
 
                     if (orderedDays.Count == 1)

@@ -280,15 +280,21 @@ namespace project_server.Schemas
                     var userId = context.GetUserId(_jwtHelper);
                     var userEmail = context.GetUserEmail(_jwtHelper);
 
-                    var recentDays = await _daysRepository.GetDaysAsync(userId ?? 0, null, 2);
-                    var streakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
-                    if (streakChangeresult == null)
-                        return new DaysItemResponse { Success = false, Message = "Changing counter failed", Data = null };
+                   
 
                     var result = await _daysService.AddItemForDayAsync(userId.Value, input.Day, input.MealTypeId, input.Item, input.Measurement);
                     if (result == null)
                         return new DaysItemResponse { Success = false, Message = "User not found", Data = null };
+                    var TodayMeals = await _daysRepository.GetDaysAsync(userId.Value, DateTime.Today);
+                    if(TodayMeals.Count() == 1)
+                    {
+                        var recentDays = await _daysRepository.GetUniqueDaysAsync(userId ?? 0, 2);
+                        var streakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
+                        if (streakChangeresult == null)
+                            return new DaysItemResponse { Success = false, Message = "Changing counter failed", Data = null };
+                    }
 
+                    
                     var item = await _itemsRepository.GetItemByIdAsync(result.ItemId);
                     var calories = await _caloriesRepository.GetItemAsync(result.ItemId);
 
