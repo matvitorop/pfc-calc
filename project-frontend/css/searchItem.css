@@ -30,10 +30,10 @@
     transition: all 0.2s ease;
 }
 
-    .search-input:focus {
-        border-color: #a3a3a3;
-        background: #ffffff;
-    }
+.search-input:focus {
+    border-color: #a3a3a3;
+    background: #ffffff;
+}
 
 .dark-theme .search-input {
     background: #374151;
@@ -41,10 +41,10 @@
     color: #fff;
 }
 
-    .dark-theme .search-input:focus {
-        background: #474747;
-        border-color: #777;
-    }
+.dark-theme .search-input:focus {
+    background: #474747;
+    border-color: #777;
+}
 
 /* LOADING / ERROR */
 .search-loading,
@@ -90,20 +90,19 @@
     font-size: 15px;
 }
 
-    .search-result-item:last-child {
-        border-bottom: none;
-    }
+.search-result-item:last-child {
+    border-bottom: none;
+}
 
-    .search-result-item:hover {
-        background: #f9fafb;
-    }
+.search-result-item:hover {
+    background: #f9fafb;
+}
 
 .dark-theme .search-result-item:hover {
     color: #fff;
     background: #454545;
     border-bottom: 1px solid #555;
 }
-
 
 /* ADD ITEM */
 .search-input-row {
@@ -123,9 +122,9 @@
 }
 
 .add-item-btn {
-    width: 38px;
-    height: 42px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     border: none;
     background-color: #10b981;
     color: white;
@@ -142,10 +141,9 @@
     padding-left: 1px;
 }
 
-    .add-item-btn:hover {
-        background-color: #059669;
-    }
-
+.add-item-btn:hover {
+    background-color: #059669;
+}
 
 /* CREATE ITEM MODAL */
 .create-item-modal {
@@ -175,21 +173,21 @@
     flex-direction: column;
 }
 
-    .ci-field label {
-        font-size: 12px;
-        font-weight: 500;
-        color: #555;
-        margin-bottom: 4px;
-    }
+.ci-field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 4px;
+}
 
-    .ci-field input {
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid #d4d4d4;
-        background: #f9fafb;
-        font-size: 14px;
-        text-align: center;
-    }
+.ci-field input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #d4d4d4;
+    background: #f9fafb;
+    font-size: 14px;
+    text-align: center;
+}
 
 .ci-submit {
     width: 100%;

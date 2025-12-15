@@ -389,8 +389,18 @@ namespace project_server.Schemas
             {
                 try
                 {
+                    var userId = context.GetUserId(_jwtHelper);
+                    var userEmail = context.GetUserEmail(_jwtHelper);
                     int dayId = context.GetArgument<int>("id");
                     var result = await _daysService.DeleteItemFromDayAsync(dayId);
+                    var TodayMeals = await _daysRepository.GetDaysAsync(userId.Value, DateTime.Today);
+                    if (TodayMeals.Count() == 0)
+                    {
+                        var recentDays = await _daysRepository.GetUniqueDaysAsync(userId ?? 0, 2);
+                        var streakChangeresult = await _counterChangerService.ChangeCounterAsync(userEmail, recentDays);
+                        if (streakChangeresult == null)
+                            return new DaysItemResponse { Success = false, Message = "Changing counter failed", Data = null };
+                    }
                     if (result == null)
                     {
 

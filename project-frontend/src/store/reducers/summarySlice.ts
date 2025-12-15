@@ -2,6 +2,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { Days } from '../../models/Days';
 import type { DaysState } from './daysSlice';
 
+export interface UpdateSummaryPayload {
+    id: number;
+    measurement: number;
+}
+
 //! del test-days from state after all testing
 const initialState: DaysState = {
     data: null,
@@ -45,6 +50,23 @@ const summarySlice = createSlice({
             state.loading = false;
             state.error = action.payload;
         },
+        updateItemSummary: (state, action: PayloadAction<UpdateSummaryPayload>) => {
+            //state.loading = true;
+            state.error = null;
+        },
+        updateItemSummarySuccess: (state, action: PayloadAction<Days>) => {
+            state.loading = false;
+            if (state.data) {
+                const itemToUpdate = state.data.find(item => item.id === action.payload.id);
+                if (itemToUpdate) {
+                    itemToUpdate.measurement = action.payload.measurement;
+                }
+            }
+        },
+        updateItemSummaryFailure: (state, action: PayloadAction<string>) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
 
         deleteItemFromSummary: (state, action: PayloadAction<number>) => {
             //state.loading = true;
@@ -76,6 +98,11 @@ export const {
     addItemToSummary,
     addItemToSummarySuccess,
     addItemToSummaryFailure,
+
+    //updating
+    updateItemSummary,
+    updateItemSummarySuccess,
+    updateItemSummaryFailure,
 
     // deleting
     deleteItemFromSummary,
