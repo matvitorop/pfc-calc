@@ -13,7 +13,7 @@ import ActiveNotes from './ActiveNotes';
 import CompletedNotes from './CompletedNotes';
 import AddNoteForm from './AddNoteForm';
 import NotifNote from "./NotifNote";
-
+import './Notes.css'
 
 const NotesPage: React.FC = () => {
     const dispatch = useAppDispatch();

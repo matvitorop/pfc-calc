@@ -130,7 +130,7 @@ export const fetchActiveNotesEpic: MyEpic = (action$) =>
         mergeMap(() => {
             console.log('1️[Epic] Action received, starting fetch...');
 
-            return from(graphqlFetch<{ getActiveNotes: Note[] }>(GET_ACTIVE_NOTES)).pipe(
+            return from(graphqlFetch<{ getActiveNotes: Note[] }>(GET_ACTIVE_NOTES, {}, true)).pipe(
                 map((res) => {
                     console.log('2️[Epic] Response received:', res);
 
@@ -155,7 +155,7 @@ export const fetchCompletedNotesEpic = (action$: any) =>
     action$.pipe(
         ofType(fetchCompletedNotesRequest.type),
         mergeMap(() =>
-            from(graphqlFetch<{ getCompletedNotes: Note[] }>(GET_COMPLETED_NOTES)).pipe(
+            from(graphqlFetch<{ getCompletedNotes: Note[] }>(GET_COMPLETED_NOTES, {}, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return fetchCompletedNotesFailure(res.errors[0].message);
@@ -175,7 +175,8 @@ export const addNoteEpic = (action$: any) =>
             return from(
                 graphqlFetch<{ addNote: { success: boolean; note: Note; message: string } }>(
                     ADD_NOTE,
-                    {title, dueDate}
+                    { title, dueDate },
+                    true
                 )
             ).pipe(
                 map((res) => {
@@ -201,7 +202,8 @@ export const completeNoteEpic = (action$: any) =>
             return from(
                 graphqlFetch<{ completeNote: { success: boolean; note: Note; message: string } }>(
                     COMPLETE_NOTE,
-                    { id: noteId }
+                    { id: noteId },
+                    true
                 )
             ).pipe(
                 map((res) => {
@@ -227,7 +229,8 @@ export const restoreNoteEpic = (action$: any) =>
             return from(
                 graphqlFetch<{ restoreNote: { success: boolean; note: Note; message: string } }>(
                     RESTORE_NOTE,
-                    { id: noteId }
+                    { id: noteId },
+                    true
                 )
             ).pipe(
                 map((res) => {
@@ -253,7 +256,8 @@ export const deleteNoteEpic = (action$: any) =>
             return from(
                 graphqlFetch<{ deleteNote: { success: boolean; note: Note; message: string } }>(
                     DELETE_NOTE,
-                    { id: noteId }
+                    { id: noteId },
+                    true
                 )
             ).pipe(
                 map((res) => {
