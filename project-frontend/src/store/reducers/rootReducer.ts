@@ -6,6 +6,7 @@ import mealReducer from './mealTypeSlice';
 import coefReducer from '../coef/coefSlice';
 import dietReducer from '../diets/dietSlice';
 import summaryReducer from './summarySlice';
+import notesReducer from './notesSlice';
 
 export const rootReducer = combineReducers({
     userReducer,
@@ -15,6 +16,7 @@ export const rootReducer = combineReducers({
     mealReducer,
     coefReducer,
     dietReducer,
+    notesReducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

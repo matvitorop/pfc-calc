@@ -16,7 +16,32 @@ interface dietState {
 }
 
 const initialState: dietState = {
-    data: [],
+    data: [
+    /*{
+        id: 1,
+        name: "Weight Loss",
+        description: "Calorie deficit diet focusing on higher protein.",
+        proteinPerc: 40,
+        carbPerc: 30,
+        fatPerc: 30
+    },
+    {
+        id: 2,
+        name: "Maintain Weight",
+        description: "Balanced diet for stable weight maintenance.",
+        proteinPerc: 33,
+        carbPerc: 34,
+        fatPerc: 33
+    },
+    {
+        id: 3,
+        name: "Weight Gain",
+        description: "Surplus calories with increased carbs.",
+        proteinPerc: 25,
+        carbPerc: 50,
+        fatPerc: 25
+    }*/
+],
     loading: false,
     error: null,
 };

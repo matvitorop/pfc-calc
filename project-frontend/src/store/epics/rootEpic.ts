@@ -40,7 +40,16 @@ import { fetchDietsEpic } from './dietEpic';
 import { addItemToSummaryEpic, deleteItemFromSummaryEpic, updateItemSummaryEpic } from './summaryEpic';
 import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import {
+    fetchActiveNotesEpic,
+    fetchCompletedNotesEpic,
+    addNoteEpic,
+    completeNoteEpic,
+    restoreNoteEpic,
+    deleteNoteEpic,
+} from './notesEpic';
 //import toCamelCase from '../../hooks/toCamelCase';
+
 
 interface GetUserResponse {
     getDetails: {
@@ -469,4 +478,11 @@ export const rootEpic = combineEpics(
     addItemToSummaryEpic,
     updateItemSummaryEpic,
     deleteItemFromSummaryEpic,
+    
+    fetchActiveNotesEpic,
+    fetchCompletedNotesEpic,
+    addNoteEpic,
+    completeNoteEpic,
+    restoreNoteEpic,
+    deleteNoteEpic,
 );

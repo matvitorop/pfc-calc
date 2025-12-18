@@ -8,6 +8,7 @@ import RegisterForm from "../components/User/RegisterForm";
 import LoginForm from "../components/User/LoginForm";
 import ReportsPage from "../components/ReportsPage";
 import ErrorPage from "../components/ErrorPage";
+import NotesPage from "../components/Notes/NotesPage";
 
 export const router = createBrowserRouter([
     {
@@ -19,4 +20,5 @@ export const router = createBrowserRouter([
     { path: "/login", element: <AuthAccess element={<LoginForm />} /> },
     { path: "/profile", element: <PrivateRoute element={<ProfilePage />} /> },
     { path: "/reports", element: <PrivateRoute element={<ReportsPage />} /> },
+    { path: "/notes", element: <PrivateRoute element={<NotesPage />} /> },
 ]);
