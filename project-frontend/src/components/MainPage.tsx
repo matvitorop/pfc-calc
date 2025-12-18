@@ -239,6 +239,9 @@ const MainPage: FC = () => {
     const navigateToReports = () => {
         navigate('/reports');
     };
+    const navigateToNotes = () => {
+        navigate('/notes');
+    };
     // ==================================================
 
     if (hasError) {
@@ -265,7 +268,11 @@ const MainPage: FC = () => {
                 <div className="main-header">
                     <div className="header-left">
                         <h1 className="header-title">Today</h1>
-                        <button className="calendar-btn" aria-label="Open calendar">
+                        <button className="calendar-btn"
+                            aria-label="Open calendar"
+                            onClick={() => {
+                            navigateToNotes();
+                        }}>
                             <Calendar className="calendar-icon" size={20} />
                         </button>
                     </div>
