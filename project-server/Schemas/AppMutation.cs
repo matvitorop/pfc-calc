@@ -517,7 +517,7 @@ namespace project_server.Schemas
                 }
             });
 
-            Field<NotesType>("completeNote")
+            Field<NoteResponseType>("completeNote")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" })
