@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { addItemToSummary } from '../../store/reducers/summarySlice';
 import '../../../css/modalWindow.css';
 import { type MealType } from '../../store/reducers/mealTypeSlice';
+import { graphqlFetch } from '../../GraphQL/fetchRequest'
 interface ItemDetailsProps {
     item: {
         id: number;
@@ -23,7 +24,30 @@ interface ItemDetailsProps {
     onDelete: (id: number) => void;
 }
 
-const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, defaultMealTypeId, onClose }) => {
+// Temporary GraphQL mutation string for hiding an item
+const HIDE_ITEM_MUTATION = `
+  mutation HideItem($itemId: Int!) {
+    hideItem(itemId: $itemId) {
+      success
+      message
+    }
+  }
+`;
+
+interface HideItemResponse {
+    hideItem: {
+        success: boolean;
+        message?: string;
+    };
+}
+
+const ItemDetailsModal: React.FC<ItemDetailsProps> = ({
+    item,
+    mealTypes,
+    defaultMealTypeId,
+    onClose,
+    onDelete
+}) => {
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState(false);
     const [weightRaw, setWeightRaw] = useState<string>("");
@@ -64,6 +88,25 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, default
         onClose();
     };
 
+    // HIDING ITEM FROM SEARCH RESULTS
+    const handleDelete = async () => {
+        const confirm = window.confirm(`Hide "${item.name}" from search?`);
+        if (!confirm) return;
+
+        const res = await graphqlFetch<HideItemResponse>(
+            HIDE_ITEM_MUTATION,
+            { itemId: item.id },
+            true
+        );
+
+        if (res.errors || !res.data?.hideItem.success) {
+            alert(res.data?.hideItem.message || 'Failed to hide item');
+            return;
+        }
+
+        onDelete(item.id);
+    };
+
     return (
         <div className="modal-overlay">
             <div className={`modal-card ${expanded ? 'modal-expanded' : ''}`}>
@@ -95,7 +138,9 @@ const ItemDetailsModal: React.FC<ItemDetailsProps> = ({ item, mealTypes, default
                         <button className="btn-add" onClick={handleExpand}>
                             Add
                         </button>
-                        <button className="btn-delete">Delete</button>
+                        <button className="btn-delete" onClick={handleDelete}>
+                            Delete
+                        </button>
                     </div>
                 ) : (
                         <div className="expanded-section">

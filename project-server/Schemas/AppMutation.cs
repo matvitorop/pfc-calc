@@ -837,8 +837,24 @@ namespace project_server.Schemas
                     Message = "Помилка: " + ex.Message
                 };
             }
-        });    
-    
+        });
+
+            Field<ApiResponseGraphType<NoContentGraphType, NoContent>>("hideItem")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "itemId" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var itemId = context.GetArgument<int>("itemId");
+                var userId = context.GetUserId(_jwtHelper);
+
+                var result = await _itemsRepository.HideItemAsync(itemId, userId.Value);
+
+                return result
+                    ? ApiResponse<NoContent>.Ok(new NoContent(), "Item hidden successfully")
+                    : ApiResponse<NoContent>.Fail("Failed to hide item");
+            });
         }
 
 
