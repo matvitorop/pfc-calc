@@ -168,6 +168,21 @@ builder.Services.AddControllers();
 // =========== BUILD ===========
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    var viteProcess = new System.Diagnostics.Process()
+    {
+        StartInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "npm",
+            Arguments = "run dev",
+            WorkingDirectory = Path.Combine(app.Environment.ContentRootPath, "../project-frontend"),
+            UseShellExecute = true,
+        }
+    };
+    viteProcess.Start();
+}
+
 // Configure middleware
 if (app.Environment.IsDevelopment())
 {
