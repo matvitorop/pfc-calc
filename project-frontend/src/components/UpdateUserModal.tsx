@@ -116,7 +116,9 @@ const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialVa
                                     {fieldName === UserFieldMap.activityCoefId
                                         ? activityCoefs.data.map(el => (
                                               <option key={el.id} value={el.id}>
-                                                  {el.name}
+                                                  <span>{el.name}</span>
+                                                  {' - coef '}
+                                                  <span>{ el.value.toFixed(2)}</span>
                                               </option>
                                           ))
                                         : diets.data.map(el => (

@@ -37,6 +37,9 @@ import {
 } from '../reducers/mealTypeSlice';
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
+import { addItemToSummaryEpic, deleteItemFromSummaryEpic, updateItemSummaryEpic } from './summaryEpic';
+import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import {
     fetchActiveNotesEpic,
     fetchCompletedNotesEpic,
@@ -45,9 +48,6 @@ import {
     restoreNoteEpic,
     deleteNoteEpic,
 } from './notesEpic';
-import { addItemToSummaryEpic, deleteItemFromSummaryEpic } from './summaryEpic';
-import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
-import type { PayloadAction } from '@reduxjs/toolkit';
 //import toCamelCase from '../../hooks/toCamelCase';
 
 
@@ -476,6 +476,7 @@ export const rootEpic = combineEpics(
     createMealEpic,
     deleteMealEpic,
     addItemToSummaryEpic,
+    updateItemSummaryEpic,
     deleteItemFromSummaryEpic,
     
     fetchActiveNotesEpic,

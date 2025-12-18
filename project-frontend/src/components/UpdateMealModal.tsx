@@ -1,50 +1,88 @@
 import { type FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { FormData } from './UpdateUserModal';
 import { useAppSelector } from '../hooks/redux';
+
 interface UpdateMealModalProps {
     id: number;
     label: string;
-    initialValue: string;
+    initialValue: string | null;
+    measurement: number | null;
     onClose: () => void;
     onSave: (value: string) => void;
 }
 
-const UpdateMealModal: FC<UpdateMealModalProps> = ({ id, label, initialValue, onClose, onSave }) => {
+export interface FormUpdateMealData {
+    value: string;
+    measurement: number;
+}
+
+const UpdateMealModal: FC<UpdateMealModalProps> = ({ id, label, initialValue, measurement, onClose, onSave }) => {
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
-    // const [value, setValue] = useState(initialValue.toString());
+    const isMeasurementEdit = measurement !== null;
     const {
         register,
         handleSubmit,
         setValue,
         formState: { errors },
-    } = useForm<FormData>({
+    } = useForm<FormUpdateMealData>({
         defaultValues: {
-            value: initialValue.toString(),
+            value: initialValue?.toString() || '',
+            measurement: measurement || 0,
         },
     });
 
-    const onSubmit = (data: FormData) => {
-        onSave(data.value);
+    const onSubmit = (data: FormUpdateMealData) => {
+        if (isMeasurementEdit) {
+            onSave(data.measurement.toString());
+        } else {
+            onSave(data.value);
+        }
     };
 
     useEffect(() => {
-        setValue('value', initialValue.toString());
-    }, [initialValue, setValue]);
+        if (!isMeasurementEdit && initialValue) {
+            setValue('value', initialValue.toString());
+        }
+        if (isMeasurementEdit && measurement !== null) {
+            setValue('measurement', measurement);
+        }
+    }, [initialValue, measurement, setValue, isMeasurementEdit]);
+
     return (
         <div className={`modal-overlay ${darkTheme ? 'dark-theme' : ''}`}>
             <div className={`modal ${darkTheme ? 'dark-theme' : ''}`}>
-                <h2>Edit {label}</h2>
+                <h2>Edit {isMeasurementEdit ? `weight ${label}` : label}</h2>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <input
-                        type="text"
-                        className={errors.value ? 'modal-input error' : 'modal-input'}
-                        {...register('value', {
-                            required: 'Mealtype must contains at least one letter',
-                            minLength: { value: 1, message: 'Meal type must contain at least one letter' },
-                        })}
-                    />
-                    {errors.value && <span className="error-message">{errors.value.message}</span>}
+                    {!isMeasurementEdit ? (
+                        <>
+                            <input
+                                type="text"
+                                className={errors.value ? 'modal-input error' : 'modal-input'}
+                                placeholder="Meal name"
+                                {...register('value', {
+                                    required: 'Meal type must contain at least one letter',
+                                    minLength: { value: 1, message: 'Meal type must contain at least one letter' },
+                                })}
+                            />
+                            {errors.value && <span className="error-message">{errors.value.message}</span>}
+                        </>
+                    ) : (
+                        <>
+                            <input
+                                type="number"
+                                className={errors.measurement ? 'modal-input error' : 'modal-input'}
+                                placeholder="Measurement amount"
+                                step="any"
+                                {...register('measurement', {
+                                    required: 'Measurement is required',
+                                    min: { value: 1, message: 'Value cannot be less or equal 0' },
+                                    valueAsNumber: true,
+                                })}
+                            />
+                            {errors.measurement && <span className="error-message">{errors.measurement.message}</span>}
+                        </>
+                    )}
+
                     <div className="modal-actions">
                         <button
                             onClick={e => {
