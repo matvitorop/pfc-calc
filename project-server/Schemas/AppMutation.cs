@@ -88,7 +88,7 @@ namespace project_server.Schemas
 
                     if (registeredUser != null)
                     {
-                        var jwt = _jwtHelper.GenerateToken(user);
+                        var jwt = _jwtHelper.GenerateToken(registeredUser);
 
 
                         if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
