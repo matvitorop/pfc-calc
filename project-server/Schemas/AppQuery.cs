@@ -108,6 +108,19 @@ namespace project_server.Schemas
                 return await _itemsRepository.GetItemAsync(query, userId.Value);
             });
 
+            Field<SearchedItemResponseType>("getUserSearchedItemById")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "id" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var query = context.GetArgument<int>("id");
+                var userId = context.GetUserId(_jwtHelper);
+
+                return await _itemsRepository.GetUserItemByIdAsync(query, userId.Value);
+            });
+
             Field<ListGraphType<UserDayItemType>>("getSummary")
             .Authorize()
             .Arguments(new QueryArguments(
@@ -120,7 +133,7 @@ namespace project_server.Schemas
                 //var userId = _jwtHelper.GetUserIdFromToken(userContext.User);
 
                 var userId = context.GetUserId(_jwtHelper);
-                return await _daysService.GetUserSummaryAsync(userId.Value, day);
+                return await _daysService.GetUserDaysInfoAsync(userId.Value, day,null,null);
             });
             
             Field<ListGraphType<NotesType>>("getActiveNotes")
@@ -145,11 +158,12 @@ namespace project_server.Schemas
                     }
                 );
             //DAYS
-            Field<ListGraphType<DaysType>>("getDays")
+            Field<ListGraphType<UserDayItemType>>("getDays")
                 .Authorize()
                 .Arguments(new QueryArguments(
                     new QueryArgument<DateTimeGraphType> { Name = "day" },
-                    new QueryArgument<IntGraphType> { Name = "limit" }
+                    new QueryArgument<IntGraphType> { Name = "limit" },
+                     new QueryArgument<IntGraphType> { Name = "daysBack" }
                 ))
                 .ResolveAsync(async context =>
                 {
@@ -159,8 +173,9 @@ namespace project_server.Schemas
                     var userId = context.GetUserId(_jwtHelper);
                     var day = context.GetArgument<DateTime?>("day");
                     var limit = context.GetArgument<int?>("limit");
+                    var daysBack = context.GetArgument<int?>("daysBack");
 
-                    return await _daysRepository.GetDaysAsync(userId.Value, day, limit);
+                    return await _daysService.GetUserDaysInfoAsync(userId.Value, day, limit,daysBack);
                 });
         }
 

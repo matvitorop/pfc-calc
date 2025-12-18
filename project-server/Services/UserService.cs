@@ -90,12 +90,19 @@ namespace project_server.Services_part
         {
             try
             {
+                
+                
                 string fieldNamePascalCase = SnakeToPascalCase(fieldName);
+
+               
                 var property = typeof(Users).GetProperty(fieldNamePascalCase);
                 if (property == null)
+                {
                     throw new ArgumentException($"Field '{fieldNamePascalCase}' not found in Users model");
+                }
+                
 
-                var targetType = property.PropertyType;
+                var targetType = property?.PropertyType;
                 object? convertedValue;
                 try
                 {
@@ -112,27 +119,27 @@ namespace project_server.Services_part
                 if (updatedUser == null)
                     return null;
 
-                var fieldsThatAffectCalories = new HashSet<string>
-                {
-                    nameof(Users.Age),
-                    nameof(Users.Weight),
-                    nameof(Users.Height),
-                    nameof(Users.ActivityCoefId),
-                    nameof(Users.DietId)
-                };
+                //var fieldsThatAffectCalories = new HashSet<string>
+                //{
+                //    nameof(Users.Age),
+                //    nameof(Users.Weight),
+                //    nameof(Users.Height),
+                //    nameof(Users.ActivityCoefId),
+                //    nameof(Users.DietId)
+                //};
 
-                bool isCustomDiet =
-                    string.Equals(fieldNamePascalCase, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
-                    convertedValue is int dietId &&
-                    dietId == (int)DietConstants.CustomCalorieDietId;
+                //bool isCustomDiet =
+                //    string.Equals(fieldNamePascalCase, nameof(Users.DietId), StringComparison.OrdinalIgnoreCase) &&
+                //    convertedValue is int dietId &&
+                //    dietId == (int)DietConstants.CustomCalorieDietId;
 
-                if (isCustomDiet)
-                    return updatedUser;
+                //if (isCustomDiet)
+                //    return updatedUser;
 
-                if (fieldsThatAffectCalories.Contains(fieldNamePascalCase))
-                {
-                    updatedUser = await _caloriesStandartService.RecalculateCaloriesStandard(updatedUser);
-                }
+                //if (fieldsThatAffectCalories.Contains(fieldNamePascalCase))
+                //{
+                //    updatedUser = await _caloriesStandartService.RecalculateCaloriesStandard(updatedUser);
+                //}
 
                 return updatedUser;
             }

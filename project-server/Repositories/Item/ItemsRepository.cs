@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using project_server.Models;
+using project_server.Models_part;
 using System.Data;
 
 namespace project_server.Repositories.Item
@@ -73,19 +74,37 @@ namespace project_server.Repositories.Item
             var sql = @"
                 SELECT id, name
                 FROM Items
-                WHERE name LIKE '%' + @PartialName + '%'
+                WHERE name LIKE '%' + @PartialName + '%' AND user_id = @UserId
                 ";
-            var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName });
+            var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName, UserId = userId });
             return items;
         }
 
-        public Task<Items?> GetItemByIdAsync(int itemId)
+        public async Task<Items?> GetItemByIdAsync(int itemId)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
 
             var sql = "SELECT * FROM Items WHERE id = @ItemId";
 
-            return db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
+            return await db.QuerySingleOrDefaultAsync<Items>(sql, new { ItemId = itemId });
+        }
+
+        public async Task<ExtendedItemDTO?> GetUserItemByIdAsync(int itemId, int userId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = @"
+                SELECT 
+                    i.*, 
+                    ic.calories AS Calories
+                FROM 
+                    Items i
+                LEFT JOIN 
+                    ItemCalories ic ON i.id = ic.item_id
+                WHERE 
+                    i.id = @ItemId AND i.user_id = @UserId";
+
+            return await db.QuerySingleOrDefaultAsync<ExtendedItemDTO>(sql, new { ItemId = itemId, UserId = userId });
         }
     }
 

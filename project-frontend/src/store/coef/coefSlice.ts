@@ -20,28 +20,28 @@ const initialState: CoefState = {
         { id: 5, name: "Very High", value: 1.9 }
     */],
     loading: false,
-    error: null
-}
+    error: null,
+};
 
-const todoSlice = createSlice({
+const coefSlice = createSlice({
     name: 'coef',
     initialState,
     reducers: {
-        fetchStart: (state) => {
+        fetchCoefStart: state => {
             state.loading = true;
             state.error = null;
         },
-        fetchSuccess: (state, action: PayloadAction<ActivityCoefficient[]>) => {
+        fetchCoefSuccess: (state, action: PayloadAction<ActivityCoefficient[]>) => {
             state.data = action.payload;
             state.loading = false;
             state.error = null;
         },
-        fetchFailure: (state, action: PayloadAction<string>) => {
+        fetchCoefFailure: (state, action: PayloadAction<string>) => {
             state.loading = false;
             state.error = action.payload;
         },
     },
-})
+});
 
-export const { fetchStart, fetchSuccess, fetchFailure } = todoSlice.actions;
-export default todoSlice.reducer;
+export const { fetchCoefStart, fetchCoefSuccess, fetchCoefFailure } = coefSlice.actions;
+export default coefSlice.reducer;

@@ -9,12 +9,12 @@ export interface MealType {
 export interface MealTypeState {
     loading: boolean;
     error: string | null;
-    mealTypes: MealType[] | null;
+    data: MealType[] | null;
 }
 
 //! del test-mealTypes from state after all testing
 const intialState: MealTypeState = {
-    mealTypes: [
+    data: [
         { id: 1, name: 'breakfast' },
         { id: 2, name: 'Lunch' },
         { id: 3, name: 'Dinner' },
@@ -38,7 +38,7 @@ export const mealSlice = createSlice({
 
         fetchMealsSuccess(state, action: PayloadAction<MealType[]>) {
             state.loading = false;
-            state.mealTypes = action.payload;
+            state.data = action.payload;
         },
 
         fetchMealsFailure(state, action: PayloadAction<string>) {
@@ -53,8 +53,8 @@ export const mealSlice = createSlice({
 
         createMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.mealTypes) {
-                state.mealTypes.push(action.payload);
+            if (state.data) {
+                state.data.push(action.payload);
             }
         },
 
@@ -70,12 +70,13 @@ export const mealSlice = createSlice({
 
         updateMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.mealTypes) {
-                state.mealTypes = {
-                    ...state.mealTypes,
-                    ...action.payload,
-                };
-            }
+            if (!state.data) return;
+
+            const { id, name } = action.payload;
+
+            const index = state.data.findIndex(m => m.id === id);
+            if (index === -1) return;
+            state.data[index].name = name;
         },
 
         updateMealFailure(state, action: PayloadAction<string>) {
@@ -88,8 +89,8 @@ export const mealSlice = createSlice({
         },
         deleteMealSuccess(state, action: PayloadAction<MealType>) {
             state.loading = false;
-            if (state.mealTypes) {
-                state.mealTypes = state.mealTypes.filter(el => el.id !== action.payload.id);
+            if (state.data) {
+                state.data = state.data.filter(el => el.id !== action.payload.id);
             }
         },
         deleteMealFailure(state, action: PayloadAction<string>) {

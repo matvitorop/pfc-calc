@@ -19,7 +19,7 @@ import {
 } from '../reducers/userSlice';
 import type { User } from '../../models/User';
 import type { Days } from '../../models/Days';
-import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
+import { fetchDays, fetchDaysFailure, fetchDaysSuccess, type FetchDaysArgTypes } from '../reducers/daysSlice';
 import {
     createMeal,
     createMealFailure,
@@ -37,7 +37,6 @@ import {
 } from '../reducers/mealTypeSlice';
 import { fetchCoefEpic } from './coefEpic';
 import { fetchDietsEpic } from './dietEpic';
-/////
 import {
     fetchActiveNotesEpic,
     fetchCompletedNotesEpic,
@@ -46,12 +45,15 @@ import {
     restoreNoteEpic,
     deleteNoteEpic,
 } from './notesEpic';
+import { addItemToSummaryEpic, deleteItemFromSummaryEpic } from './summaryEpic';
+import { fetchSummary, fetchSummaryFailure, fetchSummarySuccess } from '../reducers/summarySlice';
+import type { PayloadAction } from '@reduxjs/toolkit';
+//import toCamelCase from '../../hooks/toCamelCase';
+
 
 interface GetUserResponse {
     getDetails: {
-        success: boolean;
-        message: string;
-        data: User;
+        userDetails: User;
     };
 }
 
@@ -59,7 +61,9 @@ interface ChangeDetailsResponse {
     changeDetails: {
         success: boolean;
         message: string;
-        data: User;
+        data: {
+            userDetails: User;
+        };
     };
 }
 
@@ -70,13 +74,38 @@ interface LogoutResponse {
     };
 }
 
+interface GetDaysResponse {
+    getDays: Days[];
+}
+
 interface GetSummaryResponse {
     getSummary: Days[];
 }
 
+interface GetMealTypesResponse {
+    getUserMealTypes: MealType[];
+}
+
+interface AddMealTypesResponse {
+    addMealType: {
+        data: {
+            items: MealType[];
+        };
+        success: boolean;
+        message: string | null;
+    };
+}
+
+interface UpdateMealTypesResponse {
+    changeMealTypeName: MealType;
+}
+
+interface DeleteMealTypeResponse {
+    deleteMealTypeById: MealType;
+}
 const GET_SUMMARY = `
-  query {
-    getSummary {
+  query($day:DateTime!) {
+    getSummary(day:$day) {
       id
       userId
       day
@@ -94,38 +123,62 @@ const GET_SUMMARY = `
   }
 `;
 
+const GET_DAYS = `
+    query($day: DateTime, $limit: Int, $daysBack: Int){
+        getDays(day: $day, limit: $limit, daysBack: $daysBack){
+            id
+            userId
+            day
+            mealTypeId
+            itemId
+            measurement
+            name
+            proteins
+            fats
+            carbs
+            description
+            apiId
+            calories
+        }
+    }`;
+
 const GET_USER = `
   query {
   getDetails {
-    success
-    message
-    data {
+    userDetails {
       id
+      username
       age
       weight
       height
       activityCoefId
       dietId
       caloriesStandard
+      email
+      visitsStreak
     }
   }
 }
 `;
 
 const UPDATE_USER = `
-  mutation ChangeDetails($fieldName: String!,$value:String!) {
-  changeDetails(details:{fieldName: $fieldName,value: $value}) 
-  {
+  mutation ChangeDetails($details: details!) { 
+  changeDetails(details: $details) {
     success
     message
     data {
-      id
-      age
-      weight
-      height
-      activityCoefId
-      dietId
-      caloriesStandard
+      userDetails {
+       	id
+        username
+        email
+        age
+        weight
+        height
+        activityCoefId
+        dietId
+        caloriesStandard
+        visitsStreak
+      }
     }
   }
 }
@@ -143,12 +196,8 @@ const LOGOUT_USER = `
 const GET_MEAL_TYPES = `
  query {
   getUserMealTypes {
-    success
-    message
-    data {
-      id
-      name
-    }
+    id
+    name
   }
 }
 `;
@@ -156,8 +205,14 @@ const CREATE_MEAL = `
  mutation AddMealType($name:String!) {
   addMealType(name: $name) 
   {
-    id
-    name
+    success
+    message
+    data{
+      items{
+        id
+        name
+      }
+    }
   }
 }
 `;
@@ -186,13 +241,15 @@ type UpdateUserAction = ReturnType<typeof updateUserDetails>;
 type UpdateUserMeal = ReturnType<typeof updateMeal>;
 type createUserMeal = ReturnType<typeof createMeal>;
 type deleteUserMeal = ReturnType<typeof deleteMeal>;
+type getDays = ReturnType<typeof fetchDays>;
 type MyEpic = Epic<Action, Action, RootState, AppDispatch>;
 
 export const fetchSummaryEpic: MyEpic = action$ =>
     action$.pipe(
         ofType(fetchSummary.type),
-        switchMap(() =>
-            from(graphqlFetch<GetSummaryResponse>(GET_SUMMARY)).pipe(
+        switchMap(() => {
+            const now = new Date().toISOString();
+            return from(graphqlFetch<GetSummaryResponse>(GET_SUMMARY, { day: now }, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return fetchSummaryFailure(res.errors[0].message);
@@ -205,27 +262,62 @@ export const fetchSummaryEpic: MyEpic = action$ =>
 
                     return fetchSummarySuccess(result);
                 }),
-                catchError(err => of(fetchSummaryFailure(err.message || 'Unexpected error while fetching summary'))),
-            ),
-        ),
+                catchError(err => of(fetchSummaryFailure(err.message || 'Unexpected error while fetching days'))),
+            );
+        }),
+    );
+
+export const fetchDaysEpic: MyEpic = action$ =>
+    action$.pipe(
+        ofType(fetchDays.type),
+        switchMap((action: PayloadAction<FetchDaysArgTypes>) => {
+            const day = action.payload?.day;
+            const limit = action.payload?.limit;
+            const daysBack = action.payload?.daysBack;
+
+            const variables = {
+                day: day ? new Date(day).toISOString() : null,
+                limit: limit ?? null, // ?? null краще ніж || null для чисел (щоб не втратити 0)
+                daysBack: daysBack ?? null,
+            };
+
+            return from(graphqlFetch<GetDaysResponse>(GET_DAYS, variables, true)).pipe(
+                map(res => {
+                    if (res.errors && res.errors.length > 0) {
+                        return fetchDaysFailure(res.errors[0].message);
+                    }
+                    const result = res.data?.getDays;
+
+                    /*  if (result === undefined || result === null) {
+                        return fetchDaysSuccess([]);
+                    } */
+                    if (!result) {
+                        return fetchDaysFailure('No data received');
+                    }
+
+                    return fetchDaysSuccess(result);
+                }),
+                catchError(err => of(fetchDaysFailure(err.message || 'Unexpected error while fetching days'))),
+            );
+        }),
     );
 
 export const fetchUser: MyEpic = action$ =>
     action$.pipe(
         ofType(fetchUserDetails.type),
         switchMap(() =>
-            from(graphqlFetch<GetUserResponse>(GET_USER)).pipe(
+            from(graphqlFetch<GetUserResponse>(GET_USER, {}, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return fetchUserDetailsFailure(res.errors[0].message);
                     }
 
                     const result = res.data?.getDetails;
-                    if (!result?.success) {
-                        return fetchUserDetailsFailure(result?.message || 'Failed to load user');
+                    if (!result?.userDetails) {
+                        return fetchUserDetailsFailure('Failed to load user');
                     }
 
-                    return fetchUserDetailsSuccess(result.data);
+                    return fetchUserDetailsSuccess(result.userDetails);
                 }),
                 catchError(err => of(fetchUserDetailsFailure(err.message || 'Unexpected error while fetching user'))),
             ),
@@ -237,8 +329,7 @@ export const updateUser: MyEpic = action$ =>
         ofType(updateUserDetails.type),
         switchMap((action: UpdateUserAction) => {
             const { fieldName, value } = action.payload;
-
-            return from(graphqlFetch<ChangeDetailsResponse>(UPDATE_USER, { fieldName, value })).pipe(
+            return from(graphqlFetch<ChangeDetailsResponse>(UPDATE_USER, { details: { fieldName, value } }, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return updateUserDetailsFailure(res.errors[0].message);
@@ -249,7 +340,7 @@ export const updateUser: MyEpic = action$ =>
                         return updateUserDetailsFailure(result?.message || 'Failed to update');
                     }
 
-                    return updateUserDetailsSuccess(result.data);
+                    return updateUserDetailsSuccess(result.data.userDetails);
                 }),
                 catchError(err => of(updateUserDetailsFailure(err.message || 'Unexpected error while updating'))),
             );
@@ -260,7 +351,7 @@ export const logout: MyEpic = action$ =>
     action$.pipe(
         ofType(logoutUser.type),
         switchMap(() =>
-            from(graphqlFetch<LogoutResponse>(LOGOUT_USER)).pipe(
+            from(graphqlFetch<LogoutResponse>(LOGOUT_USER, {}, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return logoutUserFailure(res.errors[0].message);
@@ -282,13 +373,13 @@ export const fetchMealsEpic: MyEpic = action$ =>
     action$.pipe(
         ofType(fetchMeals.type),
         switchMap(() =>
-            from(graphqlFetch<MealType[]>(GET_MEAL_TYPES)).pipe(
+            from(graphqlFetch<GetMealTypesResponse>(GET_MEAL_TYPES, {}, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return fetchMealsFailure(res.errors[0].message);
                     }
 
-                    const result = res?.data;
+                    const result = res?.data?.getUserMealTypes;
                     if (!result) {
                         return fetchMealsFailure('No data received');
                     }
@@ -305,19 +396,17 @@ export const createMealEpic: MyEpic = action$ =>
         ofType(createMeal.type),
         switchMap((action: createUserMeal) => {
             const name = action.payload;
-
-            return from(graphqlFetch<MealType>(CREATE_MEAL, { name })).pipe(
+            return from(graphqlFetch<AddMealTypesResponse>(CREATE_MEAL, { name }, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return createMealFailure(res.errors[0].message);
                     }
-
-                    const result = res.data;
+                    const result = res.data?.addMealType.data.items;
                     if (!result) {
                         return createMealFailure('Failed to update');
                     }
 
-                    return createMealSuccess(result);
+                    return createMealSuccess(result[0]);
                 }),
                 catchError(err => of(createMealFailure(err.message || 'Unexpected error while creating meal'))),
             );
@@ -329,14 +418,14 @@ export const deleteMealEpic: MyEpic = action$ =>
         ofType(deleteMeal.type),
         switchMap((action: deleteUserMeal) => {
             const id = action.payload;
-
-            return from(graphqlFetch<MealType>(DELETE_MEAL, { id })).pipe(
+            console.log(id);
+            return from(graphqlFetch<DeleteMealTypeResponse>(DELETE_MEAL, { id }, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return deleteMealFailure(res.errors[0].message);
                     }
 
-                    const result = res.data;
+                    const result = res.data?.deleteMealTypeById;
                     if (!result) {
                         return deleteMealFailure('Failed to update');
                     }
@@ -347,20 +436,22 @@ export const deleteMealEpic: MyEpic = action$ =>
             );
         }),
     );
-// think about return type of updating meal on back
+// think about return type of updating meal
+
+//^ continue check it to make real working
 export const updateMealEpic: MyEpic = action$ =>
     action$.pipe(
         ofType(updateMeal.type),
         switchMap((action: UpdateUserMeal) => {
             const { id, name } = action.payload;
 
-            return from(graphqlFetch<MealType>(UPDATE_MEAL_NAME, { id, name })).pipe(
+            return from(graphqlFetch<UpdateMealTypesResponse>(UPDATE_MEAL_NAME, { id, name }, true)).pipe(
                 map(res => {
                     if (res.errors) {
                         return updateMealFailure(res.errors[0].message);
                     }
 
-                    const result = res.data;
+                    const result = res.data?.changeMealTypeName;
                     if (!result) {
                         return updateMealFailure('Failed to update');
                     }
@@ -379,13 +470,18 @@ export const rootEpic = combineEpics(
     updateUser,
     logout,
     fetchSummaryEpic,
+    fetchDaysEpic,
     fetchMealsEpic,
     updateMealEpic,
     createMealEpic,
     deleteMealEpic,
+    addItemToSummaryEpic,
+    deleteItemFromSummaryEpic,
+    
     fetchActiveNotesEpic,
     fetchCompletedNotesEpic,
     addNoteEpic,
     completeNoteEpic,
     restoreNoteEpic,
-    deleteNoteEpic);
+    deleteNoteEpic,
+);

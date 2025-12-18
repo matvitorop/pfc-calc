@@ -12,11 +12,10 @@ export const graphqlFetch = async <T>(
 ): Promise<fetchResponse<T>> => {
     const response = await fetch(GRAPHQL_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'GraphQL-Require-Preflight': '' },
         credentials: allowCredentials ? 'include' : 'same-origin',
         body: JSON.stringify({ query, variables }),
     });
-
     const text = await response.text();
 
     try {

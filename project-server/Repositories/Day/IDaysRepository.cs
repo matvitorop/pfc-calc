@@ -8,6 +8,7 @@ namespace project_server.Repositories.Day
         Task<Days?> GetDayAsync(int userId, DateTime day);
         Task<Days?> ChangeMeasurementDayAsync(int id, double measurement);
         Task<Days?> DeleteDayAsync(int id);
-        Task<IEnumerable<Days?>> GetDaysAsync(int userId, DateTime? day = null, int? limit = null);
+        Task<IEnumerable<Days?>> GetDaysAsync(int userId, DateTime? day = null, int? limit = null, int ? daysBack = null);
+        Task<IEnumerable<Days?>> GetUniqueDaysAsync(int userId, int limit);
     }
 }
