@@ -123,6 +123,11 @@ const SearchItem: React.FC<SearchItemProps> = ({ mealTypes, defaultMealTypeId, d
         }
     };
 
+    const handleHideItem = (itemId: number) => {
+        setResults(prev => prev.filter(i => i.id !== itemId));
+        setSelectedItem(null);
+    };
+
     return (
         <div className="search-card">
             <div className="search-input-row">
@@ -173,7 +178,7 @@ const SearchItem: React.FC<SearchItemProps> = ({ mealTypes, defaultMealTypeId, d
                         if (onClose) onClose();
                     }}
                     onAdd={() => { }}
-                    onDelete={() => { }}
+                    onDelete={handleHideItem}
                 />
             )}
 

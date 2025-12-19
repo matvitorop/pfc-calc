@@ -11,6 +11,6 @@ namespace project_server.Repositories.Item
         Task<IEnumerable<ItemShortDTO>> SearchItemsByNameAsync(string partialName, int userId);
         Task<Items?> GetItemByIdAsync(int itemIds);
         Task<ExtendedItemDTO?> GetUserItemByIdAsync(int itemId, int userId);
-
+        Task<bool> HideItemAsync(int itemId, int userId);
     }
 }

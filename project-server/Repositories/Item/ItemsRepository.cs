@@ -72,9 +72,14 @@ namespace project_server.Repositories.Item
             using IDbConnection db = new SqlConnection(_connectionString);
 
             var sql = @"
-                SELECT id, name
-                FROM Items
-                WHERE name LIKE '%' + @PartialName + '%' AND user_id = @UserId
+                SELECT i.id, i.name
+                FROM Items i
+                LEFT JOIN HiddenItems h
+                    ON h.item_id = i.id AND h.user_id = @UserId
+                WHERE 
+                    i.name LIKE '%' + @PartialName + '%'
+                    AND i.user_id = @UserId
+                    AND (h.isHidden IS NULL OR h.isHidden = 0)
                 ";
             var items = await db.QueryAsync<ItemShortDTO>(sql, new { PartialName = partialName, UserId = userId });
             return items;
@@ -105,6 +110,25 @@ namespace project_server.Repositories.Item
                     i.id = @ItemId AND i.user_id = @UserId";
 
             return await db.QuerySingleOrDefaultAsync<ExtendedItemDTO>(sql, new { ItemId = itemId, UserId = userId });
+        }
+
+        public async Task<bool> HideItemAsync(int itemId, int userId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+
+            var sql = @"
+                MERGE HiddenItems AS target
+                USING (SELECT @ItemId AS item_id, @UserId AS user_id) AS source
+                ON target.item_id = source.item_id AND target.user_id = source.user_id
+                WHEN MATCHED THEN
+                    UPDATE SET isHidden = 1
+                WHEN NOT MATCHED THEN
+                    INSERT (item_id, user_id, isHidden)
+                    VALUES (@ItemId, @UserId, 1);
+                ";
+
+            var affected = await db.ExecuteAsync(sql, new { ItemId = itemId, UserId = userId });
+            return affected > 0;
         }
     }
 

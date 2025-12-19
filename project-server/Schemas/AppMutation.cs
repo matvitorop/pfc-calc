@@ -36,6 +36,9 @@ namespace project_server.Schemas
             ))
             .ResolveAsync(async context =>
                 {
+                    var start = DateTime.UtcNow;
+                    const int MIN_DELAY_MS = 1500;
+
                     var email = context.GetArgument<string>("email");
                     var password = context.GetArgument<string>("password");
 
@@ -43,6 +46,7 @@ namespace project_server.Schemas
 
                     if (user == null)
                     {
+                        await LoginDelayHelper.EnsureMinDelay(start, MIN_DELAY_MS);
                         return ApiResponse<AuthResponse>.Fail("Invalid Credentials");
                     }
 
@@ -59,6 +63,7 @@ namespace project_server.Schemas
                         });
                     }
 
+                    await LoginDelayHelper.EnsureMinDelay(start, MIN_DELAY_MS);
                     return ApiResponse<AuthResponse>.Ok(new AuthResponse
                     {
                         Token = jwt
@@ -69,6 +74,8 @@ namespace project_server.Schemas
             .Argument<RegisterInputType>("user", "registering user data")
             .ResolveAsync(async context =>
             {
+                var start = DateTime.UtcNow;
+                const int MIN_DELAY_MS = 1500;
                 try
                 {
                     var user = context.GetArgument<Users>("user");
@@ -81,7 +88,7 @@ namespace project_server.Schemas
 
                     if (registeredUser != null)
                     {
-                        var jwt = _jwtHelper.GenerateToken(user);
+                        var jwt = _jwtHelper.GenerateToken(registeredUser);
 
 
                         if (context.UserContext is GraphQLUserContext userContext && userContext.HttpContext != null)
@@ -95,6 +102,7 @@ namespace project_server.Schemas
                             });
                         }
 
+                        await LoginDelayHelper.EnsureMinDelay(start, MIN_DELAY_MS);
                         return ApiResponse<AuthResponse>.Ok(new AuthResponse
                         {
                             Token = jwt
@@ -103,11 +111,13 @@ namespace project_server.Schemas
                     }
                     else
                     {
+                        await LoginDelayHelper.EnsureMinDelay(start, MIN_DELAY_MS);
                         return ApiResponse<AuthResponse>.Fail("Registration failed");
                     }
                 }
                 catch (Exception ex)
                 {
+                    await LoginDelayHelper.EnsureMinDelay(start, MIN_DELAY_MS);
                     return ApiResponse<AuthResponse>.Fail($"Registration failed: {ex.Message}");
                 }
             });
@@ -827,8 +837,24 @@ namespace project_server.Schemas
                     Message = "Помилка: " + ex.Message
                 };
             }
-        });    
-    
+        });
+
+            Field<ApiResponseGraphType<NoContentGraphType, NoContent>>("hideItem")
+            .Authorize()
+            .Arguments(new QueryArguments(
+                new QueryArgument<NonNullGraphType<IntGraphType>> { Name = "itemId" }
+            ))
+            .ResolveAsync(async context =>
+            {
+                var itemId = context.GetArgument<int>("itemId");
+                var userId = context.GetUserId(_jwtHelper);
+
+                var result = await _itemsRepository.HideItemAsync(itemId, userId.Value);
+
+                return result
+                    ? ApiResponse<NoContent>.Ok(new NoContent(), "Item hidden successfully")
+                    : ApiResponse<NoContent>.Fail("Failed to hide item");
+            });
         }
 
 
