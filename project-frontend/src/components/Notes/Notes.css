@@ -337,7 +337,7 @@
 /* Note Item */
 .note-item {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.75rem;
     padding: 1rem;
     background-color: #ffffff;
@@ -375,6 +375,28 @@
 }
 
 /* Note Checkbox */
+
+.complete-btn{
+    width: 25px;
+    height: 25px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+}
+
+.complete-btn:hover{
+    background-color: #10b981;
+}
+.checkbox{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
 .note-checkbox {
     background: none;
     border: none;
@@ -387,7 +409,18 @@
     transition: all 0.2s ease;
     flex-shrink: 0;
 }
+.notes-page.dark-theme .checkbox {
+    color: #10b981;
+    background: transparent;
+}
 
+.notes-page.dark-theme .complete-btn  {
+    border-color: #d1d5db;
+}
+
+.notes-page.dark-theme .complete-btn:hover{
+    background-color: #6b7280;
+}
 .note-checkbox:hover {
     color: #10b981;
 }
@@ -402,10 +435,18 @@
 
 /* Note Content */
 .note-content {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-width: 0;
 }
 
+ .completed-date{
+    color: #10b981;
+}
+.notes-page.dark-theme .empty-state{
+    color: #f3f4f6;
+}
 .note-title {
     font-size: 1rem;
     font-weight: 500;
@@ -597,6 +638,21 @@
     color: #f9fafb;
 }
 
+
+.delete-btn
+{
+    background: transparent;
+}
+.delete-btn:hover{
+    color: #ef4444;
+}
+.notes-page.dark-theme .delete-btn
+{
+    color: #fff;
+}
+
+
+
 /* ============================================
    RESPONSIVE - як у main.css
    ============================================ */
@@ -627,3 +683,5 @@
         max-height: 32rem;
     }
 }
+
+

@@ -15,6 +15,8 @@ import AddNoteForm from './AddNoteForm';
 import NotifNote from "./NotifNote";
 import './Notes.css'
 import { useNavigate } from 'react-router-dom';
+import LoadingPage from '../LoadingPage';
+import ErrorPage from '../ErrorPage';
 
 const NotesPage: React.FC = () => {
     const navigate = useNavigate();
@@ -52,9 +54,11 @@ const NotesPage: React.FC = () => {
         dispatch(fetchCompletedNotesRequest());
     }, [dispatch]);
     if (loading) {
-        return <div className="loading">Loading notes...</div>;
+        return <LoadingPage />;
     }
-
+    if(error){
+         return <ErrorPage />;
+    }
     return (
         <div className={`notes-page ${isDarkTheme ? 'dark-theme' : ''}`}>
             <div className="notes-container">

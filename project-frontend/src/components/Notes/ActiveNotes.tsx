@@ -4,6 +4,7 @@ import {
     completeNoteRequestStarted,
     deleteNoteRequest,
 } from '../../store/reducers/notesSlice';
+import { Trash2 } from 'lucide-react';
 interface ActiveNotesProps {
     showNotif: (message: string, type: "success" | "error") => void;
 }
@@ -100,7 +101,7 @@ const ActiveNotes: React.FC<ActiveNotesProps> = ({showNotif}) => {
                             onClick={() => handleDelete(note.id)}
                             title="Delete note"
                         >
-                            🗑️
+                            <Trash2 size={22} />
                         </button>
                     </div>
                 ))}
