@@ -111,15 +111,15 @@ const MainPage: FC = () => {
                 current: parseFloat(totals.fats.toFixed(2)),
                 goal:
                     userInfo.user.data?.caloriesStandard > 0
-                        ? parseFloat(((userInfo.user.data?.caloriesStandard * userDiet[0].fatsPerc) / 100 / 4).toFixed(2))
-                        : parseFloat(((DefaultValues.CaloriesStandard * userDiet[0].fatsPerc) / 100 / 4).toFixed(2)),
+                        ? parseFloat(((userInfo.user.data?.caloriesStandard * userDiet[0].fatsPerc) / 100 / 9).toFixed(2))
+                        : parseFloat(((DefaultValues.CaloriesStandard * userDiet[0].fatsPerc) / 100 / 9).toFixed(2)),
             },
             carbs: {
                 current: parseFloat(totals.carbs.toFixed(2)),
                 goal:
                     userInfo.user.data?.caloriesStandard > 0
-                        ? parseFloat(((userInfo.user.data?.caloriesStandard * userDiet[0].carbsPerc) / 100 / 9).toFixed(2))
-                        : parseFloat(((DefaultValues.CaloriesStandard * userDiet[0].carbsPerc) / 100 / 9).toFixed(2)),
+                        ? parseFloat(((userInfo.user.data?.caloriesStandard * userDiet[0].carbsPerc) / 100 / 4).toFixed(2))
+                        : parseFloat(((DefaultValues.CaloriesStandard * userDiet[0].carbsPerc) / 100 / 4).toFixed(2)),
             },
         }),
         [totals, userInfo.user.data?.caloriesStandard, userDiet[0]],
