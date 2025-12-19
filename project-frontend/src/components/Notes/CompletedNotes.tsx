@@ -4,6 +4,7 @@ import {
     restoreNoteRequest,
     deleteNoteRequest,
 } from '../../store/reducers/notesSlice';
+import { Check, Trash2 } from 'lucide-react';
 interface CompletedNotesProps {
     showNotif: (message: string, type: "success" | "error") => void;
 }
@@ -68,7 +69,7 @@ const CompletedNotes: React.FC<CompletedNotesProps> = ({showNotif}) => {
                             title="Restore note"
                         >
                             <div className="checkbox checked">
-                                <span className="checkmark">✓</span>
+                                <Check size={22} />
                             </div>
                         </button>
                         
@@ -89,7 +90,7 @@ const CompletedNotes: React.FC<CompletedNotesProps> = ({showNotif}) => {
                             onClick={() => handleDelete(note.id)}
                             title="Delete note"
                         >
-                            🗑️
+                            <Trash2 size={22} />
                         </button>
                     </div>
                 ))}
