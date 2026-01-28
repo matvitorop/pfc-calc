@@ -249,16 +249,7 @@ const MainPage: FC = () => {
     }
 
     if (isLoading || !daysInfo.days.data || !mealsInfo.meals.mealTypes || !userInfo.user.data) {
-        return (
-            <LoadingPage />
-            /* <div className={`main-page ${darkTheme ? 'dark-theme' : ''}`}>
-                <div className="main-container">
-                    <div className="main-page__loading">
-                        <span>loading ...</span>
-                    </div>
-                </div>
-            </div> */
-        );
+        return <LoadingPage />;
     }
 
     return (
@@ -268,11 +259,13 @@ const MainPage: FC = () => {
                 <div className="main-header">
                     <div className="header-left">
                         <h1 className="header-title">Today</h1>
-                        <button className="calendar-btn"
+                        <button
+                            className="calendar-btn"
                             aria-label="Open calendar"
                             onClick={() => {
-                            navigateToNotes();
-                        }}>
+                                navigateToNotes();
+                            }}
+                        >
                             <Calendar className="calendar-icon" size={20} />
                         </button>
                     </div>

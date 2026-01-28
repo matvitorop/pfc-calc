@@ -2,7 +2,7 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0, 0, 0, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -17,7 +17,7 @@
     padding: 1.5rem;
     border-radius: 1.5rem;
     position: relative;
-    box-shadow: rgba(0,0,0,0.2) 0px 4px 16px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 16px;
     transition: all 0.3s ease;
 }
 
@@ -49,6 +49,10 @@
     font-size: 14px;
     opacity: 0.75;
 }
+.error-message {
+    color: #f87171;
+    margin-bottom: 0;
+}
 
 /* ACTION BUTTONS */
 .modal-buttons {
@@ -67,9 +71,9 @@
     font-size: 1rem;
 }
 
-    .btn-add:hover {
-        background-color: #059669;
-    }
+.btn-add:hover {
+    background-color: #059669;
+}
 
 .btn-delete {
     background: #ef4444;
@@ -90,23 +94,23 @@
     border: none;
     background: none;
     cursor: pointer;
-    color: #aaa;
+    color: #2f2f2f;
     line-height: 1;
     padding: 0;
     transition: color 0.2s ease;
 }
 
-    .modal-close:hover {
-        color: #fff;
-    }
+.modal-close:hover {
+    color: #ff0000;
+}
 
 .dark-theme .modal-close {
     color: #999;
 }
 
-    .dark-theme .modal-close:hover {
-        color: #fff;
-    }
+.dark-theme .modal-close:hover {
+    color: #fff;
+}
 
 /* EXPANDED SECTION */
 .expanded-section {
@@ -144,14 +148,13 @@
     transition: background 0.2s ease;
 }
 
-    .btn-confirm:hover {
-        background-color: #059669;
-    }
+.btn-confirm:hover {
+    background-color: #059669;
+}
 
-    .btn-confirm:active {
-        transform: scale(0.96);
-    }
-
+.btn-confirm:active {
+    transform: scale(0.96);
+}
 
 /* MEAL SELECT */
 .meal-select {

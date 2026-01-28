@@ -48,7 +48,7 @@ const AddMealTypeForm: FC<AddMealTypeProps> = ({ initialValue, onClose, onSave }
             />
             {errors.value && <span className="error-message">{errors.value.message}</span>}
             <button type="submit" className="confirm-btn">
-                Додати
+                Add
             </button>
             <button
                 type="button"
@@ -58,7 +58,7 @@ const AddMealTypeForm: FC<AddMealTypeProps> = ({ initialValue, onClose, onSave }
                 }}
                 className="cancel-add-btn"
             >
-                Скасувати
+                Cancel
             </button>
         </form>
     );

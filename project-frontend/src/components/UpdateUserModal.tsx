@@ -15,7 +15,6 @@ export interface FormData {
     value: string;
 }
 
-//^ to complete logic for coef and diet_id i need logic created by Matvii to fetch coef and diets
 const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialValue, onClose, onSave }) => {
     const darkTheme = useAppSelector(state => state.themeReducer.isDarkTheme);
     const {
@@ -118,7 +117,7 @@ const UpdateUserModal: FC<UpdateUserModalProps> = ({ fieldName, label, initialVa
                                               <option key={el.id} value={el.id}>
                                                   <span>{el.name}</span>
                                                   {' - coef '}
-                                                  <span>{ el.value.toFixed(2)}</span>
+                                                  <span>{el.value.toFixed(2)}</span>
                                               </option>
                                           ))
                                         : diets.data.map(el => (

@@ -154,13 +154,30 @@
 .ci-input {
     width: 100%;
     padding: 12px;
-    font-size: 15px;
+    font-size: 14px;
     border-radius: 12px;
     border: 1px solid #d4d4d4;
     background: #f9fafb;
     margin-bottom: 15px;
 }
 
+textarea.ci-input {
+    min-width: 100%;
+    resize: vertical;
+}
+
+.ci-field-name {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+    .ci-input {
+        margin-bottom: 0;
+    }
+}
+.ci-error-container {
+    min-height: 20px;
+    display: flex;
+}
 .ci-fields-row {
     display: flex;
     flex-direction: column;
@@ -174,7 +191,7 @@
 }
 
 .ci-field label {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     color: #555;
     margin-bottom: 4px;
@@ -185,7 +202,7 @@
     border-radius: 10px;
     border: 1px solid #d4d4d4;
     background: #f9fafb;
-    font-size: 14px;
+    font-size: 16px;
     text-align: center;
 }
 
@@ -195,8 +212,21 @@
     color: white;
     padding: 14px;
     border-radius: 12px;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 600;
     border: none;
     cursor: pointer;
+}
+/* CREATE ITEM MODAL(Dark theme) */
+
+.dark-theme {
+    .ci-field label {
+        color: #ffffff;
+    }
+    .ci-field input,
+    .ci-input {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: white;
+    }
 }

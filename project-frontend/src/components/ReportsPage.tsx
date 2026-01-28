@@ -201,7 +201,7 @@ const ReportsPage = () => {
     // data for chart
     const chartLabels = processedData.dates.map(formatDate);
     const chartCalories = processedData.calories;
-
+    const maxCaloriesValue = Math.max(...processedData.calories);
     const chartData = {
         labels: chartLabels,
         datasets: [
@@ -256,6 +256,7 @@ const ReportsPage = () => {
             },
             y: {
                 beginAtZero: true,
+                max: maxCaloriesValue ? maxCaloriesValue * 1.5 : goal * 1.5,
                 ticks: {
                     color: darkTheme ? '#d1d5db' : '#6b7280',
                     font: {

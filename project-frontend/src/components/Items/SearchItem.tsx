@@ -167,22 +167,22 @@ const SearchItem: React.FC<SearchItemProps> = ({ mealTypes, defaultMealTypeId, d
             )}
 
             {modalLoading && <div className="search-loading">Loading item...</div>}
-            { /*QUICK MODAL CHENGES*/ }
+            {/*QUICK MODAL CHENGES*/}
             {selectedItem && (
                 <ItemDetailsModal
                     item={selectedItem}
                     mealTypes={mealTypes}
-                    defaultMealTypeId={defaultMealTypeId} 
+                    defaultMealTypeId={defaultMealTypeId}
                     onClose={() => {
                         setSelectedItem(null);
                         if (onClose) onClose();
                     }}
-                    onAdd={() => { }}
+                    onAdd={() => {}}
                     onDelete={handleHideItem}
                 />
             )}
 
-            {showCreateModal && <CreateItemModal onClose={() => setShowCreateModal(false)} />}
+            {showCreateModal && <CreateItemModal initialValue="" onClose={() => setShowCreateModal(false)} />}
         </div>
     );
 };
