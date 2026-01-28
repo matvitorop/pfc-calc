@@ -91,6 +91,10 @@ namespace project_server.Schemas
             {
                 var query = context.GetArgument<string>("query");
                 var userId = context.GetUserId(_jwtHelper);
+                if (!userId.HasValue)
+                {
+                    throw new ExecutionError("Access denied");
+                }
 
                 return await _itemsRepository.SearchItemsByNameAsync(query, userId.Value);
             });
